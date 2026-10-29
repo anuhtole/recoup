@@ -22,6 +22,12 @@ def test_ignores_refusals_and_offers() -> None:
     assert _extract("Refer a team and you'll receive a $200 account credit.") == []
 
 
+def test_ignores_denials_and_conditional_refunds() -> None:
+    assert _extract("Your refund request of $120.00 has been denied.") == []
+    assert _extract("The $120.00 charge will not be refunded.") == []
+    assert _extract("If approved, a refund of $50.00 will be issued.") == []
+
+
 def test_finds_cancellations() -> None:
     [promise] = _extract("Your Loom Business subscription has been cancelled.")
 

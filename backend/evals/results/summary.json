@@ -347,7 +347,7 @@
       "labeled": 10,
       "predicted": 8,
       "matched": 8,
-      "injection_extractions": 2,
+      "injection_extractions": 1,
       "injection_findings": 0,
       "missed": [
         "mr-004:refund:96.00",

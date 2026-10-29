@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from recoup.config import Settings
-from recoup.db.models import AuditEventRow, ExtractionRow, FindingRow
+from recoup.db.models import AuditEventRow, DraftRow, ExtractionRow, FindingRow
 from recoup.db.session import session_scope
 from recoup.domain.types import FindingCandidate, LeakType, Outcome
 from recoup.domain.workflow import Status
@@ -10,10 +10,11 @@ from recoup.extract.claude import LlmError
 from recoup.extract.schema import EmailExtraction
 from recoup.ingest.loader import ingest_transactions
 from recoup.ingest.sources import Sources
+from recoup.pipeline.inbox import is_from_recipient
 from recoup.pipeline.run import DetectionInput, Detector, run_pipeline
 from recoup.services import Services
 from tests.conftest import load_and_run
-from tests.factories import txn
+from tests.factories import email, txn
 
 DUPLICATE_PAIR = [
     txn("2026-06-03", "FIGMA", 48_000, "FIG-1"),
@@ -128,3 +129,14 @@ def test_model_failure_falls_back_to_the_baseline_and_retries_next_run(
     assert summary.model_errors == summary.emails_read
     assert summary.promises > 0  # the baseline still found the plain-language promises
     assert cached == []  # nothing cached, so the model is tried again next run
+
+
+def test_a_reply_counts_only_from_the_address_we_wrote_to(sources: Sources) -> None:
+    draft = DraftRow(to_addr="billing@figma.com", message_id="<recoup-draft-1@northwind.example>")
+    body = "We are unable to refund this charge."
+
+    vendor = email(body, sender="support@figma.com", in_reply_to=draft.message_id)
+    forged = email(body, sender="attacker@evil.example", in_reply_to=draft.message_id)
+
+    assert is_from_recipient(vendor, draft, sources.vendors)
+    assert not is_from_recipient(forged, draft, sources.vendors)

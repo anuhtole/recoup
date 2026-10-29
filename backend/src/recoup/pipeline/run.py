@@ -102,6 +102,8 @@ def _display_merchant(candidate: FindingCandidate, sources: Sources) -> str:
 
 def _snapshot(candidate: FindingCandidate, merchant: str) -> dict[str, Any]:
     return {
+        "transaction_ids": list(candidate.transaction_ids),
+        "source_refs": list(candidate.source_refs),
         "outcome": candidate.outcome.value,
         "merchant": merchant,
         "amount_minor": candidate.amount_minor,
@@ -115,6 +117,8 @@ def _snapshot(candidate: FindingCandidate, merchant: str) -> dict[str, Any]:
 
 def _row_snapshot(row: FindingRow) -> dict[str, Any]:
     return {
+        "transaction_ids": list(row.transaction_ids),
+        "source_refs": list(row.source_refs),
         "outcome": row.outcome,
         "merchant": row.merchant,
         "amount_minor": row.amount_minor,
@@ -138,13 +142,7 @@ def upsert_finding(
     snapshot = _snapshot(candidate, merchant)
 
     if row is None:
-        row = FindingRow(
-            key=candidate.key,
-            leak_type=candidate.leak_type.value,
-            transaction_ids=list(candidate.transaction_ids),
-            source_refs=list(candidate.source_refs),
-            **snapshot,
-        )
+        row = FindingRow(key=candidate.key, leak_type=candidate.leak_type.value, **snapshot)
         session.add(row)
         session.flush()
         action = "finding.created"

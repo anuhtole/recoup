@@ -103,6 +103,19 @@ def test_send_requires_an_unsent_draft_and_marks_the_case_sent(
             _draft(session, row, sources)
 
 
+def test_a_draft_cannot_be_sent_once_the_case_is_closed(
+    loaded: sessionmaker[Session], sources: Sources
+) -> None:
+    with session_scope(loaded) as session:
+        row = _case(session, LeakType.DUPLICATE_CHARGE, "Figma")
+        draft = _draft(session, row, sources)
+        dismiss(session, row, "Handled by phone", "user:test", AS_OF)
+
+        with pytest.raises(TransitionError):
+            send_draft(session, draft, outbox=LocalOutbox(), as_of=AS_OF, actor="user:test")
+        assert (row.status, draft.status) == (Status.DISMISSED, "draft")
+
+
 def test_expired_credit_cannot_be_drafted(loaded: sessionmaker[Session], sources: Sources) -> None:
     with session_scope(loaded) as session:
         row = _case(session, LeakType.SLA_CREDIT, "Zoom")
@@ -126,6 +139,16 @@ def test_reply_changes_status_only_when_its_quote_is_grounded(
 
         grounded = invented.model_copy(update={"quote": "We've issued a refund of $480.00."})
         apply_reply(session, row, reply, grounded, "test")
+        assert row.status == Status.VENDOR_AGREED
+
+        late = email("We are unable to refund this charge.", in_reply_to=draft.message_id)
+        declined = ReplyAssessment(
+            decision="declined",
+            amount=None,
+            quote="We are unable to refund this charge.",
+            summary="",
+        )
+        apply_reply(session, row, late, declined, "test")
         assert row.status == Status.VENDOR_AGREED
 
 

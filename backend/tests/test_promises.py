@@ -89,6 +89,18 @@ def test_charges_after_cancellation_are_recoverable() -> None:
     assert finding.transaction_ids == tuple(sorted(c.id for c in charges[1:]))
 
 
+def test_a_new_charge_grows_the_cancellation_case_instead_of_opening_another() -> None:
+    cancel = _promise(day="2026-06-24", kind="cancellation", amount=None, effective="2026-06-24")
+    july = txn("2026-07-20", "UNITED AIRLINES", 15_000, "S-7")
+    august = txn("2026-08-20", "UNITED AIRLINES", 15_000, "S-8")
+
+    [before] = _detect([july], cancel)
+    [after] = _detect([july, august], cancel)
+
+    assert before.key == after.key
+    assert (before.amount_minor, after.amount_minor) == (15_000, 30_000)
+
+
 def test_cancellation_followed_by_no_charges_is_clean() -> None:
     before = txn("2026-06-05", "UNITED AIRLINES", 9_600, "S-6")
     cancel = _promise(day="2026-06-08", kind="cancellation", amount=None, effective="2026-06-08")

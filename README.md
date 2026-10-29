@@ -57,7 +57,10 @@ It is a **fixed workflow, not an agent loop** ([ADR 0001](docs/adr/0001-workflow
 **The model reads; code decides** ([ADR 0005](docs/adr/0005-model-reads-code-decides.md)). A model proposal becomes a promise only if:
 1. the sender's domain is in the vendor directory,
 2. the quote appears verbatim in the email,
-3. the amount parses exactly and appears inside that quote.
+3. the amount parses exactly and equals a number written in that quote,
+4. a cancellation date is used only if the email states it; otherwise the email's own date applies.
+
+A reply to one of our requests counts only if it comes from the address we wrote to, so a forged `In-Reply-To` can't move a case.
 
 Whether money posted is read from the ledger alone. So a crafted email can at most add a case for a person to review. It can never hide a real leak, choose a recipient, or mark anything recovered.
 
@@ -85,11 +88,11 @@ The detection rules are graded like a model. `recoup generate` builds a seeded s
 
 | Extractor | Precision | Recall | Injection promises extracted | Findings from injections | Broken refunds found | Post-cancel charges found |
 |---|---|---|---|---|---|---|
-| Keyword baseline | 1.00 | 0.80 | 2 | 0 | 3/5 | 1/1 |
+| Keyword baseline | 1.00 | 0.80 | 1 | 0 | 3/5 | 1/1 |
 
 **How to read this:**
 - The detector table holds the text-reading step constant (it feeds in the answer key's promises), so it tests only the deterministic logic.
-- The extraction table is where the model earns its place. The keyword baseline misses a refund phrased inside a refusal ("While we can't reverse the full invoice, we've refunded $96.00…") and a refund promised without an amount. It is also fooled by both injection emails, yet produces **0 findings from them**, because the code-level checks hold.
+- The extraction table is where the model earns its place. The keyword baseline misses a refund phrased inside a refusal ("While we can't reverse the full invoice, we've refunded $96.00…") and a refund promised without an amount. It is also fooled by one of the two injection emails, yet produces **0 findings from it**, because the code-level checks hold.
 - `make eval-claude` adds a Claude row on the same emails. It needs `ANTHROPIC_API_KEY` and makes real, paid API calls; that row has not been run yet.
 - **Honesty note:** the synthetic world was written alongside the rules, so perfect detector scores mean the rules do what we intended. Real-world performance is unknown until Recoup runs on real books. The harness exists so that every edge case found becomes a permanent regression test. Detector and injection thresholds run as pytest gates (`evals/test_detector_evals.py`, `tests/test_injection.py`).
 
@@ -98,8 +101,9 @@ The detection rules are graded like a model. `recoup generate` builds a seeded s
 Recoup holds private financial data, reads untrusted email, and can send mail: the "lethal trifecta". Each leg is constrained in code:
 
 - **Untrusted text is data.** Email is fenced as data in the prompt, and the output schema has no actions. The checks above run regardless of what the model says. `tests/test_injection.py` swaps in a fully hijacked extractor and asserts that nothing harmful happens.
-- **No autonomous sends** ([ADR 0006](docs/adr/0006-human-approval-and-ledger-truth.md)). The send endpoint requires `{"confirm": true}`, which the UI sends only from its confirmation dialog. Recipients come from the vendor directory, and the approver goes in the audit trail.
+- **No autonomous sends** ([ADR 0006](docs/adr/0006-human-approval-and-ledger-truth.md)). The send endpoint requires `{"confirm": true}`, which the UI sends only from its confirmation dialog. Recipients come from the vendor directory, and the approver goes in the audit trail. A draft can't be sent once its case is closed, and a draft is claimed before it is sent so two approvals can't both send it.
 - **Ledger truth.** "Recovered" means a matching credit posted. A vendor saying yes is not enough.
+- **Single-user for now.** The API has no login: it is built to run on one person's machine, and the approver name is self-reported. A shared deployment would sit behind SSO and take the approver from the session.
 - **Secrets stay server-side.** The browser talks only to our API. CI runs a secret scan.
 - **Least privilege, planned.** The Gmail connector will use read-only ingest plus send-only drafts behind the same approval gate, and add DKIM/SPF results to sender verification.
 
@@ -123,7 +127,7 @@ Without a key, everything still works on the keyword rules ([ADR 0007](docs/adr/
 - **Idempotent everywhere.** Re-ingesting inserts nothing, and re-running detection creates nothing new. Model output is cached, and each reply is applied exactly once. All of this is tested.
 - **UTC everywhere**, enforced by a column type that restores tzinfo on SQLite.
 - **Migrations are checked.** CI runs `alembic upgrade head && alembic check` against SQLite and Postgres 16, and also fails if the committed dataset or eval tables drift from the code.
-- **136 tests, 97% line coverage**, mypy in strict mode, and ruff.
+- **143 tests, 97% line coverage**, mypy in strict mode, and ruff.
 
 ## Project layout
 

@@ -11,4 +11,4 @@
 
 | Extractor | Precision | Recall | Injection promises extracted | Findings from injections | Broken refunds found | Post-cancel charges found |
 |---|---|---|---|---|---|---|
-| Keyword baseline | 1.00 | 0.80 | 2 | 0 | 3/5 | 1/1 |
+| Keyword baseline | 1.00 | 0.80 | 1 | 0 | 3/5 | 1/1 |

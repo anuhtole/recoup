@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, timedelta
 from typing import Any, Literal
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
 from recoup.db.models import AuditEventRow, DraftRow, FindingRow, TransactionRow
@@ -163,6 +163,17 @@ def send_draft(
     row = session.get(FindingRow, draft.finding_id)
     if row is None:
         raise TransitionError("Case not found")
+    status = Status(row.status)
+    if status not in DRAFTABLE:
+        raise TransitionError(f"Cannot send a request while the case is {status.value}")
+    # Claim the draft before sending so two concurrent approvals cannot both send it.
+    claimed = session.execute(
+        update(DraftRow)
+        .where(DraftRow.id == draft.id, DraftRow.status == "draft")
+        .values(status="sending")
+    )
+    if getattr(claimed, "rowcount", 0) != 1:
+        raise TransitionError("This message was already sent")
     draft.message_id = outbox.send(draft)
     draft.status, draft.sent_by, draft.sent_at = "sent", actor, clock_time(as_of)
     row.status = Status.SENT
@@ -211,7 +222,8 @@ def apply_reply(
         "classifier": classifier,
     }
     new_status = _REPLY_STATUS.get(decision)
-    if new_status is not None and row.status in (Status.SENT, Status.VENDOR_AGREED):
+    # Only a case waiting on this request moves; a late reply never undoes a later state.
+    if new_status is not None and row.status == Status.SENT:
         row.status = new_status
     audit(session, SYSTEM_ACTOR, "vendor.replied", row.id, **payload)
 

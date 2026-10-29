@@ -17,8 +17,11 @@ _COMMITTED = re.compile(
     re.IGNORECASE,
 )
 _NEGATION = re.compile(
-    r"\b(can't|cannot|unable|non-refundable|not eligible|won't be able)\b", re.IGNORECASE
+    r"\b(can't|cannot|unable|non-refundable|not|won't|denied|declined|rejected)\b",
+    re.IGNORECASE,
 )
+# "If approved, a refund will be issued" is not a promise yet.
+_CONDITIONAL = re.compile(r"\b(if|unless|pending|subject to)\b", re.IGNORECASE)
 _CANCELLED = re.compile(
     r"\b(subscription|plan|account)\b.*\b(has been|was) cancel+ed\b", re.IGNORECASE
 )
@@ -42,7 +45,7 @@ def _reference(sentence: str, email: Email) -> str | None:
 def _money_back(sentence: str, email: Email) -> ExtractedPromise | None:
     if not (_MONEY_BACK.search(sentence) and _COMMITTED.search(sentence)):
         return None
-    if _NEGATION.search(sentence):
+    if _NEGATION.search(sentence) or _CONDITIONAL.search(sentence):
         return None
     amount = _AMOUNT.search(sentence)
     is_credit = "credit" in sentence.lower() and "refund" not in sentence.lower()

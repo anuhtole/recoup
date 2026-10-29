@@ -111,6 +111,12 @@ class FindingCandidate(BaseModel):
 
     @property
     def key(self) -> str:
-        """Identity used for idempotency: re-running detection never duplicates a finding."""
-        key = f"{self.leak_type.value}:{'|'.join(self.transaction_ids)}"
+        """Identity used for idempotency: re-running detection never duplicates a finding.
+
+        A cancellation is one case per confirmation email: later charges grow that
+        case instead of opening an overlapping one.
+        """
+        grows = self.leak_type is LeakType.CHARGED_AFTER_CANCELLATION and self.source_refs
+        ids = () if grows else self.transaction_ids
+        key = f"{self.leak_type.value}:{'|'.join(ids)}"
         return f"{key}#{'|'.join(self.source_refs)}" if self.source_refs else key

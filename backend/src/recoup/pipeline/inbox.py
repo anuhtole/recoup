@@ -13,7 +13,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from recoup.db.models import DraftRow, EmailRow, ExtractionRow, FindingRow
-from recoup.domain.sources import Email, Promise
+from recoup.domain.sources import Email, Promise, sender_domain
 from recoup.domain.vendors import VendorDirectory
 from recoup.extract.base import PromiseExtractor, ReplyClassifier
 from recoup.extract.claude import LlmError
@@ -127,6 +127,19 @@ def apply_replies(
             result.replies += 1
 
 
+def is_from_recipient(email: Email, draft: DraftRow, vendors: VendorDirectory) -> bool:
+    """A reply counts only from whoever we wrote to; In-Reply-To alone is forgeable.
+
+    Anything else stays an ordinary email and goes through promise extraction.
+    """
+    if not draft.to_addr:
+        return False
+    if sender_domain(email.from_addr) == sender_domain(draft.to_addr):
+        return True
+    vendor = vendors.for_sender(draft.to_addr)
+    return vendor is not None and vendor.sends_from(email.from_addr)
+
+
 def read_inbox(
     session: Session,
     extractor: PromiseExtractor,
@@ -141,7 +154,11 @@ def read_inbox(
     }
     rows = session.scalars(select(EmailRow).order_by(EmailRow.sent_at, EmailRow.id)).all()
     emails = [row_to_email(r) for r in rows]
-    replies = [(e, sent[e.in_reply_to]) for e in emails if e.in_reply_to in sent]
+    replies = [
+        (e, sent[e.in_reply_to])
+        for e in emails
+        if e.in_reply_to in sent and is_from_recipient(e, sent[e.in_reply_to], vendors)
+    ]
     reply_ids = {e.id for e, _ in replies}
 
     result = InboxResult()

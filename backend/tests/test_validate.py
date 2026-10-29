@@ -1,3 +1,5 @@
+from datetime import date
+
 from recoup.domain.sources import Email, Promise
 from recoup.extract.schema import EmailExtraction, ExtractedPromise
 from recoup.extract.validate import PromiseTiming, Rejection, validate_extraction
@@ -85,3 +87,30 @@ def test_shared_domain_needs_the_exact_support_address() -> None:
     assert from_retail[0].vendor_name == "Amazon"
     assert unknown == []
     assert rejections[0].reason == "unverified_sender"
+
+
+def test_amount_must_be_a_whole_number_in_the_quote_not_a_substring() -> None:
+    quote = "We've refunded $1,250.00 to your card."
+    _, (promises, rejections) = _validate(quote, promised(quote, amount="250.00"))
+
+    assert promises == []
+    assert [r.reason for r in rejections] == ["amount_not_in_quote"]
+
+
+def _cancellation(quote: str, effective: str) -> ExtractedPromise:
+    return promised(quote, kind="cancellation").model_copy(update={"effective_date": effective})
+
+
+def test_cancellation_date_the_email_does_not_state_falls_back_to_the_email_date() -> None:
+    quote = "Your subscription has been cancelled."
+    for invented in ("2099-01-01", "1999-01-01", "not a date"):
+        message, (promises, _) = _validate(quote, _cancellation(quote, invented))
+
+        assert promises[0].effective_on == message.sent_at.date()
+
+
+def test_cancellation_date_written_in_the_email_is_used() -> None:
+    quote = "Your subscription has been cancelled, effective June 30."
+    _, (promises, _) = _validate(quote, _cancellation(quote, "2026-06-30"))
+
+    assert promises[0].effective_on == date(2026, 6, 30)

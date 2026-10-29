@@ -4,8 +4,10 @@ Each check holds even if the model is fully compromised by a crafted email:
 
 1. Verified sender: the email must come from a domain in the vendor directory.
 2. Grounding: the quote must appear verbatim in the email body.
-3. Amount: it must parse exactly as money and appear inside the quote.
+3. Amount: it must parse exactly as money and equal a number written in the quote.
 4. Reference: dropped if it does not appear in the email.
+5. Cancellation date: used only if the email states it and it is near the email's
+   date; otherwise the email's own date is the effective date.
 
 Nothing here can suppress a finding or choose a recipient. Those paths do not
 read model output at all.
@@ -14,6 +16,7 @@ read model output at all.
 import re
 from dataclasses import dataclass
 from datetime import date, timedelta
+from decimal import Decimal, InvalidOperation
 
 from recoup.domain.money import MINOR_UNIT_EXPONENTS, Money
 from recoup.domain.sources import Email, Promise
@@ -22,7 +25,9 @@ from recoup.extract.schema import EmailExtraction, ExtractedPromise
 
 MIN_QUOTE_CHARS = 12
 MAX_PROMISED_DAYS = 120
+MAX_EFFECTIVE_DRIFT_DAYS = 45
 _SPACE = re.compile(r"\s+")
+_NUMBER = re.compile(r"(?<![\d.])\d[\d,]*(?:\.\d+)?")
 
 
 @dataclass(frozen=True, slots=True)
@@ -42,9 +47,17 @@ def _squash(text: str) -> str:
     return _SPACE.sub(" ", text).strip()
 
 
+def _decimal(text: str) -> Decimal | None:
+    try:
+        return Decimal(text.replace(",", ""))
+    except InvalidOperation:
+        return None
+
+
 def _amount_in_quote(amount: str, quote: str) -> bool:
-    digits = amount.replace(",", "")
-    return digits in quote.replace(",", "")
+    """The amount equals a whole number in the quote: "250.00" does not match "$1,250.00"."""
+    wanted = _decimal(amount)
+    return wanted is not None and any(_decimal(n) == wanted for n in _NUMBER.findall(quote))
 
 
 def _parse_amount(item: ExtractedPromise) -> int | None:
@@ -56,15 +69,32 @@ def _parse_amount(item: ExtractedPromise) -> int | None:
     return Money.parse(item.amount, currency).amount_minor
 
 
+def _date_written(day: date, body: str) -> bool:
+    month = day.strftime("%B")
+    forms = (
+        day.isoformat(),
+        f"{month} {day.day}",
+        f"{month[:3]} {day.day}",
+        f"{day.day} {month}",
+        f"{day.month}/{day.day}",
+    )
+    lowered = body.lower()
+    return any(re.search(rf"(?<!\d){re.escape(f.lower())}(?!\d)", lowered) for f in forms)
+
+
 def _effective_on(item: ExtractedPromise, email: Email) -> date | None:
+    """A model-chosen date could hide real charges (too late) or invent them (too early)."""
     if item.kind != "cancellation":
         return None
-    if item.effective_date:
-        try:
-            return date.fromisoformat(item.effective_date)
-        except ValueError:
-            pass
-    return email.sent_at.date()
+    sent = email.sent_at.date()
+    if not item.effective_date:
+        return sent
+    try:
+        claimed = date.fromisoformat(item.effective_date)
+    except ValueError:
+        return sent
+    is_near = abs((claimed - sent).days) <= MAX_EFFECTIVE_DRIFT_DAYS
+    return claimed if is_near and _date_written(claimed, email.body) else sent
 
 
 def _check(item: ExtractedPromise, email: Email) -> str | None:
