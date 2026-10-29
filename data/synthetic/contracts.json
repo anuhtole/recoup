@@ -1,0 +1,91 @@
+[
+  {
+    "claim_window_days": 60,
+    "clause": "\u00a77.2 If Monthly Uptime falls below 99.9%, Customer is eligible for a Service Credit of 10% of that month's fees (30% below 99.0%; 100% below 95.0%). Claims must be submitted within 60 days of the end of the affected month.",
+    "document": "aws-enterprise-agreement-2026.pdf",
+    "plan": "Enterprise Agreement",
+    "sla_target_bp": 9990,
+    "tiers": [
+      {
+        "below_bp": 9990,
+        "credit_pct": 10
+      },
+      {
+        "below_bp": 9900,
+        "credit_pct": 30
+      },
+      {
+        "below_bp": 9500,
+        "credit_pct": 100
+      }
+    ],
+    "vendor_key": "AMAZON WEB SERVICES"
+  },
+  {
+    "claim_window_days": 30,
+    "clause": "Schedule B. Uptime commitment of 99.9% per calendar month. Credits: 10% of the monthly fee below 99.9%, 25% below 99.5%, 50% below 99.0%. Customer must request credits within 30 days after the end of the month.",
+    "document": "slack-business-plus-order-form.pdf",
+    "plan": "Business+",
+    "sla_target_bp": 9990,
+    "tiers": [
+      {
+        "below_bp": 9990,
+        "credit_pct": 10
+      },
+      {
+        "below_bp": 9950,
+        "credit_pct": 25
+      },
+      {
+        "below_bp": 9900,
+        "credit_pct": 50
+      }
+    ],
+    "vendor_key": "SLACK TECHNOLOGIES"
+  },
+  {
+    "claim_window_days": 30,
+    "clause": "Section 4. Monthly availability target 99.9%. Below target: 10% credit; below 99.5%: 25% credit. Requests must be made within 30 days after month end.",
+    "document": "zoom-business-terms.pdf",
+    "plan": "Business",
+    "sla_target_bp": 9990,
+    "tiers": [
+      {
+        "below_bp": 9990,
+        "credit_pct": 10
+      },
+      {
+        "below_bp": 9950,
+        "credit_pct": 25
+      }
+    ],
+    "vendor_key": "ZOOM US"
+  },
+  {
+    "claim_window_days": 30,
+    "clause": "Uptime commitment 99.9% per quarter-month. Below commitment: 10% service credit; below 99.0%: 25%. Claims within 30 days of month end.",
+    "document": "github-enterprise-cloud-sla.pdf",
+    "plan": "Enterprise Cloud",
+    "sla_target_bp": 9990,
+    "tiers": [
+      {
+        "below_bp": 9990,
+        "credit_pct": 10
+      },
+      {
+        "below_bp": 9900,
+        "credit_pct": 25
+      }
+    ],
+    "vendor_key": "GITHUB"
+  },
+  {
+    "claim_window_days": 30,
+    "clause": "The Plus plan carries no uptime commitment or service credits.",
+    "document": "notion-plus-terms.pdf",
+    "plan": "Plus",
+    "sla_target_bp": null,
+    "tiers": [],
+    "vendor_key": "NOTION LABS"
+  }
+]

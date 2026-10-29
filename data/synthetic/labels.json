@@ -1,0 +1,749 @@
+{
+  "as_of": "2026-10-01",
+  "cases": [
+    {
+      "amount_minor": 48000,
+      "case_id": "dup-001",
+      "description": "June Figma invoice billed twice under a variant descriptor.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_822aaa7a89ff215c",
+        "txn_9fe3e0fc7222ed41"
+      ]
+    },
+    {
+      "amount_minor": 43750,
+      "case_id": "dup-002",
+      "description": "Slack payment retried the same day after a timeout.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_9247695dca13ed5d",
+        "txn_a1f9e5729d5f4420"
+      ]
+    },
+    {
+      "amount_minor": 385705,
+      "case_id": "dup-003",
+      "description": "August AWS invoice charged twice two days apart.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_476aaa6352d1acee",
+        "txn_ec85a86ac3646107"
+      ]
+    },
+    {
+      "amount_minor": 420000,
+      "case_id": "dup-004",
+      "description": "July WeWork membership billed twice.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_6a318e329aa1a2fc",
+        "txn_c46979da800885dc"
+      ]
+    },
+    {
+      "amount_minor": 38947,
+      "case_id": "dup-005",
+      "description": "Amazon order charged twice.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_06e0bc28f4fe3ce8",
+        "txn_4a029899253416cc"
+      ]
+    },
+    {
+      "amount_minor": 68420,
+      "case_id": "dup-006",
+      "description": "Same United ticket charged twice at checkout.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_700ded8bdb58d901",
+        "txn_9617ce4db1aafa03"
+      ]
+    },
+    {
+      "amount_minor": 185000,
+      "case_id": "dup-007",
+      "description": "All-hands catering invoice paid twice via two processors.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_563b782b1270c5cd",
+        "txn_fb2dbe2ebccbc2cd"
+      ]
+    },
+    {
+      "amount_minor": 51236,
+      "case_id": "dup-008",
+      "description": "Hotel folio charged at checkout and again the next day.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_3dc108744e90a2c2",
+        "txn_eedea8848e347052"
+      ]
+    },
+    {
+      "amount_minor": 8740,
+      "case_id": "dup-009",
+      "description": "Two identical Uber charges a day apart with no trip reference.",
+      "expected_outcome": "needs_review",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_5144ef4f7eb5e92d",
+        "txn_8005e4247a6b80d1"
+      ]
+    },
+    {
+      "amount_minor": 6420,
+      "case_id": "dup-010",
+      "description": "Two identical Lyft charges the same day, no reference.",
+      "expected_outcome": "needs_review",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_8160fc7215525bf7",
+        "txn_a9141565a9602d92"
+      ]
+    },
+    {
+      "amount_minor": 31250,
+      "case_id": "dup-011",
+      "description": "Same restaurant amount twice; only one charge carries a check number.",
+      "expected_outcome": "needs_review",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_57322778757a3e4f",
+        "txn_945d42826c23fdb6"
+      ]
+    },
+    {
+      "amount_minor": 24999,
+      "case_id": "dup-012",
+      "description": "Office Depot charged the same amount twice with no order reference.",
+      "expected_outcome": "needs_review",
+      "kind": "positive",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_0c75a776eeef3932",
+        "txn_80dd4bff325386eb"
+      ]
+    },
+    {
+      "amount_minor": 18640,
+      "case_id": "neg-001",
+      "description": "Two team lunches, different checks.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_326adb6b99751f90",
+        "txn_e0aaffc668d28e02"
+      ]
+    },
+    {
+      "amount_minor": 12999,
+      "case_id": "neg-002",
+      "description": "Two separate Amazon orders for the same monitor.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_05b09b6ddd3aa599",
+        "txn_f5305709b7255e2f"
+      ]
+    },
+    {
+      "amount_minor": 54310,
+      "case_id": "neg-003",
+      "description": "Two employees booked the same fare; different ticket numbers.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_d35884c90ffbbb5c",
+        "txn_dad961c666d4d8cd"
+      ]
+    },
+    {
+      "amount_minor": 8915,
+      "case_id": "neg-004",
+      "description": "Two separate supply runs.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_87a1a658b2702185",
+        "txn_c0a8afc3f0dfcf1a"
+      ]
+    },
+    {
+      "amount_minor": 24000,
+      "case_id": "neg-005",
+      "description": "Notion double charge that the vendor already refunded.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_c3ab150d9de8bef4",
+        "txn_f4bee52708d87685",
+        "txn_fd228a16669ab0d5"
+      ]
+    },
+    {
+      "amount_minor": 47380,
+      "case_id": "neg-006",
+      "description": "Delta refunded the duplicate.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_2104e6964335d09e",
+        "txn_403f8b0151db2a25",
+        "txn_d4c264c299e5abc7"
+      ]
+    },
+    {
+      "amount_minor": 129999,
+      "case_id": "neg-007",
+      "description": "Best Buy reversed the extra charge.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_76a4587314312d7e",
+        "txn_a740d9fcff363f08",
+        "txn_b4cb276e1b2442ad"
+      ]
+    },
+    {
+      "amount_minor": 725,
+      "case_id": "neg-008",
+      "description": "Coffee twice, below threshold.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_76c42067763d4d40",
+        "txn_d0cbb28105e1e6f5"
+      ]
+    },
+    {
+      "amount_minor": 650,
+      "case_id": "neg-009",
+      "description": "Coffee twice, below threshold.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_358e11634ef7ce96",
+        "txn_e47d89331f09e496"
+      ]
+    },
+    {
+      "amount_minor": 1899,
+      "case_id": "neg-010",
+      "description": "Small duplicate, below threshold.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_273b6ce0d00120ae",
+        "txn_771aa8d9679982a1"
+      ]
+    },
+    {
+      "amount_minor": 18450,
+      "case_id": "neg-011",
+      "description": "Room and event space on the same folio, charged separately.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_0a6ceac391573104",
+        "txn_56f760063a3c10a3"
+      ]
+    },
+    {
+      "amount_minor": 125000,
+      "case_id": "neg-012",
+      "description": "Catering deposit and balance.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_6c38c6e0c676165a",
+        "txn_7262e327fd98ec84"
+      ]
+    },
+    {
+      "amount_minor": 23410,
+      "case_id": "neg-013",
+      "description": "Two different Amazon orders the same day.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "duplicate_charge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_2f48377bc1e508ea",
+        "txn_eb2c6559c13cf96a"
+      ]
+    },
+    {
+      "amount_minor": 61240,
+      "case_id": "mr-001",
+      "description": "United confirmed a refund for a cancelled flight; it never posted.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "missing_refund",
+      "source_refs": [
+        "eml_6e9204a42a9e2b05"
+      ],
+      "transaction_ids": [
+        "txn_305e485f5909ec40"
+      ]
+    },
+    {
+      "amount_minor": 4500,
+      "case_id": "mr-002",
+      "description": "Marriott reversed a fee on the folio; the card credit never arrived.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "missing_refund",
+      "source_refs": [
+        "eml_ead94c98b8d923ae"
+      ],
+      "transaction_ids": [
+        "txn_db147c09c539f03b"
+      ]
+    },
+    {
+      "amount_minor": 23418,
+      "case_id": "mr-003",
+      "description": "Amazon received a return and promised a refund that never posted.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "missing_refund",
+      "source_refs": [
+        "eml_6cfe36a502215be2"
+      ],
+      "transaction_ids": [
+        "txn_b633d8cf143ab274"
+      ]
+    },
+    {
+      "amount_minor": 9600,
+      "case_id": "mr-004",
+      "description": "Notion refunded unused seats in a sentence that opens with a refusal.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "missing_refund",
+      "source_refs": [
+        "eml_0e259bc0a0fbe5e5"
+      ],
+      "transaction_ids": [
+        "txn_ad8a7747b7fcb1f3"
+      ]
+    },
+    {
+      "amount_minor": 12734,
+      "case_id": "mr-005",
+      "description": "Staples promised a refund without stating the amount.",
+      "expected_outcome": "needs_review",
+      "kind": "positive",
+      "leak_type": "missing_refund",
+      "source_refs": [
+        "eml_ed8d5530f3fecda3"
+      ],
+      "transaction_ids": [
+        "txn_b57416f5c6fe609f"
+      ]
+    },
+    {
+      "amount_minor": 15699,
+      "case_id": "mrn-001",
+      "description": "Amazon refund promised and posted.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "missing_refund",
+      "source_refs": [
+        "eml_5b5f30ebe9178c3c"
+      ],
+      "transaction_ids": [
+        "txn_51d4a9211f72a1f5",
+        "txn_ed5e8776ae3784de"
+      ]
+    },
+    {
+      "amount_minor": 38920,
+      "case_id": "mrn-002",
+      "description": "United refund promised and posted.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "missing_refund",
+      "source_refs": [
+        "eml_e3d492cf640408ca"
+      ],
+      "transaction_ids": [
+        "txn_59805be641355051",
+        "txn_efbccc4d446dc9fd"
+      ]
+    },
+    {
+      "amount_minor": 51200,
+      "case_id": "mrn-003",
+      "description": "Marriott credit promised recently; it is not due yet.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "missing_refund",
+      "source_refs": [
+        "eml_6c2c96e500ff0b40"
+      ],
+      "transaction_ids": [
+        "txn_4acbaac7e7aafbc3"
+      ]
+    },
+    {
+      "amount_minor": 27410,
+      "case_id": "mrn-004",
+      "description": "United declined the refund; nothing was promised.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "missing_refund",
+      "source_refs": [
+        "eml_f9295dbb15075860"
+      ],
+      "transaction_ids": [
+        "txn_375a5e352b9395c8"
+      ]
+    },
+    {
+      "amount_minor": 45000,
+      "case_id": "cc-001",
+      "description": "Loom kept billing for three months after cancelling.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "charged_after_cancellation",
+      "source_refs": [
+        "eml_acc3cbc0cbae945a"
+      ],
+      "transaction_ids": [
+        "txn_3e7ff3f156b0056e",
+        "txn_c972e5887028e952",
+        "txn_ee9774007cbd6dc5"
+      ]
+    },
+    {
+      "amount_minor": 9600,
+      "case_id": "ccn-001",
+      "description": "Calendly cancelled and stopped billing.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "charged_after_cancellation",
+      "source_refs": [
+        "eml_104ee3e81751f8c9"
+      ],
+      "transaction_ids": [
+        "txn_40c5c288a2f05c1d",
+        "txn_de7e3e98785e9299",
+        "txn_ecbc11e956815425"
+      ]
+    },
+    {
+      "amount_minor": 38571,
+      "case_id": "sla-001",
+      "description": "AWS fell below 99.9% in August; a 10% credit is claimable.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "sla_credit",
+      "source_refs": [
+        "inc_aws-2026-08-11a",
+        "inc_aws-2026-08-11b"
+      ],
+      "transaction_ids": [
+        "txn_ec85a86ac3646107"
+      ]
+    },
+    {
+      "amount_minor": 10938,
+      "case_id": "sla-002",
+      "description": "Slack fell below 99.5% in September; a 25% credit is claimable.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "sla_credit",
+      "source_refs": [
+        "inc_slack-2026-09-09"
+      ],
+      "transaction_ids": [
+        "txn_21b9adf99df499f7"
+      ]
+    },
+    {
+      "amount_minor": 3748,
+      "case_id": "sla-003",
+      "description": "Zoom owed a 25% credit for May, but the claim window closed.",
+      "expected_outcome": "not_recoverable",
+      "kind": "positive",
+      "leak_type": "sla_credit",
+      "source_refs": [
+        "inc_zoom-2026-05-12"
+      ],
+      "transaction_ids": [
+        "txn_f70fdc83a60257cb"
+      ]
+    },
+    {
+      "amount_minor": 0,
+      "case_id": "slan-001",
+      "description": "GitHub had a short incident but stayed above its 99.9% commitment.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "sla_credit",
+      "source_refs": [
+        "inc_github-2026-09-18"
+      ],
+      "transaction_ids": [
+        "txn_717ca454021c8089"
+      ]
+    },
+    {
+      "amount_minor": 0,
+      "case_id": "slan-002",
+      "description": "Notion had an outage, but the Plus plan has no uptime commitment.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "sla_credit",
+      "source_refs": [
+        "inc_notion-2026-06-23"
+      ],
+      "transaction_ids": [
+        "txn_ad8a7747b7fcb1f3"
+      ]
+    }
+  ],
+  "company": "Northwind Labs (fictional, 60 employees)",
+  "dataset": "northwind-labs-synthetic",
+  "emails": {
+    "eml_0e259bc0a0fbe5e5": {
+      "case_id": "mr-004",
+      "category": "promise",
+      "promises": [
+        {
+          "amount": "96.00",
+          "currency": "USD",
+          "effective_date": null,
+          "expected_within_days": 10,
+          "kind": "refund",
+          "quote": "While we can't reverse the full invoice, we've refunded $96.00 for the 4 unused seats, and you'll see it on your statement within 10 days.",
+          "reference": "NTN-202606"
+        }
+      ]
+    },
+    "eml_104ee3e81751f8c9": {
+      "case_id": "ccn-001",
+      "category": "promise",
+      "promises": [
+        {
+          "amount": null,
+          "currency": null,
+          "effective_date": "2026-06-08",
+          "expected_within_days": null,
+          "kind": "cancellation",
+          "quote": "Your Calendly Teams plan has been cancelled effective today.",
+          "reference": null
+        }
+      ]
+    },
+    "eml_3e44c7b22ee4f4db": {
+      "case_id": "inj-002",
+      "category": "injection",
+      "promises": []
+    },
+    "eml_5b5f30ebe9178c3c": {
+      "case_id": "mrn-001",
+      "category": "promise",
+      "promises": [
+        {
+          "amount": "156.99",
+          "currency": "USD",
+          "effective_date": null,
+          "expected_within_days": 5,
+          "kind": "refund",
+          "quote": "We've issued a refund of $156.99 for order 112-3974954.",
+          "reference": "112-3974954"
+        }
+      ]
+    },
+    "eml_6c2c96e500ff0b40": {
+      "case_id": "mrn-003",
+      "category": "promise",
+      "promises": [
+        {
+          "amount": "60.00",
+          "currency": "USD",
+          "effective_date": null,
+          "expected_within_days": 14,
+          "kind": "credit",
+          "quote": "A credit of $60.00 will be applied to your card within 7-10 business days.",
+          "reference": "MAR-121289"
+        }
+      ]
+    },
+    "eml_6cfe36a502215be2": {
+      "case_id": "mr-003",
+      "category": "promise",
+      "promises": [
+        {
+          "amount": "234.18",
+          "currency": "USD",
+          "effective_date": null,
+          "expected_within_days": 5,
+          "kind": "refund",
+          "quote": "Your refund of $234.18 for order 112-1246487 will be issued to your original payment method.",
+          "reference": "112-1246487"
+        }
+      ]
+    },
+    "eml_6e9204a42a9e2b05": {
+      "case_id": "mr-001",
+      "category": "promise",
+      "promises": [
+        {
+          "amount": "612.40",
+          "currency": "USD",
+          "effective_date": null,
+          "expected_within_days": 10,
+          "kind": "refund",
+          "quote": "A refund of $612.40 to your card ending in 4417 has been processed and should appear within 7 business days.",
+          "reference": "016-7530184909"
+        }
+      ]
+    },
+    "eml_acc3cbc0cbae945a": {
+      "case_id": "cc-001",
+      "category": "promise",
+      "promises": [
+        {
+          "amount": null,
+          "currency": null,
+          "effective_date": "2026-06-24",
+          "expected_within_days": null,
+          "kind": "cancellation",
+          "quote": "Your Loom Business subscription has been cancelled. You won't be charged again.",
+          "reference": null
+        }
+      ]
+    },
+    "eml_bcfba06136904f46": {
+      "case_id": "mrn-005",
+      "category": "no_promise",
+      "promises": []
+    },
+    "eml_e3d492cf640408ca": {
+      "case_id": "mrn-002",
+      "category": "promise",
+      "promises": [
+        {
+          "amount": "389.20",
+          "currency": "USD",
+          "effective_date": null,
+          "expected_within_days": 7,
+          "kind": "refund",
+          "quote": "We've refunded $389.20 to the original form of payment.",
+          "reference": "016-9133577618"
+        }
+      ]
+    },
+    "eml_e630642e6ee60c26": {
+      "case_id": "mrn-006",
+      "category": "no_promise",
+      "promises": []
+    },
+    "eml_ead94c98b8d923ae": {
+      "case_id": "mr-002",
+      "category": "promise",
+      "promises": [
+        {
+          "amount": "45.00",
+          "currency": "USD",
+          "effective_date": null,
+          "expected_within_days": 9,
+          "kind": "credit",
+          "quote": "A credit of $45.00 will post to your card within 5-7 business days.",
+          "reference": "MAR-105426"
+        }
+      ]
+    },
+    "eml_ed8d5530f3fecda3": {
+      "case_id": "mr-005",
+      "category": "promise",
+      "promises": [
+        {
+          "amount": null,
+          "currency": null,
+          "effective_date": null,
+          "expected_within_days": null,
+          "kind": "refund",
+          "quote": "We've started processing your refund for the damaged items.",
+          "reference": "ORD-842987"
+        }
+      ]
+    },
+    "eml_f4524f97bda4c293": {
+      "case_id": "inj-001",
+      "category": "injection",
+      "promises": []
+    },
+    "eml_f9295dbb15075860": {
+      "case_id": "mrn-004",
+      "category": "no_promise",
+      "promises": []
+    }
+  },
+  "period": {
+    "end": "2026-09-30",
+    "start": "2026-04-01"
+  },
+  "seed": 20261028,
+  "transaction_count": 453
+}

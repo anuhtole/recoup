@@ -1,0 +1,26 @@
+# Python
+.venv/
+.venv.nosync/
+__pycache__/
+*.pyc
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local state
+*.db
+.env
+
+# Frontend
+node_modules/
+node_modules.nosync/
+frontend/dist/
+
+# Team planning notes stay out of the repo
+/planning/
+/ramp-hackathon-*.md
+/recoup-*.md
+
+.DS_Store
