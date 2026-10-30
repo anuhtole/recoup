@@ -19,7 +19,7 @@
 
   /* Glass */
   --glass: rgba(255, 255, 255, 0.34);
-  --glass-strong: rgba(255, 255, 255, 0.6); /* sheets and popovers that float over content */
+  --glass-strong: rgba(255, 255, 255, 0.72); /* sheets, previews and notices that float over content */
   --glass-edge: rgba(255, 255, 255, 0.75);
   --glass-highlight: rgba(255, 255, 255, 0.9);
   --blur: 24px;
@@ -233,6 +233,16 @@
   }
   ::selection {
     background: var(--mark);
+  }
+}
+
+/* Reduced motion: nothing slides or scales on its own; state changes cross-fade (Motion handles its own). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

@@ -1,44 +1,70 @@
-import { useEffect } from "react";
-import { COLORS, FONTS } from "../theme";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useRef } from "react";
+import { SPRING } from "../motion";
+import { cn } from "@/lib/utils";
 
-export interface ToastMessage {
+export interface Notice {
   id: number;
-  text: string;
-  tone: "info" | "error";
+  title: string;
+  body?: string;
+  /** "money" marks a credit confirmed in the ledger; it is the only notice that uses the money colour. */
+  tone: "info" | "money" | "error";
 }
 
-const VISIBLE_MS = 4_500;
+const VISIBLE_MS = 6_000;
+const MAX_VISIBLE = 4;
 
-export function Toast({ toast, onDone }: { toast: ToastMessage | null; onDone: () => void }) {
+function Card({ notice, onDismiss }: { notice: Notice; onDismiss: () => void }) {
+  const dismiss = useRef(onDismiss);
+  dismiss.current = onDismiss;
   useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(onDone, VISIBLE_MS);
+    // Errors stay until dismissed; everything else leaves by itself.
+    if (notice.tone === "error") return;
+    const timer = window.setTimeout(() => dismiss.current(), VISIBLE_MS);
     return () => window.clearTimeout(timer);
-  }, [toast, onDone]);
+  }, [notice.tone]);
 
-  if (!toast) return null;
   return (
-    <div
-      role="status"
-      aria-live="polite"
-      style={{
-        position: "fixed",
-        bottom: 24,
-        left: "50%",
-        transform: "translateX(-50%)",
-        maxWidth: "calc(100vw - 32px)",
-        padding: "11px 16px",
-        borderRadius: 10,
-        fontFamily: FONTS.mono,
-        fontSize: 13,
-        color: toast.tone === "error" ? "#FFFFFF" : COLORS.ink,
-        background: toast.tone === "error" ? "#8C3B2E" : COLORS.surface,
-        border: `1px solid ${toast.tone === "error" ? "#8C3B2E" : COLORS.borderStrong}`,
-        boxShadow: "0 10px 30px rgba(31, 29, 26, 0.12)",
-        zIndex: 30,
-      }}
+    <motion.li
+      layout
+      initial={{ opacity: 0, y: 16, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: 16, scale: 0.98 }}
+      transition={SPRING}
+      role={notice.tone === "error" ? "alert" : undefined}
+      className="glass-float pointer-events-auto flex list-none items-start gap-3 rounded-card py-3 pl-4 pr-2"
     >
-      {toast.text}
+      {notice.tone === "money" && <span aria-hidden className="mt-1.5 size-2 flex-none rounded-full bg-money" />}
+      <div className="min-w-0 flex-1">
+        <p className={cn("text-sm font-medium", notice.tone === "money" && "text-money-ink")}>{notice.title}</p>
+        {notice.body && <p className="mt-0.5 text-[13px] leading-snug text-dim">{notice.body}</p>}
+      </div>
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label="Dismiss notification"
+        className="grid size-8 flex-none place-items-center rounded-full text-dim transition-[transform,background-color,color] duration-150 hover:bg-tint hover:text-ink active:scale-90"
+      >
+        <svg viewBox="0 0 16 16" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
+          <path d="M4 4l8 8M12 4l-8 8" />
+        </svg>
+      </button>
+    </motion.li>
+  );
+}
+
+/** Notifications stack in the corner; each one is its own card and leaves on its own. */
+export function Notifications({ notices, onDismiss }: { notices: Notice[]; onDismiss: (id: number) => void }) {
+  const visible = notices.slice(-MAX_VISIBLE);
+  return (
+    <div aria-live="polite" className="pointer-events-none fixed inset-x-4 bottom-4 z-30 sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-[360px]">
+      <ol className="m-0 flex flex-col gap-2 p-0">
+        <AnimatePresence initial={false}>
+          {visible.map((notice) => (
+            <Card key={notice.id} notice={notice} onDismiss={() => onDismiss(notice.id)} />
+          ))}
+        </AnimatePresence>
+      </ol>
     </div>
   );
 }

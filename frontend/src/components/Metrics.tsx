@@ -39,6 +39,7 @@ function RollingMoney({ minor, currency, className }: { minor: number; currency:
 }
 
 function Flow({ summary }: { summary: Summary }) {
+  const reduce = useReducedMotion();
   const requested = summary.in_flight_minor + summary.recovered_minor;
   const found = summary.claimable_minor + requested + summary.expired_minor;
   const nodes = [
@@ -79,6 +80,7 @@ function Flow({ summary }: { summary: Summary }) {
       nodePadding={20}
       margin={{ top: 10, right: 190, bottom: 10, left: 130 }}
       className="mt-2 min-h-[120px]"
+      animationDuration={reduce ? 0 : 700}
       revealSignature={data.links.map((l) => l.value).join(",")}
     >
       <SankeyLink strokeOpacity={0.1} fadedOpacity={0.05} getNodeColor={(_, i) => colour(i)} />

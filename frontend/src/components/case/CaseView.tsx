@@ -36,7 +36,7 @@ function Header({ detail }: { detail: FindingDetail }) {
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <p className="text-[13px] text-dim">{LEAK_LABEL[detail.leak_type]}</p>
         <div className="flex flex-wrap gap-1.5">
-          <OutcomeChip outcome={detail.outcome} />
+          {detail.status !== "recovered" && <OutcomeChip outcome={detail.outcome} />}
           {detail.status !== "open" && <StatusChip status={detail.status} />}
         </div>
       </div>
