@@ -30,7 +30,7 @@ export function DraftEditor({ draft, isBusy, onSave, onApprove }: Props) {
       <div className="flex flex-col gap-1">
         <span className="text-[13px] text-dim">To</span>
         <p className="flex flex-wrap items-baseline gap-x-2 text-[15px]">
-          <span className="figure">{draft.to_addr}</span>
+          <span className="font-medium">{draft.to_addr}</span>
           <span className="text-[13px] text-dim">{isDispute ? "card dispute desk" : "from your vendor directory"}</span>
         </p>
       </div>

@@ -26,7 +26,7 @@ export function ConfirmSheet({ draft, subject, onConfirm, onClose }: Props) {
       <div className="flex flex-col gap-6 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-3">
         <div className="flex flex-col gap-1">
           <p className="text-[13px] text-dim">Sends to</p>
-          <p className="figure break-all text-[22px] leading-tight tracking-[-0.02em]">{draft.to_addr}</p>
+          <p className="break-all text-[22px] font-semibold leading-tight tracking-[-0.02em]">{draft.to_addr}</p>
           <p className="mt-1 truncate text-sm text-dim">{subject}</p>
         </div>
         <p className="text-sm leading-relaxed text-dim">

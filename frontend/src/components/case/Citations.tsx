@@ -24,7 +24,7 @@ function Preview({ source }: { source: Source }) {
             ))}
           </ul>
           {source.transactions[0]?.reference && (
-            <p className="figure mt-2 text-xs text-dim">Reference {source.transactions[0].reference}</p>
+            <p className="mt-2 text-xs text-dim">Reference <span className="ref"> {source.transactions[0].reference}</span></p>
           )}
         </>
       );
@@ -41,7 +41,7 @@ function Preview({ source }: { source: Source }) {
     case "contract":
       return (
         <>
-          <p className="figure truncate text-xs text-dim">{source.evidence.ref}</p>
+          <p className="ref truncate text-xs text-dim">{source.evidence.ref}</p>
           <p className="mt-1.5 line-clamp-5 text-[13px] leading-snug">{source.evidence.detail}</p>
         </>
       );

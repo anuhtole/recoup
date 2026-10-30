@@ -44,7 +44,7 @@ function Ledger({ transactions, numberOf }: { transactions: Transaction[]; numbe
           <span className="figure whitespace-nowrap text-[13px] text-dim">{formatDate(txn.posted_at)}</span>
           <span className="min-w-0">
             <span className="block truncate">{txn.merchant}</span>
-            <span className="figure block truncate text-xs text-dim">{txn.reference ?? "No reference"}</span>
+            <span className="ref block truncate text-xs text-dim">{txn.reference ?? "No reference"}</span>
           </span>
           <span className="flex items-baseline gap-2">
             <span className={txn.amount_minor < 0 ? "figure text-money-ink" : "figure"}>{formatMoney(txn.amount_minor, txn.currency)}</span>
@@ -95,7 +95,7 @@ export function Evidence({ evidence, transactions, emails, numberOf, onOpenEmail
       })}
 
       {of("contract").map((item) => (
-        <Item key={item.ref} label={<>Contract · <span className="figure">{item.ref}</span></>} n={numberOf.get(item.ref)}>
+        <Item key={item.ref} label={<>Contract · <span className="ref text-xs">{item.ref}</span></>} n={numberOf.get(item.ref)}>
           <p className="max-w-[65ch] text-sm leading-relaxed">{item.detail}</p>
         </Item>
       ))}

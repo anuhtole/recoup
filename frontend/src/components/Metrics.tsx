@@ -8,6 +8,8 @@ import { LineSparkline } from "./charts/sparkline";
 import { SankeyChart, SankeyLink, SankeyNode } from "./charts/sankey";
 import { cn } from "@/lib/utils";
 
+const FLOW_KEY = "recoup.flow";
+
 interface Tile {
   key: keyof Omit<Snapshot, "as_of">;
   label: string;
@@ -79,7 +81,7 @@ function Flow({ summary }: { summary: Summary }) {
       nodeWidth={6}
       nodePadding={24}
       margin={{ top: 6, right: 190, bottom: 6, left: 130 }}
-      className="mt-1 min-h-[104px]"
+      className="min-h-[104px]"
       animationDuration={reduce ? 0 : 700}
       revealSignature={data.links.map((l) => l.value).join(",")}
     >
@@ -91,7 +93,22 @@ function Flow({ summary }: { summary: Summary }) {
 
 export function Metrics({ summary }: { summary: Summary }) {
   const history = useSummaryHistory(summary);
-  const [showFlow, setShowFlow] = useState(false);
+  // The flow is a detail: closed by default, and the choice is remembered for the session.
+  const [showFlow, setShowFlow] = useState(() => {
+    try {
+      return sessionStorage.getItem(FLOW_KEY) === "open";
+    } catch {
+      return false;
+    }
+  });
+  const toggleFlow = (open: boolean) => {
+    setShowFlow(open);
+    try {
+      sessionStorage.setItem(FLOW_KEY, open ? "open" : "closed");
+    } catch {
+      // Storage unavailable; the toggle still works for this page.
+    }
+  };
   const values: Record<Tile["key"], number> = {
     claimable: summary.claimable_minor,
     in_flight: summary.in_flight_minor,
@@ -110,7 +127,7 @@ export function Metrics({ summary }: { summary: Summary }) {
                 minor={values[tile.key]}
                 currency={summary.currency}
                 className={cn(
-                  "figure truncate text-[22px] leading-tight tracking-[-0.02em] sm:text-[26px]",
+                  "figure truncate text-[22px] font-semibold leading-tight tracking-[-0.02em] sm:text-[26px]",
                   tile.isMoneyBack && values[tile.key] > 0 && "text-money",
                   tile.isMuted && "text-dim",
                 )}
@@ -137,34 +154,35 @@ export function Metrics({ summary }: { summary: Summary }) {
         ))}
       </div>
 
-      <div className="glass rounded-card px-5 py-4">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="text-[13px] font-medium text-dim">Where the money is</h2>
-          <button
-            type="button"
-            aria-expanded={showFlow}
-            onClick={() => setShowFlow((open) => !open)}
-            className="rounded-full px-3 py-1.5 text-[13px] font-medium text-ink transition-[transform,background-color] duration-150 hover:bg-tint active:scale-[0.97] min-[900px]:hidden"
-          >
-            {showFlow ? "Hide the flow" : "See the flow"}
-          </button>
-        </div>
-        <div className="hidden min-[900px]:block">
-          <Flow summary={summary} />
-        </div>
+      <div className="flex flex-col">
+        <button
+          type="button"
+          aria-expanded={showFlow}
+          aria-controls="money-flow"
+          onClick={() => toggleFlow(!showFlow)}
+          className="inline-flex items-center gap-1.5 self-start rounded-full px-3 py-1.5 -ml-3 text-[13px] font-medium text-dim transition-[transform,background-color,color] duration-150 hover:bg-tint hover:text-ink active:scale-[0.97]"
+        >
+          {showFlow ? "Hide where the money went" : "See where the money went"}
+          <svg viewBox="0 0 16 16" aria-hidden className={cn("size-3.5 transition-transform duration-200", showFlow && "rotate-180")} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 6l4 4 4-4" />
+          </svg>
+        </button>
         <AnimatePresence initial={false}>
           {showFlow && (
             <motion.div
               key="flow"
-              className="min-[900px]:hidden"
-              initial={{ opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
+              id="money-flow"
+              className="overflow-hidden"
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
               transition={SPRING}
             >
-              <div className="-mx-2 overflow-x-auto px-2">
-                <div className="min-w-[560px]">
-                  <Flow summary={summary} />
+              <div className="glass mt-2 rounded-card px-5 py-4">
+                <div className="-mx-2 overflow-x-auto px-2">
+                  <div className="min-w-[560px]">
+                    <Flow summary={summary} />
+                  </div>
                 </div>
               </div>
             </motion.div>

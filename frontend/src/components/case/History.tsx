@@ -57,7 +57,7 @@ export function History({ events, trace }: { events: TimelineEvent[]; trace: Aud
                   {event.title}
                   {event.is_future && <span className="text-xs"> · upcoming</span>}
                 </p>
-                {event.detail && event.kind !== "detected" && <p className="figure truncate text-xs text-dim">{event.detail}</p>}
+                {event.detail && event.kind !== "detected" && <p className="ref truncate text-xs text-dim">{event.detail}</p>}
               </div>
             </li>
           ))}

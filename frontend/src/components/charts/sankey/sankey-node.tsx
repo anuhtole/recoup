@@ -284,7 +284,7 @@ function AnimatedNode({
       {showLabels ? (
         <>
           <NodeLabel
-            className="fill-foreground font-medium text-[13px]"
+            className="fill-foreground font-medium text-[13px] tabular-nums"
             key={`name-${index}-${revealEpoch}`}
             layout={labelLayouts.name}
             opacity={nameOpacity}

@@ -41,7 +41,7 @@ function Header({ detail }: { detail: FindingDetail }) {
         </div>
       </div>
       <h2 className="mt-1 text-2xl font-semibold tracking-[-0.02em]">{detail.merchant}</h2>
-      <p className={isRecovered ? "figure mt-3 text-[40px] leading-none tracking-[-0.03em] text-money" : "figure mt-3 text-[40px] leading-none tracking-[-0.03em]"}>
+      <p className={isRecovered ? "figure mt-3 text-[40px] font-semibold leading-none tracking-[-0.03em] text-money" : "figure mt-3 text-[40px] font-semibold leading-none tracking-[-0.03em]"}>
         {formatMoney(isRecovered ? (detail.recovered_minor as number) : detail.amount_minor, detail.currency)}
       </p>
       {isRecovered && <p className="mt-2 text-[13px] text-money-ink">Back in the account, confirmed in the ledger</p>}

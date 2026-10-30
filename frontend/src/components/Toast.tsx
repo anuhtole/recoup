@@ -9,10 +9,13 @@ export interface Notice {
   body?: string;
   /** "money" marks a credit confirmed in the ledger; it is the only notice that uses the money colour. */
   tone: "info" | "money" | "error";
+  /** Advance results (replies, credits, new cases) stack; everything else is a routine notice, one at a time. */
+  isResult?: boolean;
 }
 
-const VISIBLE_MS = 6_000;
-const MAX_VISIBLE = 3;
+const RESULT_MS = 6_000;
+const ROUTINE_MS = 3_000;
+const MAX_RESULTS = 3;
 
 function Card({ notice, onDismiss }: { notice: Notice; onDismiss: () => void }) {
   const dismiss = useRef(onDismiss);
@@ -20,9 +23,9 @@ function Card({ notice, onDismiss }: { notice: Notice; onDismiss: () => void }) 
   useEffect(() => {
     // Errors stay until dismissed; everything else leaves by itself.
     if (notice.tone === "error") return;
-    const timer = window.setTimeout(() => dismiss.current(), VISIBLE_MS);
+    const timer = window.setTimeout(() => dismiss.current(), notice.isResult ? RESULT_MS : ROUTINE_MS);
     return () => window.clearTimeout(timer);
-  }, [notice.tone]);
+  }, [notice.tone, notice.isResult]);
 
   return (
     <motion.li
@@ -55,7 +58,8 @@ function Card({ notice, onDismiss }: { notice: Notice; onDismiss: () => void }) 
 
 /** Notifications stack in the corner; each one is its own card and leaves on its own. */
 export function Notifications({ notices, onDismiss }: { notices: Notice[]; onDismiss: (id: number) => void }) {
-  const visible = notices.slice(-MAX_VISIBLE);
+  const results = notices.filter((n) => n.isResult).slice(-MAX_RESULTS);
+  const visible = [...results, ...notices.filter((n) => !n.isResult)];
   return (
     <div aria-live="polite" className="pointer-events-none fixed inset-x-4 bottom-4 z-30 sm:inset-x-auto sm:bottom-6 sm:right-6 sm:w-[360px]">
       <ol className="m-0 flex flex-col gap-2 p-0">

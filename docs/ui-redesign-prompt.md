@@ -163,7 +163,7 @@ The reference mockup is the "Glacier glass" section of the Recoup Look Options a
 
 ### Type
 
-- Use one sans family: the system font stack first, with Inter Tight from Google Fonts. Use mono only for amounts, references and dates.
+- Use one sans family: the system font stack first, with Inter Tight from Google Fonts. Mono only for references and IDs; money and dates are sans with tabular-nums.
 - Remove the EB Garamond and JetBrains Mono mix.
 - Large headings get `-0.02em` letter-spacing; body text gets none.
 - Every money figure uses `tabular-nums`.

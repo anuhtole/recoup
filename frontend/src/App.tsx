@@ -127,8 +127,13 @@ export function App() {
     requestAnimationFrame(() => window.scrollTo({ top: listScroll.current }));
   };
 
+  // Advance results stack; a routine notice replaces the one before it.
   const notify = useCallback((items: NoticeInput[]) => {
-    setNotices((current) => [...current, ...items.map((item) => ({ ...item, id: nextNoticeId.current++ }))]);
+    setNotices((current) => {
+      const hasRoutine = items.some((item) => !item.isResult);
+      const kept = hasRoutine ? current.filter((n) => n.isResult) : current;
+      return [...kept, ...items.map((item) => ({ ...item, id: nextNoticeId.current++ }))];
+    });
   }, []);
   const dismissNotice = useCallback((id: number) => setNotices((current) => current.filter((n) => n.id !== id)), []);
 
@@ -224,7 +229,7 @@ export function App() {
                 const before = findings;
                 const result = await api.advance(ADVANCE_DAYS);
                 const after = await api.findings();
-                return advanceNotices(before, after, result.as_of);
+                return advanceNotices(before, after, result.as_of).map((notice) => ({ ...notice, isResult: true }));
               })
             }
           />

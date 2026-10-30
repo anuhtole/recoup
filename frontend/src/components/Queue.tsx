@@ -86,7 +86,7 @@ function Row({ finding, isSelected, isNarrow, onSelect }: RowProps) {
           />
         )}
         <span className="relative truncate text-[15px] font-medium">{finding.merchant}</span>
-        <span className={cn("figure relative text-right text-[15px]", isRecovered && "text-money-ink")}>
+        <span className={cn("figure relative text-right text-[15px] font-medium", isRecovered && "text-money-ink")}>
           {formatMoney(amount, finding.currency)}
         </span>
         <span className="relative truncate text-[13px] text-dim">
