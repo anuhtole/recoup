@@ -1,8 +1,14 @@
+import { motion } from "motion/react";
 import { useEffect, useRef } from "react";
 import type { Finding, Stage } from "../api";
 import { daysLeftLabel, formatMoney } from "../format";
-import { COLORS, FONTS, LEAK_LABEL, card } from "../theme";
-import { DeadlinePill, StatusChip } from "./Chip";
+import { SPRING } from "../motion";
+import { LEAK_LABEL } from "../theme";
+import { Deadline, StatusChip } from "./Chip";
+import SmoothTab from "./kokonutui/smooth-tab";
+import { cn } from "@/lib/utils";
+
+export { isUrgent } from "./Chip";
 
 const TABS: { stage: Stage; label: string }[] = [
   { stage: "todo", label: "To do" },
@@ -10,11 +16,11 @@ const TABS: { stage: Stage; label: string }[] = [
   { stage: "done", label: "Done" },
 ];
 
-const URGENT_DAYS = 14;
-
-export function isUrgent(daysLeft: number | null): boolean {
-  return daysLeft !== null && daysLeft >= 0 && daysLeft <= URGENT_DAYS;
-}
+const EMPTY: Record<Stage, string> = {
+  todo: "Nothing needs you right now. New cases show up here after you press Run detection.",
+  waiting: "Requests you send wait here until the vendor replies or the money lands.",
+  done: "Recovered and closed cases collect here.",
+};
 
 interface Props {
   findings: Finding[];
@@ -23,145 +29,121 @@ interface Props {
   selectedId: number | null;
   onStage: (stage: Stage) => void;
   onSelect: (id: number) => void;
-  // On phones the queue is the whole screen, so it grows with the page instead of scrolling.
+  // On phones the queue is the whole screen: it grows with the page, and a row expands into the case.
   isNarrow: boolean;
 }
 
-function Row({ finding, isSelected, onSelect }: { finding: Finding; isSelected: boolean; onSelect: () => void }) {
+interface RowProps {
+  finding: Finding;
+  isSelected: boolean;
+  isNarrow: boolean;
+  onSelect: () => void;
+}
+
+function Row({ finding, isSelected, isNarrow, onSelect }: RowProps) {
   const ref = useRef<HTMLButtonElement>(null);
   useEffect(() => {
-    if (isSelected) ref.current?.scrollIntoView({ block: "nearest" });
-  }, [isSelected]);
+    if (isSelected && !isNarrow) ref.current?.scrollIntoView({ block: "nearest" });
+  }, [isSelected, isNarrow]);
   const deadline = daysLeftLabel(finding.days_left);
   const isRecovered = finding.status === "recovered";
   const amount = isRecovered ? (finding.recovered_minor ?? finding.amount_minor) : finding.amount_minor;
   return (
-    <button
-      ref={ref}
-      type="button"
-      onClick={onSelect}
-      aria-current={isSelected}
-      style={{
-        display: "grid",
-        gridTemplateColumns: "1fr auto",
-        gap: "4px 12px",
-        width: "100%",
-        textAlign: "left",
-        padding: "13px 16px 13px 14px",
-        border: "none",
-        borderBottom: `1px solid ${COLORS.border}`,
-        borderLeft: `3px solid ${isSelected ? COLORS.accent : "transparent"}`,
-        background: isSelected ? COLORS.accentSoft : COLORS.surface,
-        cursor: "pointer",
-      }}
-    >
-      <span style={{ fontFamily: FONTS.serif, fontSize: 18, color: COLORS.ink, minWidth: 0 }}>
-        {finding.merchant}
-      </span>
-      <span
-        style={{
-          fontFamily: FONTS.mono,
-          fontSize: 14,
-          color: isRecovered ? COLORS.good : COLORS.ink,
-          textAlign: "right",
-        }}
-      >
-        {formatMoney(amount, finding.currency)}
-      </span>
-      <span style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.inkDim, minWidth: 0 }}>
-        {LEAK_LABEL[finding.leak_type]} · {finding.next_action.label}
-      </span>
-      <span style={{ textAlign: "right" }}>
-        {finding.stage === "todo" && deadline ? (
-          <DeadlinePill label={deadline} isUrgent={isUrgent(finding.days_left)} />
-        ) : (
-          <StatusChip status={finding.status} />
+    <motion.li layout="position" transition={SPRING} className="list-none">
+      <button
+        ref={ref}
+        type="button"
+        onClick={onSelect}
+        aria-current={isSelected}
+        data-case-id={finding.id}
+        className={cn(
+          "group relative grid w-full grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-1 rounded-row px-4 py-3 text-left",
+          "transition-transform duration-150 ease-out active:scale-[0.99]",
         )}
-      </span>
-    </button>
+      >
+        {/* On a phone this surface grows into the case view; on wide screens it is the hover tint. */}
+        <motion.span
+          aria-hidden
+          layoutId={isNarrow ? `case-${finding.id}` : undefined}
+          transition={SPRING}
+          className={cn(
+            "absolute inset-0 rounded-row transition-colors duration-150",
+            isNarrow ? "bg-tint shadow-[inset_0_0_0_1px_var(--line)]" : "group-hover:bg-tint-hover",
+          )}
+        />
+        {isSelected && !isNarrow && (
+          <motion.span
+            aria-hidden
+            layoutId={`selection-${finding.stage}`}
+            transition={SPRING}
+            className="absolute inset-0 rounded-row bg-selected shadow-[inset_0_0_0_1px_color-mix(in_srgb,var(--accent)_35%,transparent)]"
+          />
+        )}
+        <span className="relative truncate text-[15px] font-medium">{finding.merchant}</span>
+        <span className={cn("figure relative text-right text-[15px]", isRecovered && "text-money-ink")}>
+          {formatMoney(amount, finding.currency)}
+        </span>
+        <span className="relative truncate text-[13px] text-dim">
+          {LEAK_LABEL[finding.leak_type]}
+          {finding.outcome === "needs_review" && <span className="text-amber"> · Needs review</span>}
+        </span>
+        <span className="relative justify-self-end">
+          {finding.stage === "todo" && deadline ? (
+            <Deadline label={deadline} daysLeft={finding.days_left} />
+          ) : (
+            <StatusChip status={finding.status} />
+          )}
+        </span>
+      </button>
+    </motion.li>
   );
 }
 
-function Empty({ stage }: { stage: Stage }) {
-  const text = {
-    todo: "Nothing needs you right now.",
-    waiting: "No requests are waiting on a vendor.",
-    done: "Closed cases will collect here.",
-  }[stage];
+function List({ stage, findings, selectedId, isNarrow, onSelect }: Omit<Props, "counts" | "onStage">) {
+  if (findings.length === 0) {
+    return <p className="px-4 py-10 text-center text-sm leading-relaxed text-dim text-balance">{EMPTY[stage]}</p>;
+  }
   return (
-    <div style={{ padding: "28px 18px", fontFamily: FONTS.serif, fontSize: 17, color: COLORS.inkDim }}>
-      {text}
-    </div>
+    <ul
+      aria-keyshortcuts="j k ArrowDown ArrowUp"
+      className={cn("m-0 flex flex-col gap-0.5 p-0", !isNarrow && "max-h-[calc(100dvh-132px)] overflow-y-auto")}
+    >
+      {findings.map((finding) => (
+        <Row
+          key={finding.id}
+          finding={finding}
+          isSelected={finding.id === selectedId}
+          isNarrow={isNarrow}
+          onSelect={() => onSelect(finding.id)}
+        />
+      ))}
+    </ul>
   );
 }
 
 export function Queue({ findings, stage, counts, selectedId, onStage, onSelect, isNarrow }: Props) {
   return (
-    <section aria-label="Cases" style={{ ...card, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-      <div role="tablist" style={{ display: "flex", borderBottom: `1px solid ${COLORS.border}` }}>
-        {TABS.map((tab) => {
-          const isActive = tab.stage === stage;
-          return (
-            <button
-              key={tab.stage}
-              role="tab"
-              type="button"
-              aria-selected={isActive}
-              onClick={() => onStage(tab.stage)}
-              style={{
-                flex: 1,
-                padding: "12px 8px",
-                border: "none",
-                borderBottom: `2px solid ${isActive ? COLORS.accent : "transparent"}`,
-                background: "transparent",
-                fontFamily: FONTS.mono,
-                fontSize: 12,
-                color: isActive ? COLORS.ink : COLORS.inkDim,
-                cursor: "pointer",
-              }}
-            >
-              {tab.label}
-              <span
-                style={{
-                  marginLeft: 6,
-                  padding: "1px 7px",
-                  borderRadius: 999,
-                  background: isActive ? COLORS.accentSoft : COLORS.muted,
-                  color: isActive ? COLORS.accentInk : COLORS.inkDim,
-                }}
-              >
-                {counts[tab.stage]}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      <div style={{ overflowY: "auto", maxHeight: isNarrow ? "none" : "calc(100vh - 290px)", minHeight: 160 }}>
-        {findings.length === 0 ? (
-          <Empty stage={stage} />
-        ) : (
-          findings.map((finding) => (
-            <Row
-              key={finding.id}
-              finding={finding}
-              isSelected={finding.id === selectedId}
-              onSelect={() => onSelect(finding.id)}
+    <section aria-label="Cases" title="j / k or the arrow keys move through the list" className="glass-lg rounded-panel p-2">
+      <SmoothTab
+        label="Case stages"
+        value={stage}
+        onChange={(id) => onStage(id as Stage)}
+        listClassName="px-2 pt-2"
+        items={TABS.map((tab) => ({
+          id: tab.stage,
+          title: tab.label,
+          badge: counts[tab.stage],
+          content: (
+            <List
+              stage={tab.stage}
+              findings={findings.filter((f) => f.stage === tab.stage)}
+              selectedId={selectedId}
+              isNarrow={isNarrow}
+              onSelect={onSelect}
             />
-          ))
-        )}
-      </div>
-      <div
-        style={{
-          padding: "8px 14px",
-          borderTop: `1px solid ${COLORS.border}`,
-          fontFamily: FONTS.mono,
-          fontSize: 11,
-          color: COLORS.inkDim,
-          background: COLORS.sunken,
-        }}
-      >
-        j / k to move · sorted by deadline
-      </div>
+          ),
+        }))}
+      />
     </section>
   );
 }

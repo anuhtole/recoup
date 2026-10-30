@@ -1,4 +1,4 @@
-import { MotionConfig } from "motion/react";
+import { MotionConfig, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, ApiError, type Stage } from "./api";
 import { CaseView } from "./components/case/CaseView";
@@ -11,7 +11,7 @@ import { useCase } from "./hooks/useCase";
 import { useCases } from "./hooks/useCases";
 import { useIsNarrow } from "./hooks/useIsNarrow";
 import { useKeyboardNav } from "./hooks/useKeyboardNav";
-import { COLORS, FONTS, card } from "./theme";
+import { SPRING } from "./motion";
 
 // Four ice glows, fixed and blurred behind everything. Rendered once.
 function Glows() {
@@ -172,28 +172,21 @@ export function App() {
         />
 
         {error && (
-          <div role="alert" style={{ ...card, padding: 14, marginBottom: 16, fontFamily: FONTS.mono, fontSize: 13 }}>
+          <div role="alert" className="glass rounded-card px-5 py-4 text-sm">
             {error}
           </div>
         )}
 
-        {summary && (!isNarrow || !isCaseOpen) && <Metrics summary={summary} />}
+        {summary && showQueue && <Metrics summary={summary} />}
 
         {isLoading ? (
-          <div style={{ fontFamily: FONTS.mono, fontSize: 13, color: COLORS.inkDim }}>Loading cases…</div>
+          <p className="text-sm text-dim">Loading cases…</p>
         ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: isNarrow ? "1fr" : "minmax(320px, 400px) 1fr",
-              gap: 16,
-              alignItems: "start",
-            }}
-          >
+          <div className="grid grid-cols-1 items-start gap-6 min-[900px]:grid-cols-[minmax(320px,400px)_minmax(0,1fr)]">
             {showQueue && (
-              <div style={{ position: isNarrow ? "static" : "sticky", top: 16 }}>
+              <div className={isNarrow ? "min-w-0" : "sticky top-6 min-w-0"}>
                 <Queue
-                  findings={visible}
+                  findings={findings}
                   stage={stage}
                   counts={counts}
                   selectedId={selectedId}
@@ -204,15 +197,35 @@ export function App() {
               </div>
             )}
             {showCase && (
-              <div style={{ minWidth: 0 }}>
-                {caseError && <div style={{ ...card, padding: 20, fontFamily: FONTS.mono }}>{caseError}</div>}
-                {caseView}
-                {!caseView && !caseError && selectedId === null && (
-                  <div style={{ ...card, padding: 28, fontFamily: FONTS.serif, fontSize: 18, color: COLORS.inkDim }}>
+              <div className="min-w-0">
+                {selectedId === null ? (
+                  <div className="glass-lg rounded-panel px-8 py-12 text-center text-[15px] text-dim">
                     {summary && summary.recovered_minor > 0
-                      ? `${formatMoney(summary.recovered_minor)} recovered so far. Pick a case to see its story.`
-                      : "Pick a case to see the evidence and what to do next."}
+                      ? `${formatMoney(summary.recovered_minor)} recovered so far. Pick a case to see its evidence.`
+                      : "Pick a case on the left to see what is owed, why, and what to do next."}
                   </div>
+                ) : (
+                  <article aria-label={detail ? `${detail.merchant} case` : "Case"} className="relative rounded-panel">
+                    {/* The surface alone carries the shared layoutId, so on a phone the queue row grows
+                        into it without stretching the text; the content fades in on top. */}
+                    <motion.div
+                      aria-hidden
+                      layoutId={isNarrow ? `case-${selectedId}` : undefined}
+                      transition={SPRING}
+                      className="glass-lg absolute inset-0 rounded-panel"
+                    />
+                    <motion.div
+                      key={selectedId}
+                      className="relative"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                    >
+                      {caseError && <p className="px-6 py-8 text-sm text-dim">{caseError}</p>}
+                      {!caseError && !detail && <p className="px-6 py-8 text-sm text-dim">Loading case…</p>}
+                      {caseView}
+                    </motion.div>
+                  </article>
                 )}
               </div>
             )}
