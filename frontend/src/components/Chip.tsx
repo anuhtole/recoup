@@ -82,7 +82,3 @@ export function Deadline({ label, daysLeft }: { label: string; daysLeft: number 
   );
 }
 
-// Temporary bridge for components not yet moved to the new case view.
-export function DeadlinePill({ label, isUrgent: urgent }: { label: string; isUrgent: boolean }) {
-  return <Deadline label={label} daysLeft={urgent ? 0 : 99} />;
-}

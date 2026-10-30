@@ -1,108 +1,127 @@
-import type { Evidence as EvidenceItem, Transaction } from "../../api";
+import type { ReactNode } from "react";
+import type { Email, Evidence as EvidenceItem, Transaction } from "../../api";
 import { formatDate, formatMoney } from "../../format";
-import { COLORS, FONTS, mono } from "../../theme";
+import { type VendorQuote, parseQuote, splitIncident } from "./cite";
 
-const QUOTE = /^(.*?) wrote on (\d{4}-\d{2}-\d{2}): "(.*)"$/s;
+interface Props {
+  evidence: EvidenceItem[];
+  transactions: Transaction[];
+  emails: Email[];
+  /** Footnote number per evidence ref or transaction id, from the reason sentence. */
+  numberOf: Map<string, number>;
+  onOpenEmail: (email: Email, quote: VendorQuote) => void;
+}
 
-function EmailQuote({ item }: { item: EvidenceItem }) {
-  const match = QUOTE.exec(item.detail);
-  if (!match) return <p style={{ ...mono, margin: 0 }}>{item.detail}</p>;
-  const [, vendor, day, quote] = match;
+function Ref({ n }: { n: number | undefined }) {
+  if (n === undefined) return null;
   return (
-    <figure style={{ margin: 0 }}>
-      <blockquote
-        style={{
-          margin: 0,
-          padding: "10px 14px",
-          borderLeft: `3px solid ${COLORS.warn}`,
-          background: COLORS.warnSoft,
-          borderRadius: "0 8px 8px 0",
-          fontFamily: FONTS.serif,
-          fontSize: 17,
-          lineHeight: 1.45,
-          color: COLORS.ink,
-        }}
-      >
-        “{quote}”
-      </blockquote>
-      <figcaption style={{ ...mono, marginTop: 6, color: COLORS.inkDim }}>
-        {vendor}, {formatDate(day)} · quoted verbatim, checked against the email
-      </figcaption>
-    </figure>
+    <span aria-label={`source ${n}`} className="figure inline-grid h-[18px] min-w-[18px] place-items-center rounded-full bg-tint px-1 text-[11px] font-medium text-dim shadow-[inset_0_0_0_1px_var(--line-strong)]">
+      {n}
+    </span>
   );
 }
 
-function Transactions({ transactions }: { transactions: Transaction[] }) {
+function Item({ label, n, children }: { label: ReactNode; n?: number; children: ReactNode }) {
   return (
-    <div style={{ overflowX: "auto" }}>
-      <table style={{ width: "100%", borderCollapse: "collapse", ...mono }}>
-        <tbody>
-          {transactions.map((txn) => (
-            <tr key={txn.id} style={{ borderTop: `1px solid ${COLORS.border}` }}>
-              <td style={{ padding: "7px 8px 7px 0", whiteSpace: "nowrap" }}>{formatDate(txn.posted_at)}</td>
-              <td style={{ padding: "7px 8px" }}>{txn.merchant}</td>
-              <td style={{ padding: "7px 8px", color: COLORS.inkDim }}>{txn.reference ?? "no reference"}</td>
-              <td
-                style={{
-                  padding: "7px 0 7px 8px",
-                  textAlign: "right",
-                  whiteSpace: "nowrap",
-                  color: txn.amount_minor < 0 ? COLORS.good : COLORS.ink,
-                }}
-              >
-                {formatMoney(txn.amount_minor, txn.currency)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function Labeled({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ ...mono, fontSize: 11, color: COLORS.accentInk, marginBottom: 5 }}>{label}</div>
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2 text-[13px] text-dim">
+        <Ref n={n} />
+        <span className="min-w-0 truncate">{label}</span>
+      </div>
       {children}
     </div>
   );
 }
 
-export function Evidence({ evidence, transactions }: { evidence: EvidenceItem[]; transactions: Transaction[] }) {
-  const of = (kind: EvidenceItem["kind"]) => evidence.filter((e) => e.kind === kind);
+function Ledger({ transactions, numberOf }: { transactions: Transaction[]; numberOf: Map<string, number> }) {
   return (
-    <div>
-      {of("email").map((item) => (
-        <Labeled key={item.ref} label="What the vendor wrote">
-          <EmailQuote item={item} />
-        </Labeled>
+    <ul className="m-0 flex flex-col p-0">
+      {transactions.map((txn) => (
+        <li
+          key={txn.id}
+          className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-0.5 border-t border-line py-2.5 text-sm first:border-t-0 first:pt-0"
+        >
+          <span className="figure whitespace-nowrap text-[13px] text-dim">{formatDate(txn.posted_at)}</span>
+          <span className="min-w-0">
+            <span className="block truncate">{txn.merchant}</span>
+            <span className="figure block truncate text-xs text-dim">{txn.reference ?? "No reference"}</span>
+          </span>
+          <span className="flex items-baseline gap-2">
+            <span className={txn.amount_minor < 0 ? "figure text-money-ink" : "figure"}>{formatMoney(txn.amount_minor, txn.currency)}</span>
+            <Ref n={numberOf.get(txn.id)} />
+          </span>
+        </li>
       ))}
+    </ul>
+  );
+}
+
+export function Evidence({ evidence, transactions, emails, numberOf, onOpenEmail }: Props) {
+  const of = (kind: EvidenceItem["kind"]) => evidence.filter((e) => e.kind === kind);
+  const incidents = of("incident");
+  return (
+    <div className="flex flex-col gap-6">
+      {of("email").map((item) => {
+        const quote = parseQuote(item.detail);
+        const email = emails.find((e) => e.id === item.ref || item.ref.endsWith(e.id));
+        if (!quote) {
+          return (
+            <Item key={item.ref} label="What the vendor wrote" n={numberOf.get(item.ref)}>
+              <p className="text-sm">{item.detail}</p>
+            </Item>
+          );
+        }
+        return (
+          <Item key={item.ref} label="What the vendor wrote" n={numberOf.get(item.ref)}>
+            <figure className="m-0">
+              <blockquote className="m-0 border-l-2 border-line-strong pl-4 text-[15px] leading-relaxed">“{quote.quote}”</blockquote>
+              <figcaption className="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1 pl-4 text-[13px] text-dim">
+                <span>
+                  {quote.vendor}, <span className="figure">{formatDate(quote.day)}</span> · quoted word for word, checked against the email
+                </span>
+                {email && (
+                  <button
+                    type="button"
+                    onClick={() => onOpenEmail(email, quote)}
+                    className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-current"
+                  >
+                    Read the email
+                  </button>
+                )}
+              </figcaption>
+            </figure>
+          </Item>
+        );
+      })}
+
       {of("contract").map((item) => (
-        <Labeled key={item.ref} label={`Contract · ${item.ref}`}>
-          <p style={{ margin: 0, fontFamily: FONTS.serif, fontSize: 16, lineHeight: 1.45, color: COLORS.inkSoft }}>
-            {item.detail}
-          </p>
-        </Labeled>
+        <Item key={item.ref} label={<>Contract · <span className="figure">{item.ref}</span></>} n={numberOf.get(item.ref)}>
+          <p className="max-w-[65ch] text-sm leading-relaxed">{item.detail}</p>
+        </Item>
       ))}
-      {of("incident").length > 0 && (
-        <Labeled label="Status page">
-          <ul style={{ margin: 0, paddingLeft: 18, ...mono }}>
-            {of("incident").map((item) => (
-              <li key={item.ref} style={{ marginBottom: 4, overflowWrap: "anywhere" }}>
-                {item.detail}
+
+      {incidents.length > 0 && (
+        <Item label="Vendor status page" n={numberOf.get(incidents[0].ref)}>
+          <ul className="m-0 flex flex-col gap-2 p-0">
+            {incidents.map((item) => (
+              <li key={item.ref} className="list-none text-sm leading-relaxed">
+                {splitIncident(item.detail).text}
               </li>
             ))}
           </ul>
-        </Labeled>
+        </Item>
       )}
-      <Labeled label="Ledger">
-        <Transactions transactions={transactions} />
-      </Labeled>
+
+      {transactions.length > 0 && (
+        <Item label="Your ledger">
+          <Ledger transactions={transactions} numberOf={numberOf} />
+        </Item>
+      )}
+
       {of("rule").map((item) => (
-        <Labeled key={item.ref} label={`Rule · ${item.ref}`}>
-          <p style={{ ...mono, margin: 0 }}>{item.detail}</p>
-        </Labeled>
+        <Item key={item.ref} label="How Recoup checked">
+          <p className="max-w-[65ch] text-sm leading-relaxed text-dim">{item.detail}</p>
+        </Item>
       ))}
     </div>
   );

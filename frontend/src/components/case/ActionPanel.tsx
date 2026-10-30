@@ -1,6 +1,7 @@
+import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import type { FindingDetail } from "../../api";
-import { COLORS, FONTS } from "../../theme";
+import { SPRING } from "../../motion";
 import { Button } from "../Button";
 
 interface Props {
@@ -11,20 +12,21 @@ interface Props {
 }
 
 const DRAFT_LABEL: Record<string, string> = {
-  draft: "Draft recovery request",
+  draft: "Draft request",
   follow_up: "Draft follow-up",
   escalate: "Draft card dispute",
 };
 
 const HINT: Record<string, string> = {
-  draft: "Recoup writes it from the evidence. Nothing is sent until you approve it.",
+  draft: "Recoup writes it from the evidence below. Nothing is sent until you approve it.",
   follow_up: "The vendor needs more from you, or has gone quiet.",
   escalate: "The vendor said no. Your card issuer can still reverse the charge.",
-  review: "Check the draft below, edit anything, then approve it.",
-  wait: "Recoup will close this the moment the credit appears in your ledger.",
+  review: "Read the draft below, edit anything, then approve it.",
+  wait: "This closes by itself the moment the credit appears in your ledger.",
   none: "",
 };
 
+/** The one next step, with the case's single primary action. */
 export function ActionPanel({ detail, isBusy, onDraft, onDismiss }: Props) {
   const [isDismissing, setIsDismissing] = useState(false);
   const [reason, setReason] = useState("");
@@ -32,71 +34,79 @@ export function ActionPanel({ detail, isBusy, onDraft, onDismiss }: Props) {
   const canDraft = kind in DRAFT_LABEL;
   const canDismiss = !["recovered", "dismissed", "expired"].includes(detail.status);
 
+  if (kind === "none" && !canDismiss) {
+    return (
+      <div className="rounded-card bg-tint px-5 py-4 shadow-[inset_0_0_0_1px_var(--line)]">
+        <p className="text-[13px] text-dim">Status</p>
+        <p className="mt-0.5 text-[15px] font-medium">{label}</p>
+      </div>
+    );
+  }
+
   return (
-    <div
-      style={{
-        marginTop: 20,
-        padding: "14px 16px",
-        borderRadius: 10,
-        background: kind === "none" ? COLORS.sunken : COLORS.accentSoft,
-        border: `1px solid ${kind === "none" ? COLORS.border : "#CFE5F0"}`,
-      }}
-    >
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-        <div style={{ minWidth: 0 }}>
-          <div style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.accentInk, letterSpacing: "0.06em", textTransform: "uppercase" }}>
-            Next step
-          </div>
-          <div style={{ fontFamily: FONTS.serif, fontSize: 19, color: COLORS.ink }}>{label}</div>
-          {HINT[kind] && (
-            <div style={{ fontFamily: FONTS.serif, fontSize: 15, color: COLORS.inkSoft, marginTop: 2 }}>{HINT[kind]}</div>
-          )}
-        </div>
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", justifyContent: "flex-end", marginLeft: "auto" }}>
-          {canDismiss && !isDismissing && (
-            <Button variant="ghost" onClick={() => setIsDismissing(true)}>
-              Dismiss
-            </Button>
-          )}
+    <div className="rounded-card bg-tint px-5 py-5 shadow-[inset_0_0_0_1px_var(--line)]">
+      <p className="text-[13px] text-dim">Next step</p>
+      <p className="mt-0.5 text-[17px] font-medium tracking-[-0.01em]">{label}</p>
+      {HINT[kind] && <p className="mt-1 max-w-[60ch] text-sm leading-relaxed text-dim">{HINT[kind]}</p>}
+
+      {(canDraft || canDismiss) && !isDismissing && (
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           {canDraft && (
             <Button variant="primary" onClick={onDraft} isBusy={isBusy}>
               {DRAFT_LABEL[kind]}
             </Button>
           )}
+          {canDismiss && (
+            <Button variant={canDraft ? "ghost" : "secondary"} onClick={() => setIsDismissing(true)}>
+              Not owed, dismiss
+            </Button>
+          )}
         </div>
-      </div>
-      {isDismissing && (
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            if (reason.trim()) onDismiss(reason.trim());
-          }}
-          style={{ display: "flex", gap: 8, marginTop: 12, flexWrap: "wrap" }}
-        >
-          <input
-            autoFocus
-            value={reason}
-            onChange={(event) => setReason(event.target.value)}
-            placeholder="Why close this case? (kept in the audit trail)"
-            aria-label="Reason for dismissing"
-            maxLength={500}
-            style={{
-              flex: "1 1 240px",
-              fontFamily: FONTS.serif,
-              fontSize: 16,
-              padding: "8px 10px",
-              borderRadius: 8,
-              border: `1px solid ${COLORS.borderStrong}`,
-            }}
-          />
-          <Button variant="ghost" onClick={() => setIsDismissing(false)}>
-            Cancel
-          </Button>
-          <Button variant="secondary" type="submit" disabled={!reason.trim()} isBusy={isBusy}>
-            Dismiss case
-          </Button>
-        </form>
       )}
+
+      <AnimatePresence initial={false}>
+        {isDismissing && (
+          <motion.form
+            key="dismiss"
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={SPRING}
+            onSubmit={(event) => {
+              event.preventDefault();
+              if (reason.trim()) onDismiss(reason.trim());
+            }}
+            className="mt-4 flex flex-col gap-3"
+          >
+            <label htmlFor="dismiss-reason" className="text-[13px] text-dim">
+              Why is this not owed? The reason is kept in the history.
+            </label>
+            <input
+              id="dismiss-reason"
+              autoFocus
+              value={reason}
+              onChange={(event) => setReason(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") {
+                  event.stopPropagation();
+                  setIsDismissing(false);
+                }
+              }}
+              placeholder="For example: the second charge was a separate order"
+              maxLength={500}
+              className="h-11 w-full rounded-row bg-field px-3.5 text-[15px] text-ink shadow-[inset_0_0_0_1px_var(--line-strong)] placeholder:text-dim focus-visible:outline-2 focus-visible:outline-accent"
+            />
+            <div className="flex flex-wrap gap-2">
+              <Button type="submit" disabled={!reason.trim()} isBusy={isBusy}>
+                Dismiss case
+              </Button>
+              <Button variant="ghost" onClick={() => setIsDismissing(false)}>
+                Cancel
+              </Button>
+            </div>
+          </motion.form>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

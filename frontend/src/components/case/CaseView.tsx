@@ -1,16 +1,18 @@
-import type { FindingDetail } from "../../api";
+import { AnimatePresence } from "motion/react";
+import { useMemo, useState } from "react";
+import type { Email, FindingDetail } from "../../api";
 import { daysLeftLabel, formatDate, formatMoney } from "../../format";
-import { COLORS, FONTS, LEAK_LABEL, card, eyebrow, mono } from "../../theme";
-import { Button } from "../Button";
-import { DeadlinePill, OutcomeChip, StatusChip } from "../Chip";
-import { isUrgent } from "../Queue";
+import { LEAK_LABEL } from "../../theme";
+import { Deadline, OutcomeChip, StatusChip } from "../Chip";
 import { ActionPanel } from "./ActionPanel";
-import { AuditTrail } from "./AuditTrail";
+import { Reason } from "./Citations";
+import { citeReason, type VendorQuote } from "./cite";
 import { Correspondence } from "./Correspondence";
 import { DraftEditor } from "./DraftEditor";
+import { EmailSheet } from "./EmailSheet";
 import { Evidence } from "./Evidence";
+import { History } from "./History";
 import { Section } from "./Section";
-import { Timeline } from "./Timeline";
 
 export interface CaseActions {
   onDraft: () => void;
@@ -25,55 +27,71 @@ interface Props extends CaseActions {
   onBack?: () => void;
 }
 
-function Amount({ detail }: { detail: FindingDetail }) {
+function Header({ detail }: { detail: FindingDetail }) {
   const isRecovered = detail.status === "recovered" && detail.recovered_minor !== null;
+  const deadline = daysLeftLabel(detail.days_left);
   return (
-    <div style={{ display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", marginTop: 4 }}>
-      <span style={{ fontFamily: FONTS.serif, fontSize: 44, lineHeight: 1.1, color: isRecovered ? COLORS.good : COLORS.ink }}>
+    <header className="flex flex-col">
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+        <p className="text-[13px] text-dim">{LEAK_LABEL[detail.leak_type]}</p>
+        <div className="flex flex-wrap gap-1.5">
+          <OutcomeChip outcome={detail.outcome} />
+          {detail.status !== "open" && <StatusChip status={detail.status} />}
+        </div>
+      </div>
+      <h2 className="mt-1 text-2xl font-semibold tracking-[-0.02em]">{detail.merchant}</h2>
+      <p className={isRecovered ? "figure mt-3 text-[40px] leading-none tracking-[-0.03em] text-money" : "figure mt-3 text-[40px] leading-none tracking-[-0.03em]"}>
         {formatMoney(isRecovered ? (detail.recovered_minor as number) : detail.amount_minor, detail.currency)}
-      </span>
-      {isRecovered && <span style={{ ...mono, color: COLORS.good }}>back in the account</span>}
-    </div>
+      </p>
+      {isRecovered && <p className="mt-2 text-[13px] text-money-ink">Back in the account, confirmed in the ledger</p>}
+      {!isRecovered && detail.recover_by && (
+        <p className="mt-3 flex flex-wrap items-baseline gap-x-2 gap-y-1 text-[13px] text-dim">
+          <span>
+            {detail.leak_type === "sla_credit" ? "Claim the credit by" : "Card dispute deadline"}{" "}
+            <span className="figure">{formatDate(detail.recover_by)}</span>
+          </span>
+          {deadline && (
+            <>
+              <span aria-hidden>·</span>
+              <Deadline label={deadline} daysLeft={detail.days_left} />
+            </>
+          )}
+          {detail.days_left !== null && detail.days_left < 0 && detail.leak_type !== "sla_credit" && (
+            <span>· the vendor can still refund you directly</span>
+          )}
+        </p>
+      )}
+    </header>
   );
 }
 
 export function CaseView({ detail, isBusy, onBack, onDraft, onDismiss, onSave, onSend }: Props) {
+  const [openEmail, setOpenEmail] = useState<{ email: Email; quote: VendorQuote } | null>(null);
+  const cited = useMemo(() => citeReason(detail), [detail]);
   const openDraft = detail.drafts.find((d) => d.status === "draft");
-  const deadline = daysLeftLabel(detail.days_left);
+
   return (
-    <article aria-label={`${detail.merchant} case`} style={{ ...card, padding: "22px 24px 26px" }}>
+    <div className="flex flex-col gap-8 px-5 py-6 sm:px-8 sm:py-8">
       {onBack && (
-        <div style={{ marginBottom: 12 }}>
-          <Button variant="ghost" size="sm" onClick={onBack}>
-            ‹ All cases
-          </Button>
-        </div>
-      )}
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
-        <div style={eyebrow}>{LEAK_LABEL[detail.leak_type]}</div>
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <OutcomeChip outcome={detail.outcome} />
-          <StatusChip status={detail.status} />
-        </div>
-      </div>
-      <h2 style={{ fontFamily: FONTS.serif, fontSize: 30, fontWeight: 500, margin: "6px 0 0" }}>{detail.merchant}</h2>
-      <Amount detail={detail} />
-      {detail.recover_by && (
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 6, flexWrap: "wrap" }}>
-          <span style={mono}>
-            {detail.leak_type === "sla_credit" ? "Claim credit by" : "Card dispute deadline"}{" "}
-            {formatDate(detail.recover_by)}
-          </span>
-          {deadline && <DeadlinePill label={deadline} isUrgent={isUrgent(detail.days_left)} />}
-          {detail.days_left !== null && detail.days_left < 0 && detail.leak_type !== "sla_credit" && (
-            <span style={{ ...mono, color: COLORS.inkDim }}>· the vendor can still refund you directly</span>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={onBack}
+          className="-ml-2 -mt-2 inline-flex h-9 items-center gap-1 self-start rounded-full px-2 text-sm text-dim transition-[transform,background-color,color] duration-150 hover:bg-tint hover:text-ink active:scale-[0.97]"
+        >
+          <svg viewBox="0 0 16 16" aria-hidden className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M10 4L6 8l4 4" />
+          </svg>
+          All cases
+        </button>
       )}
 
-      <p style={{ fontFamily: FONTS.serif, fontSize: 19, lineHeight: 1.5, color: COLORS.ink, margin: "18px 0 0" }}>
-        {detail.reason}
-      </p>
+      <div className="flex flex-col gap-5">
+        <Header detail={detail} />
+        <Reason
+          cited={cited}
+          onOpenEmail={(source) => source.email && setOpenEmail({ email: source.email, quote: source.quote })}
+        />
+      </div>
 
       <ActionPanel detail={detail} isBusy={isBusy} onDraft={onDraft} onDismiss={onDismiss} />
 
@@ -88,23 +106,27 @@ export function CaseView({ detail, isBusy, onBack, onDraft, onDismiss, onSave, o
         </Section>
       )}
 
-      <Section title="Story">
-        <Timeline events={detail.timeline} />
-      </Section>
-
       <Section title="Evidence">
-        <Evidence evidence={detail.evidence} transactions={detail.transactions} />
+        <Evidence
+          evidence={detail.evidence}
+          transactions={detail.transactions}
+          emails={detail.emails}
+          numberOf={cited.numberOf}
+          onOpenEmail={(email, quote) => setOpenEmail({ email, quote })}
+        />
       </Section>
 
-      {(detail.emails.length > 0 || detail.drafts.some((d) => d.status === "sent")) && (
+      {detail.emails.length > 0 && (
         <Section title="Correspondence">
           <Correspondence emails={detail.emails} drafts={detail.drafts} />
         </Section>
       )}
 
-      <Section title="Audit trail">
-        <AuditTrail trace={detail.trace} />
-      </Section>
-    </article>
+      <History events={detail.timeline} trace={detail.trace} />
+
+      <AnimatePresence>
+        {openEmail && <EmailSheet key="email" email={openEmail.email} quote={openEmail.quote} onClose={() => setOpenEmail(null)} />}
+      </AnimatePresence>
+    </div>
   );
 }

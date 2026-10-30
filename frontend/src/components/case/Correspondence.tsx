@@ -1,6 +1,5 @@
 import type { Draft, Email } from "../../api";
 import { formatDateTime } from "../../format";
-import { COLORS, FONTS, mono } from "../../theme";
 
 interface Message {
   key: string;
@@ -8,56 +7,38 @@ interface Message {
   from: string;
   subject: string;
   body: string;
-  isOutbound: boolean;
 }
 
 export function Correspondence({ emails, drafts }: { emails: Email[]; drafts: Draft[] }) {
   const messages: Message[] = [
-    ...emails.map((e) => ({
-      key: e.id, at: e.sent_at, from: e.from_addr, subject: e.subject, body: e.body, isOutbound: false,
-    })),
+    ...emails.map((e) => ({ key: e.id, at: e.sent_at, from: e.from_addr, subject: e.subject, body: e.body })),
     ...drafts
       .filter((d) => d.status === "sent" && d.sent_at)
       .map((d) => ({
-        key: `draft-${d.id}`, at: d.sent_at as string, from: `You → ${d.to_addr}`,
-        subject: d.subject, body: d.body, isOutbound: true,
+        key: `draft-${d.id}`,
+        at: d.sent_at as string,
+        from: `You to ${d.to_addr}`,
+        subject: d.subject,
+        body: d.body,
       })),
   ].sort((a, b) => a.at.localeCompare(b.at));
 
   if (messages.length === 0) return null;
   return (
-    <div style={{ display: "grid", gap: 8 }}>
+    <ul className="m-0 flex flex-col gap-1 p-0">
       {messages.map((message) => (
-        <details
-          key={message.key}
-          style={{
-            border: `1px solid ${COLORS.border}`,
-            borderLeft: `3px solid ${message.isOutbound ? COLORS.accent : COLORS.borderStrong}`,
-            borderRadius: 8,
-            background: COLORS.surface,
-          }}
-        >
-          <summary style={{ cursor: "pointer", padding: "9px 12px", listStyle: "none" }}>
-            <div style={{ fontFamily: FONTS.serif, fontSize: 16, color: COLORS.ink }}>{message.subject}</div>
-            <div style={{ ...mono, fontSize: 11, color: COLORS.inkDim }}>
-              {message.from} · {formatDateTime(message.at)}
-            </div>
-          </summary>
-          <pre
-            style={{
-              margin: 0,
-              padding: "0 12px 12px",
-              whiteSpace: "pre-wrap",
-              fontFamily: FONTS.serif,
-              fontSize: 15,
-              lineHeight: 1.45,
-              color: COLORS.inkSoft,
-            }}
-          >
-            {message.body}
-          </pre>
-        </details>
+        <li key={message.key} className="list-none">
+          <details className="group rounded-row transition-colors open:bg-tint hover:bg-tint">
+            <summary className="flex cursor-pointer select-none flex-col gap-0.5 rounded-row px-4 py-3">
+              <span className="truncate text-[15px] font-medium">{message.subject}</span>
+              <span className="truncate text-[13px] text-dim">
+                {message.from} · <span className="figure">{formatDateTime(message.at)}</span>
+              </span>
+            </summary>
+            <p className="m-0 whitespace-pre-wrap px-4 pb-4 text-sm leading-relaxed">{message.body}</p>
+          </details>
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
