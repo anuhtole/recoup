@@ -169,20 +169,19 @@ export function App() {
       onBack={isNarrow ? closeCase : undefined}
       onDraft={() =>
         void act("case", async () => {
+          // The draft appears in place; no notice needed.
           await api.draft(detail.id);
-          return "Draft ready. Read it, then approve.";
         })
       }
       onDismiss={(reason) =>
         void act("case", async () => {
           await api.dismiss(detail.id, reason);
-          return "Case dismissed. The reason is in its history.";
+          return [{ tone: "info", title: "Case dismissed", body: "The reason is kept in its history." }];
         })
       }
       onSave={async (draftId, subject, body) => {
         const ok = await act("case", async () => {
           await api.editDraft(draftId, subject, body);
-          return "Edits saved.";
         });
         if (!ok) throw new Error("Could not save the draft.");
       }}
