@@ -77,7 +77,7 @@ function Flow({ summary }: { summary: Summary }) {
       data={labelled}
       aspectRatio="11 / 1"
       nodeWidth={6}
-      nodePadding={16}
+      nodePadding={24}
       margin={{ top: 6, right: 190, bottom: 6, left: 130 }}
       className="mt-1 min-h-[104px]"
       animationDuration={reduce ? 0 : 700}

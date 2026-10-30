@@ -284,3 +284,13 @@
     font-variant-numeric: tabular-nums;
   }
 }
+
+/* Reduced transparency and more contrast: the surfaces are solid, so drop the backdrop filter entirely. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .glass,
+  .glass-lg,
+  .glass-float {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

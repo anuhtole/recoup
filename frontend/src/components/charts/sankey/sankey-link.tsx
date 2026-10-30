@@ -4,8 +4,8 @@ import type {
   SankeyLink as SankeyLinkType,
   SankeyNode as SankeyNodeType,
 } from "d3-sankey";
-import { motion, useTransform } from "motion/react";
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { motion, useMotionValueEvent, useTransform } from "motion/react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useMountProgress } from "../use-mount-progress";
 import {
   type SankeyLinkDatum,
@@ -128,6 +128,19 @@ function AnimatedLink({
     `${revealEpoch}-${index}`
   );
   const strokeDashoffset = useTransform(progress, [0, 1], [pathLength, 0]);
+  // Once revealed, drop the dash: a resize after the reveal (fonts, scrollbars)
+  // changes the path length, and a stale dash would cut the link short.
+  const [isRevealed, setIsRevealed] = useState(false);
+  useMotionValueEvent(progress, "change", (value) => {
+    if (value >= 0.999) {
+      setIsRevealed(true);
+    }
+  });
+  useEffect(() => {
+    setIsRevealed(false);
+    const timer = setTimeout(() => setIsRevealed(true), animationDuration * 1.2 + 200);
+    return () => clearTimeout(timer);
+  }, [animationDuration, revealEpoch]);
 
   // Calculate target opacity
   const getTargetOpacity = () => {
@@ -142,7 +155,8 @@ function AnimatedLink({
   const targetOpacity = getTargetOpacity();
 
   // Dasharray for path reveal
-  const dashArray = pathLength > 0 ? `${pathLength} ${pathLength}` : "none";
+  const dashArray =
+    pathLength > 0 && !isRevealed ? `${pathLength} ${pathLength}` : "none";
 
   // Ensure opacity values are always numbers
   const initialOpacity = strokeOpacity ?? 0.5;
@@ -162,7 +176,7 @@ function AnimatedLink({
       strokeWidth={Math.max(1, width)}
       style={{
         cursor: "pointer",
-        strokeDashoffset,
+        strokeDashoffset: isRevealed ? 0 : strokeDashoffset,
       }}
       transition={{ duration: 0.18, ease: "easeOut" }}
     />

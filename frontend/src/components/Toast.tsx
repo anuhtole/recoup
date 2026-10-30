@@ -12,7 +12,7 @@ export interface Notice {
 }
 
 const VISIBLE_MS = 6_000;
-const MAX_VISIBLE = 4;
+const MAX_VISIBLE = 3;
 
 function Card({ notice, onDismiss }: { notice: Notice; onDismiss: () => void }) {
   const dismiss = useRef(onDismiss);
