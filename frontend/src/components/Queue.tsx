@@ -63,7 +63,7 @@ function Row({ finding, isSelected, isNarrow, onSelect }: RowProps) {
         aria-current={isSelected}
         data-case-id={finding.id}
         className={cn(
-          "group relative grid w-full grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-1 rounded-row px-4 py-3 text-left",
+          "group relative grid w-full grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-4 gap-y-0.5 rounded-row px-4 py-2.5 text-left",
           "transition-transform duration-150 ease-out active:scale-[0.99]",
         )}
       >

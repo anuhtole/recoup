@@ -75,11 +75,11 @@ function Flow({ summary }: { summary: Summary }) {
   return (
     <SankeyChart
       data={labelled}
-      aspectRatio="8 / 1"
+      aspectRatio="11 / 1"
       nodeWidth={6}
-      nodePadding={20}
-      margin={{ top: 10, right: 190, bottom: 10, left: 130 }}
-      className="mt-2 min-h-[120px]"
+      nodePadding={16}
+      margin={{ top: 6, right: 190, bottom: 6, left: 130 }}
+      className="mt-1 min-h-[104px]"
       animationDuration={reduce ? 0 : 700}
       revealSignature={data.links.map((l) => l.value).join(",")}
     >
@@ -101,7 +101,7 @@ export function Metrics({ summary }: { summary: Summary }) {
 
   return (
     <section aria-label="Totals" className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {TILES.map((tile) => (
           <div key={tile.key} className="glass flex min-w-0 flex-col rounded-card px-5 py-4">
             <p className="truncate text-[13px] text-dim">{tile.label}</p>
