@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@number-flow/react": "^0.6.2",
