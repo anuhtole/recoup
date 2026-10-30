@@ -1,0 +1,273 @@
+@import "tailwindcss";
+
+/*
+ * Recoup design tokens: glacier liquid glass.
+ * Every colour, radius, blur and font lives here, once, and Tailwind reads them through @theme.
+ * Day is "Glacier"; night ("Night ice") follows prefers-color-scheme.
+ */
+
+:root {
+  color-scheme: light;
+
+  /* Ground and the four ice glows behind everything */
+  --base: #e6f1fa;
+  --glow-1: #bfe3ff;
+  --glow-2: #8fd3f4;
+  --glow-3: #e8f6ff;
+  --glow-4: #c9d7ff;
+  --glow-opacity: 0.85;
+
+  /* Glass */
+  --glass: rgba(255, 255, 255, 0.34);
+  --glass-strong: rgba(255, 255, 255, 0.6); /* sheets and popovers that float over content */
+  --glass-edge: rgba(255, 255, 255, 0.75);
+  --glass-highlight: rgba(255, 255, 255, 0.9);
+  --blur: 24px;
+  --blur-lg: 40px;
+  --shadow: 0 1px 2px rgba(11, 35, 64, 0.04), 0 8px 24px rgba(11, 35, 64, 0.06);
+  --shadow-lg: 0 2px 6px rgba(11, 35, 64, 0.06), 0 24px 64px rgba(11, 35, 64, 0.14);
+
+  /* Ink */
+  --ink: #0b2340;
+  --dim: #4d6a86;
+  --accent: #1f7fd1;
+  --money: #0b8a6c;
+  --amber: #7a4f00;
+
+  /* Derived from the above; small text needs a deeper step to pass AA over glass */
+  --accent-fill: color-mix(in srgb, var(--accent) 84%, #000);
+  --on-accent: #ffffff;
+  --money-ink: color-mix(in srgb, var(--money) 65%, var(--ink));
+  --tint: rgba(255, 255, 255, 0.4); /* flat rows inside glass: never glass on glass */
+  --tint-hover: rgba(255, 255, 255, 0.62);
+  --selected: color-mix(in srgb, var(--accent) 12%, rgba(255, 255, 255, 0.55));
+  --line: rgba(11, 35, 64, 0.09);
+  --line-strong: rgba(11, 35, 64, 0.18);
+  --field: rgba(255, 255, 255, 0.7);
+  --scrim: rgba(11, 35, 64, 0.22);
+  --mark: color-mix(in srgb, var(--accent) 22%, transparent);
+
+  /* Shape and type */
+  --radius-panel: 24px;
+  --radius-card: 16px;
+  --radius-row: 12px;
+  --radius-control: 999px;
+  --font-sans-stack: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Inter Tight", "Segoe UI", sans-serif;
+  --font-mono-stack: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* Bklit charts read these; they point at the glacier tokens */
+  --chart-1: var(--accent);
+  --chart-2: var(--money);
+  --chart-3: var(--dim);
+  --chart-4: color-mix(in srgb, var(--dim) 50%, transparent);
+  --chart-5: var(--ink);
+  --chart-positive: var(--money);
+  --chart-negative: var(--amber);
+  --chart-background: transparent;
+  --chart-foreground: var(--ink);
+  --chart-foreground-muted: var(--dim);
+  --chart-label: var(--dim);
+  --chart-line-primary: var(--chart-1);
+  --chart-line-secondary: var(--chart-2);
+  --chart-crosshair: var(--line-strong);
+  --chart-grid: var(--line);
+  --chart-brush-border: var(--line);
+  --chart-tooltip-background: var(--glass-strong);
+  --chart-tooltip-foreground: var(--ink);
+  --chart-tooltip-muted: var(--dim);
+  --chart-indicator-color: var(--ink);
+  --chart-indicator-secondary-color: var(--base);
+  --chart-marker-background: var(--base);
+  --chart-marker-border: var(--line-strong);
+  --chart-marker-foreground: var(--ink);
+  --chart-marker-badge-background: var(--ink);
+  --chart-marker-badge-foreground: var(--base);
+  --chart-segment-background: var(--tint);
+  --chart-segment-line: var(--line);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --base: #071526;
+    --glow-1: #1f6fb2;
+    --glow-2: #2bb3d9;
+    --glow-3: #0e3a66;
+    --glow-4: #4a5fd1;
+    --glow-opacity: 0.38;
+
+    --glass: rgba(170, 215, 255, 0.1);
+    --glass-strong: rgba(18, 40, 66, 0.78);
+    --glass-edge: rgba(190, 230, 255, 0.28);
+    --glass-highlight: rgba(190, 230, 255, 0.3);
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 2px 6px rgba(0, 0, 0, 0.3), 0 24px 64px rgba(0, 0, 0, 0.5);
+
+    --ink: #e6f3ff;
+    --dim: #8fb2d1;
+    --accent: #7cc8ff;
+    --money: #5fe0b8;
+    --amber: #f2c46d;
+
+    --accent-fill: var(--accent);
+    --on-accent: #071526;
+    --money-ink: var(--money);
+    --tint: rgba(170, 215, 255, 0.05);
+    --tint-hover: rgba(170, 215, 255, 0.1);
+    --selected: color-mix(in srgb, var(--accent) 16%, transparent);
+    --line: rgba(190, 230, 255, 0.1);
+    --line-strong: rgba(190, 230, 255, 0.22);
+    --field: rgba(7, 21, 38, 0.55);
+    --scrim: rgba(2, 8, 16, 0.55);
+  }
+}
+
+/* Reduced transparency: solid surfaces, no blur, no glows. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass: #f3f8fd;
+    --glass-strong: #f8fbfe;
+    --tint: #e9f2fa;
+    --tint-hover: #e1edf8;
+    --blur: 0px;
+    --blur-lg: 0px;
+    --glow-opacity: 0;
+  }
+}
+@media (prefers-reduced-transparency: reduce) and (prefers-color-scheme: dark) {
+  :root {
+    --glass: #0c2036;
+    --glass-strong: #102740;
+    --tint: #10263e;
+    --tint-hover: #143049;
+  }
+}
+
+/* More contrast: near-solid surfaces, defined edges, dim text pulled toward ink. */
+@media (prefers-contrast: more) {
+  :root {
+    --glass: color-mix(in srgb, var(--base) 92%, #fff);
+    --glass-strong: var(--glass);
+    --glass-edge: var(--ink);
+    --line: color-mix(in srgb, var(--ink) 40%, transparent);
+    --line-strong: var(--ink);
+    --dim: color-mix(in srgb, var(--ink) 80%, var(--base));
+    --blur: 0px;
+    --blur-lg: 0px;
+  }
+}
+
+@theme inline {
+  --color-ground: var(--base);
+  --color-ink: var(--ink);
+  --color-dim: var(--dim);
+  --color-accent: var(--accent);
+  --color-accent-fill: var(--accent-fill);
+  --color-on-accent: var(--on-accent);
+  --color-money: var(--money);
+  --color-money-ink: var(--money-ink);
+  --color-amber: var(--amber);
+  --color-glass: var(--glass);
+  --color-glass-strong: var(--glass-strong);
+  --color-glass-edge: var(--glass-edge);
+  --color-tint: var(--tint);
+  --color-tint-hover: var(--tint-hover);
+  --color-selected: var(--selected);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-field: var(--field);
+  --color-scrim: var(--scrim);
+  --color-mark: var(--mark);
+
+  --radius-panel: var(--radius-panel);
+  --radius-card: var(--radius-card);
+  --radius-row: var(--radius-row);
+  --radius-control: var(--radius-control);
+
+  --font-sans: var(--font-sans-stack);
+  --font-mono: var(--font-mono-stack);
+
+  /* Bklit chart tokens */
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-positive: var(--chart-positive);
+  --color-chart-negative: var(--chart-negative);
+  --color-chart-background: var(--chart-background);
+  --color-chart-foreground: var(--chart-foreground);
+  --color-chart-foreground-muted: var(--chart-foreground-muted);
+  --color-chart-label: var(--chart-label);
+  --color-chart-grid: var(--chart-grid);
+  --color-chart-crosshair: var(--chart-crosshair);
+  --color-chart-tooltip-background: var(--chart-tooltip-background);
+  --color-chart-tooltip-foreground: var(--chart-tooltip-foreground);
+  --color-chart-tooltip-muted: var(--chart-tooltip-muted);
+  --color-foreground: var(--ink);
+  --color-muted-foreground: var(--dim);
+}
+
+@layer base {
+  html {
+    background: var(--base);
+    color: var(--ink);
+    font-family: var(--font-sans-stack);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  body {
+    margin: 0;
+    background: var(--base);
+    min-height: 100dvh;
+  }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  summary {
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  ::selection {
+    background: var(--mark);
+  }
+}
+
+@layer components {
+  /* One glass material. Larger surfaces get more blur and a deeper shadow; rows inside are flat tints. */
+  .glass {
+    background: var(--glass);
+    border: 1px solid var(--glass-edge);
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      var(--shadow);
+    -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
+    backdrop-filter: blur(var(--blur)) saturate(180%);
+  }
+  .glass-lg {
+    background: var(--glass);
+    border: 1px solid var(--glass-edge);
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      var(--shadow-lg);
+    -webkit-backdrop-filter: blur(var(--blur-lg)) saturate(180%);
+    backdrop-filter: blur(var(--blur-lg)) saturate(180%);
+  }
+  /* What floats over content (sheets, previews, notifications) is frostier so text stays legible. */
+  .glass-float {
+    background: var(--glass-strong);
+    border: 1px solid var(--glass-edge);
+    box-shadow:
+      inset 0 1px 0 var(--glass-highlight),
+      var(--shadow-lg);
+    -webkit-backdrop-filter: blur(var(--blur-lg)) saturate(180%);
+    backdrop-filter: blur(var(--blur-lg)) saturate(180%);
+  }
+  .figure {
+    font-family: var(--font-mono-stack);
+    font-variant-numeric: tabular-nums;
+  }
+}
