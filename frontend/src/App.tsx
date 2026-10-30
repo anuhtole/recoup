@@ -1,3 +1,4 @@
+import { MotionConfig } from "motion/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, ApiError, type Stage } from "./api";
 import { CaseView } from "./components/case/CaseView";
@@ -11,6 +12,34 @@ import { useCases } from "./hooks/useCases";
 import { useIsNarrow } from "./hooks/useIsNarrow";
 import { useKeyboardNav } from "./hooks/useKeyboardNav";
 import { COLORS, FONTS, card } from "./theme";
+
+// Four ice glows, fixed and blurred behind everything. Rendered once.
+function Glows() {
+  const glows = [
+    { color: "var(--glow-1)", size: "58vmax", left: "-18vmax", top: "-22vmax" },
+    { color: "var(--glow-2)", size: "44vmax", left: "62vw", top: "-14vmax" },
+    { color: "var(--glow-3)", size: "50vmax", left: "30vw", top: "38vh" },
+    { color: "var(--glow-4)", size: "40vmax", left: "-10vmax", top: "62vh" },
+  ];
+  return (
+    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+      {glows.map((glow) => (
+        <div
+          key={glow.color}
+          className="absolute rounded-full blur-[90px]"
+          style={{
+            background: glow.color,
+            opacity: "var(--glow-opacity)",
+            width: glow.size,
+            height: glow.size,
+            left: glow.left,
+            top: glow.top,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 const ADVANCE_DAYS = 14;
 
@@ -61,14 +90,16 @@ export function App() {
     setVersion((v) => v + 1);
   }, [reload]);
 
-  const act = async (kind: "case" | "run" | "advance", work: () => Promise<string | void>) => {
+  const act = async (kind: "case" | "run" | "advance", work: () => Promise<string | void>): Promise<boolean> => {
     setBusy(kind);
     try {
       const message = await work();
       await refresh();
       if (message) notify(message);
+      return true;
     } catch (err) {
       notify(errorText(err), "error");
+      return false;
     } finally {
       setBusy(null);
     }
@@ -97,17 +128,19 @@ export function App() {
           return "Case dismissed. The reason is in the audit trail.";
         })
       }
-      onSave={(draftId, subject, body) =>
-        act("case", async () => {
+      onSave={async (draftId, subject, body) => {
+        const ok = await act("case", async () => {
           await api.editDraft(draftId, subject, body);
-        })
-      }
-      onSend={(draftId) =>
-        act("case", async () => {
+        });
+        if (!ok) throw new Error("Could not save the draft.");
+      }}
+      onSend={async (draftId) => {
+        const ok = await act("case", async () => {
           const sent = await api.send(draftId);
           return `Sent to ${sent.to_addr}. It's under Waiting until the vendor replies.`;
-        })
-      }
+        });
+        if (!ok) throw new Error("Could not send.");
+      }}
     />
   );
 
@@ -115,8 +148,10 @@ export function App() {
   const showCase = !isNarrow || isCaseOpen;
 
   return (
-    <div style={{ minHeight: "100vh", background: COLORS.backdrop, color: COLORS.ink, fontFamily: FONTS.serif }}>
-      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 16px 64px" }}>
+    <MotionConfig reducedMotion="user">
+    <Glows />
+    <div className="relative min-h-dvh text-ink">
+      <main className="mx-auto flex max-w-[1280px] flex-col gap-6 px-4 pb-16 pt-6 sm:px-6 lg:px-8">
         <TopBar
           summary={summary}
           isRunning={busy === "run"}
@@ -186,5 +221,6 @@ export function App() {
       </main>
       <Toast toast={toast} onDone={() => setToast(null)} />
     </div>
+    </MotionConfig>
   );
 }

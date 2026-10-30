@@ -216,9 +216,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  /* The ground is on html only: a body background would paint over the glows behind it. */
   body {
     margin: 0;
-    background: var(--base);
     min-height: 100dvh;
   }
   :focus-visible {

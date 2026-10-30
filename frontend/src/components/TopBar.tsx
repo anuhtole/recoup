@@ -1,6 +1,5 @@
 import type { Summary } from "../api";
 import { formatDate } from "../format";
-import { COLORS, FONTS } from "../theme";
 import { Button } from "./Button";
 
 interface Props {
@@ -11,64 +10,45 @@ interface Props {
   onAdvance: () => void;
 }
 
-function ModeBadge({ mode }: { mode: string }) {
-  const isClaude = mode.startsWith("claude:");
+// The mark: a coin with an arrow coming back to it.
+function Mark() {
   return (
-    <span
-      title={
-        isClaude
-          ? "Vendor email is read by Claude; every extraction is checked in code."
-          : "No API key configured: vendor email is read by keyword rules."
-      }
-      style={{
-        fontFamily: FONTS.mono,
-        fontSize: 11,
-        padding: "4px 8px",
-        borderRadius: 999,
-        color: isClaude ? COLORS.accentInk : COLORS.inkDim,
-        background: isClaude ? COLORS.accentSoft : COLORS.muted,
-      }}
-    >
-      {isClaude ? `Claude · ${mode.slice("claude:".length)}` : "Offline rules"}
+    <span aria-hidden className="glass grid size-9 flex-none place-items-center rounded-[11px]">
+      <svg viewBox="0 0 24 24" className="size-[18px] text-ink" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M20 12a8 8 0 1 1-2.34-5.66" />
+        <path d="M20 4v4h-4" />
+        <path d="M12 8.5v7M10 10.25c0-.97.9-1.75 2-1.75s2 .78 2 1.75-.9 1.5-2 1.75-2 .78-2 1.75.9 1.75 2 1.75 2-.78 2-1.75" strokeWidth="1.4" />
+      </svg>
     </span>
   );
 }
 
 export function TopBar({ summary, isRunning, isAdvancing, onRun, onAdvance }: Props) {
   return (
-    <header
-      style={{
-        display: "flex",
-        flexWrap: "wrap",
-        justifyContent: "space-between",
-        alignItems: "center",
-        gap: 12,
-        marginBottom: 20,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "baseline", gap: 14, flexWrap: "wrap" }}>
-        <h1 style={{ fontFamily: FONTS.serif, fontSize: 34, fontWeight: 500, margin: 0 }}>Recoup</h1>
-        <span style={{ fontFamily: FONTS.serif, fontSize: 17, color: COLORS.inkDim }}>
-          Money your vendors owe you, with the receipts to get it back.
-        </span>
+    <header className="flex flex-wrap items-center justify-between gap-x-6 gap-y-4">
+      <div className="flex min-w-0 items-center gap-3">
+        <Mark />
+        <div className="min-w-0">
+          <h1 className="text-xl font-semibold leading-tight tracking-[-0.02em]">Recoup</h1>
+          {summary && (
+            <p className="text-[13px] leading-tight text-dim">
+              Money vendors owe you · as of <span className="figure">{formatDate(summary.as_of)}</span>
+            </p>
+          )}
+        </div>
       </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-        {summary && <ModeBadge mode={summary.mode} />}
-        {summary && (
-          <span style={{ fontFamily: FONTS.mono, fontSize: 12, color: COLORS.inkSoft }}>
-            As of {formatDate(summary.as_of)}
-          </span>
-        )}
-        <Button onClick={onRun} isBusy={isRunning} title="Re-read the ledger and inbox">
+      <div className="flex items-center gap-2">
+        <Button size="sm" onClick={onRun} isBusy={isRunning} title="Read the ledger and inbox again for anything new">
           Run detection
         </Button>
         {summary?.demo_mode && (
           <Button
+            size="sm"
             onClick={onAdvance}
             isBusy={isAdvancing}
-            title="Demo: move the clock two weeks and play the vendors' side"
+            title="Demo only: move the clock two weeks and play the vendors' side"
           >
-            Advance 2 weeks ›
+            Advance 2 weeks
           </Button>
         )}
       </div>

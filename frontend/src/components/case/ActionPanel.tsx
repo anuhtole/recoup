@@ -92,7 +92,7 @@ export function ActionPanel({ detail, isBusy, onDraft, onDismiss }: Props) {
           <Button variant="ghost" onClick={() => setIsDismissing(false)}>
             Cancel
           </Button>
-          <Button variant="danger" type="submit" disabled={!reason.trim()} isBusy={isBusy}>
+          <Button variant="secondary" type="submit" disabled={!reason.trim()} isBusy={isBusy}>
             Dismiss case
           </Button>
         </form>

@@ -1,48 +1,88 @@
+import { AnimatePresence, motion } from "motion/react";
 import type { Outcome, Status } from "../api";
-import { COLORS, FONTS, OUTCOME_COLORS, OUTCOME_LABEL, STATUS_LABEL } from "../theme";
+import { SPRING } from "../motion";
+import { cn } from "@/lib/utils";
+import { OUTCOME_LABEL, STATUS_LABEL } from "../theme";
 
-function Pill({ label, fg, bg }: { label: string; fg: string; bg: string }) {
+type Tone = "neutral" | "money" | "amber";
+
+// Money-back colour only for recovered money and "Recoverable"; amber only for "Needs review".
+const TONE_BG: Record<Tone, string> = {
+  neutral: "bg-tint shadow-[inset_0_0_0_1px_var(--line)]",
+  money: "bg-money/12",
+  amber: "bg-amber/12",
+};
+const TONE_TEXT: Record<Tone, string> = {
+  neutral: "text-dim",
+  money: "text-money-ink",
+  amber: "text-amber",
+};
+
+const OUTCOME_TONE: Record<Outcome, Tone> = {
+  recoverable: "money",
+  needs_review: "amber",
+  not_recoverable: "neutral",
+};
+
+function Pill({ label, tone, id }: { label: string; tone: Tone; id: string }) {
+  // The pill keeps its place and resizes with a spring; the label and the tint cross-fade.
   return (
-    <span
-      style={{
-        fontFamily: FONTS.mono,
-        fontSize: 11,
-        color: fg,
-        background: bg,
-        padding: "3px 8px",
-        borderRadius: 999,
-        whiteSpace: "nowrap",
-      }}
+    <motion.span
+      layout
+      transition={SPRING}
+      className="relative inline-flex h-6 flex-none items-center overflow-hidden whitespace-nowrap rounded-full px-2.5 text-xs font-medium"
     >
+      <AnimatePresence initial={false}>
+        <motion.span
+          key={tone}
+          aria-hidden
+          className={cn("absolute inset-0 rounded-full", TONE_BG[tone])}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={SPRING}
+        />
+      </AnimatePresence>
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span
+          key={id}
+          className={cn("relative", TONE_TEXT[tone])}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={SPRING}
+        >
+          {label}
+        </motion.span>
+      </AnimatePresence>
+    </motion.span>
+  );
+}
+
+export function OutcomeChip({ outcome }: { outcome: Outcome }) {
+  return <Pill id={outcome} label={OUTCOME_LABEL[outcome]} tone={OUTCOME_TONE[outcome]} />;
+}
+
+export function StatusChip({ status }: { status: Status }) {
+  return <Pill id={status} label={STATUS_LABEL[status]} tone={status === "recovered" ? "money" : "neutral"} />;
+}
+
+const URGENT_DAYS = 14;
+
+export function isUrgent(daysLeft: number | null): boolean {
+  return daysLeft !== null && daysLeft >= 0 && daysLeft <= URGENT_DAYS;
+}
+
+// Deadlines are words, not colour: urgent ones are set in ink, the rest dim.
+export function Deadline({ label, daysLeft }: { label: string; daysLeft: number | null }) {
+  return (
+    <span className={cn("whitespace-nowrap text-xs tabular-nums", isUrgent(daysLeft) ? "font-medium text-ink" : "text-dim")}>
       {label}
     </span>
   );
 }
 
-export function OutcomeChip({ outcome }: { outcome: Outcome }) {
-  const { fg, bg } = OUTCOME_COLORS[outcome];
-  return <Pill label={OUTCOME_LABEL[outcome]} fg={fg} bg={bg} />;
-}
-
-const STATUS_COLORS: Partial<Record<Status, { fg: string; bg: string }>> = {
-  recovered: { fg: COLORS.good, bg: COLORS.goodSoft },
-  sent: { fg: COLORS.accentInk, bg: COLORS.accentSoft },
-  vendor_agreed: { fg: COLORS.accentInk, bg: COLORS.accentSoft },
-  info_requested: { fg: COLORS.warn, bg: COLORS.warnSoft },
-  vendor_declined: { fg: COLORS.warn, bg: COLORS.warnSoft },
-};
-
-export function StatusChip({ status }: { status: Status }) {
-  const { fg, bg } = STATUS_COLORS[status] ?? { fg: COLORS.inkSoft, bg: COLORS.muted };
-  return <Pill label={STATUS_LABEL[status]} fg={fg} bg={bg} />;
-}
-
-export function DeadlinePill({ label, isUrgent }: { label: string; isUrgent: boolean }) {
-  return (
-    <Pill
-      label={label}
-      fg={isUrgent ? COLORS.warn : COLORS.inkDim}
-      bg={isUrgent ? COLORS.warnSoft : COLORS.sunken}
-    />
-  );
+// Temporary bridge for components not yet moved to the new case view.
+export function DeadlinePill({ label, isUrgent: urgent }: { label: string; isUrgent: boolean }) {
+  return <Deadline label={label} daysLeft={urgent ? 0 : 99} />;
 }

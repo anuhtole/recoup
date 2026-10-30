@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
 import type { LeakType, Outcome, Status } from "./api";
 
+// Legacy inline-style tokens, removed once every component has moved to Tailwind and index.css.
 export const COLORS = {
   backdrop: "#F5F0EB",
   surface: "#FFFFFF",
@@ -38,13 +39,6 @@ export const OUTCOME_LABEL: Record<Outcome, string> = {
   recoverable: "Recoverable",
   needs_review: "Needs review",
   not_recoverable: "Not recoverable",
-};
-
-// Needs review is a normal state, so it gets a calm color, never an error red.
-export const OUTCOME_COLORS: Record<Outcome, { fg: string; bg: string }> = {
-  recoverable: { fg: COLORS.good, bg: COLORS.goodSoft },
-  needs_review: { fg: COLORS.warn, bg: COLORS.warnSoft },
-  not_recoverable: { fg: COLORS.inkDim, bg: COLORS.muted },
 };
 
 export const STATUS_LABEL: Record<Status, string> = {
