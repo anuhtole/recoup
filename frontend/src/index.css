@@ -10,12 +10,12 @@
   color-scheme: light;
 
   /* Ground and the four ice glows behind everything */
-  --base: #eff7fc;
-  --glow-1: #d7efff;
-  --glow-2: #c2ebf8;
-  --glow-3: #f5fbff;
-  --glow-4: #dfe8ff;
-  --glow-opacity: 0.8;
+  --base: #eaf4fb;
+  --glow-1: #cbe9ff;
+  --glow-2: #a9dff6;
+  --glow-3: #eef8ff;
+  --glow-4: #d4dfff;
+  --glow-opacity: 0.82;
 
   /* Glass */
   --glass: rgba(255, 255, 255, 0.34);
@@ -32,12 +32,12 @@
   /* Ink */
   --ink: #0b2340;
   --dim: #4d6a86;
-  --accent: #3a9be0;
+  --accent: #2d8dd8;
   --money: #0b8a6c;
   --amber: #7a4f00;
 
   /* Ice-blue fills carry navy text, which passes AA comfortably */
-  --accent-fill: #b8e3f8;
+  --accent-fill: #6aaad9;
   --on-accent: #0b2340;
   --money-ink: color-mix(in srgb, var(--money) 65%, var(--ink));
   --tint: rgba(255, 255, 255, 0.4); /* flat rows inside glass: never glass on glass */
