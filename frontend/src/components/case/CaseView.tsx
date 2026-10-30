@@ -1,12 +1,13 @@
 import { AnimatePresence } from "motion/react";
 import { useMemo, useState } from "react";
-import type { Email, FindingDetail } from "../../api";
+import type { Draft, Email, FindingDetail } from "../../api";
 import { daysLeftLabel, formatDate, formatMoney } from "../../format";
 import { LEAK_LABEL } from "../../theme";
 import { Deadline, OutcomeChip, StatusChip } from "../Chip";
 import { ActionPanel } from "./ActionPanel";
 import { Reason } from "./Citations";
 import { citeReason, type VendorQuote } from "./cite";
+import { ConfirmSheet } from "./ConfirmSheet";
 import { Correspondence } from "./Correspondence";
 import { DraftEditor } from "./DraftEditor";
 import { EmailSheet } from "./EmailSheet";
@@ -67,6 +68,8 @@ function Header({ detail }: { detail: FindingDetail }) {
 
 export function CaseView({ detail, isBusy, onBack, onDraft, onDismiss, onSave, onSend }: Props) {
   const [openEmail, setOpenEmail] = useState<{ email: Email; quote: VendorQuote } | null>(null);
+  // Held here, not in the editor, so the sheet can show "Sent" after the draft leaves the case.
+  const [confirming, setConfirming] = useState<{ draft: Draft; subject: string; body: string } | null>(null);
   const cited = useMemo(() => citeReason(detail), [detail]);
   const openDraft = detail.drafts.find((d) => d.status === "draft");
 
@@ -101,7 +104,7 @@ export function CaseView({ detail, isBusy, onBack, onDraft, onDismiss, onSave, o
             draft={openDraft}
             isBusy={isBusy}
             onSave={(subject, body) => onSave(openDraft.id, subject, body)}
-            onSend={() => onSend(openDraft.id)}
+            onApprove={(subject, body) => setConfirming({ draft: openDraft, subject, body })}
           />
         </Section>
       )}
@@ -124,6 +127,21 @@ export function CaseView({ detail, isBusy, onBack, onDraft, onDismiss, onSave, o
 
       <History events={detail.timeline} trace={detail.trace} />
 
+      <AnimatePresence>
+        {confirming && (
+          <ConfirmSheet
+            key="confirm"
+            draft={confirming.draft}
+            subject={confirming.subject}
+            onClose={() => setConfirming(null)}
+            onConfirm={async () => {
+              const { draft, subject, body } = confirming;
+              if (subject !== draft.subject || body !== draft.body) await onSave(draft.id, subject, body);
+              await onSend(draft.id);
+            }}
+          />
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {openEmail && <EmailSheet key="email" email={openEmail.email} quote={openEmail.quote} onClose={() => setOpenEmail(null)} />}
       </AnimatePresence>

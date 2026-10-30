@@ -499,7 +499,9 @@ export default function SmoothTab({
 
       <div
         className={cn(
-          "relative touch-pan-y overflow-hidden data-dragging:cursor-grabbing data-dragging:select-none",
+          // clip, not hidden: a hidden box can still be scrolled by focus or
+          // scrollIntoView, which would show a panel the track is not on.
+          "relative touch-pan-y overflow-clip data-dragging:cursor-grabbing data-dragging:select-none",
           panelClassName
         )}
         ref={viewportRef}

@@ -42,8 +42,14 @@ interface RowProps {
 
 function Row({ finding, isSelected, isNarrow, onSelect }: RowProps) {
   const ref = useRef<HTMLButtonElement>(null);
+  // Keep the selected row in view by scrolling its own list only, never the page or the tab track.
   useEffect(() => {
-    if (isSelected && !isNarrow) ref.current?.scrollIntoView({ block: "nearest" });
+    const row = ref.current;
+    const list = row?.closest("ul");
+    if (!isSelected || isNarrow || !row || !list) return;
+    const top = row.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
+    if (top < list.scrollTop) list.scrollTop = top;
+    else if (top + row.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = top + row.offsetHeight - list.clientHeight;
   }, [isSelected, isNarrow]);
   const deadline = daysLeftLabel(finding.days_left);
   const isRecovered = finding.status === "recovered";

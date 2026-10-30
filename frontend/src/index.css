@@ -44,7 +44,7 @@
   --line: rgba(11, 35, 64, 0.09);
   --line-strong: rgba(11, 35, 64, 0.18);
   --field: rgba(255, 255, 255, 0.7);
-  --scrim: rgba(11, 35, 64, 0.22);
+  --scrim: rgba(11, 35, 64, 0.3);
   --mark: color-mix(in srgb, var(--accent) 22%, transparent);
 
   /* Shape and type */

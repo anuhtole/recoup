@@ -22,6 +22,7 @@ import {
 import {
   type MouseEvent,
   type PointerEvent,
+  type RefObject,
   useEffect,
   useLayoutEffect,
   useRef,
@@ -64,6 +65,8 @@ export interface SlideToConfirmProps {
   resetAfter?: number | null;
   disabled?: boolean;
   className?: string;
+  /** Ref to the thumb button, e.g. so a dialog can focus it first. */
+  thumbRef?: RefObject<HTMLButtonElement>;
 }
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -89,11 +92,12 @@ export default function SlideToConfirm({
   resetAfter = 2600,
   disabled = false,
   className,
+  thumbRef,
 }: SlideToConfirmProps) {
   const [phase, setPhase] = useState<Phase>("idle");
   const [armed, setArmed] = useState(false);
-  // Keyboard path: the first Enter arms (the thumb moves halfway and the
-  // label asks again), the second Enter confirms. Never one keystroke.
+  // Keyboard path: the first Enter arms (the label asks again), the second
+  // Enter confirms. Never one keystroke.
   const [keyArmed, setKeyArmed] = useState(false);
   const reduceMotion = useReducedMotion();
 
@@ -268,9 +272,9 @@ export default function SlideToConfirm({
         setKeyArmed(false);
         commit(0, true);
       } else {
+        // The thumb stays put so the question stays readable; the arrow leans forward.
         setKeyArmed(true);
         setArmed(true);
-        animate(x, max() * 0.5, spring());
       }
       return;
     }
@@ -381,6 +385,7 @@ export default function SlideToConfirm({
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
+          ref={thumbRef}
           // Offsets are from inside the 1px border.
           style={{
             x,
