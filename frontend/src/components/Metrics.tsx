@@ -2,6 +2,7 @@ import { AnimatePresence, motion, useReducedMotion, useSpring, useTransform } fr
 import { useEffect, useState } from "react";
 import type { Summary } from "../api";
 import { formatMoney } from "../format";
+import { useMediaQuery } from "../hooks/useIsNarrow";
 import { type Snapshot, useSummaryHistory } from "../hooks/useSummaryHistory";
 import { SPRING } from "../motion";
 import { LineSparkline } from "./charts/sparkline";
@@ -91,6 +92,49 @@ function Flow({ summary }: { summary: Summary }) {
   );
 }
 
+/** The same flow as a list, for phones: nothing to clip at any width. */
+function FlowList({ summary }: { summary: Summary }) {
+  const money = (minor: number) => formatMoney(minor, summary.currency);
+  const requested = summary.in_flight_minor + summary.recovered_minor;
+  const found = summary.claimable_minor + requested + summary.expired_minor;
+  const rows: { label: string; value: number; depth: 0 | 1 | 2; tone?: "money" | "dim" }[] = [
+    { label: "Found", value: found, depth: 0 },
+    { label: "Ready to claim", value: summary.claimable_minor, depth: 1 },
+    { label: "Requested", value: requested, depth: 1 },
+    { label: "Recovered", value: summary.recovered_minor, depth: 2, tone: "money" },
+    { label: "Missed", value: summary.expired_minor, depth: 1, tone: "dim" },
+  ];
+  return (
+    <ul className="m-0 flex flex-col p-0">
+      {rows.map((row) => (
+        <li
+          key={row.label}
+          className={cn(
+            "flex list-none items-baseline justify-between gap-4 border-t border-line py-2.5 text-sm first:border-t-0 first:pt-0 last:pb-0",
+            row.depth === 1 && "pl-4",
+            row.depth === 2 && "pl-8",
+          )}
+        >
+          <span className={cn("min-w-0 truncate", row.depth === 0 ? "font-medium" : "text-dim")}>
+            {row.depth > 0 && <span aria-hidden className="mr-1.5 text-dim">↳</span>}
+            {row.label}
+          </span>
+          <span
+            className={cn(
+              "figure flex-none",
+              row.depth === 0 && "font-medium",
+              row.tone === "money" && row.value > 0 && "text-money-ink",
+              row.tone === "dim" && "text-dim",
+            )}
+          >
+            {money(row.value)}
+          </span>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
 export function Metrics({ summary }: { summary: Summary }) {
   const history = useSummaryHistory(summary);
   // The flow is a detail: closed by default, and the choice is remembered for the session.
@@ -101,6 +145,7 @@ export function Metrics({ summary }: { summary: Summary }) {
       return false;
     }
   });
+  const isPhone = useMediaQuery("(max-width: 639px)");
   const toggleFlow = (open: boolean) => {
     setShowFlow(open);
     try {
@@ -118,7 +163,7 @@ export function Metrics({ summary }: { summary: Summary }) {
 
   return (
     <section aria-label="Totals" className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 lg:grid-cols-4">
         {TILES.map((tile) => (
           <div key={tile.key} className="glass flex min-w-0 flex-col rounded-card px-5 py-4">
             <p className="truncate text-[13px] text-dim">{tile.label}</p>
@@ -160,7 +205,7 @@ export function Metrics({ summary }: { summary: Summary }) {
           aria-expanded={showFlow}
           aria-controls="money-flow"
           onClick={() => toggleFlow(!showFlow)}
-          className="inline-flex items-center gap-1.5 self-start rounded-full px-3 py-1.5 -ml-3 text-[13px] font-medium text-dim transition-[transform,background-color,color] duration-150 hover:bg-tint hover:text-ink active:scale-[0.97]"
+          className="inline-flex items-center gap-1.5 self-start rounded-md py-1 text-[13px] font-medium text-dim transition-[transform,color] duration-150 hover:text-ink active:scale-[0.97]"
         >
           {showFlow ? "Hide where the money went" : "See where the money went"}
           <svg viewBox="0 0 16 16" aria-hidden className={cn("size-3.5 transition-transform duration-200", showFlow && "rotate-180")} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
@@ -179,11 +224,7 @@ export function Metrics({ summary }: { summary: Summary }) {
               transition={SPRING}
             >
               <div className="glass mt-2 rounded-card px-5 py-4">
-                <div className="-mx-2 overflow-x-auto px-2">
-                  <div className="min-w-[560px]">
-                    <Flow summary={summary} />
-                  </div>
-                </div>
+                {isPhone ? <FlowList summary={summary} /> : <Flow summary={summary} />}
               </div>
             </motion.div>
           )}
