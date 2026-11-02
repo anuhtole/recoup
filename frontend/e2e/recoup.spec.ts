@@ -38,7 +38,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(caseTitle(page)).toHaveText("Figma");
     await expect(page.locator("[data-footnote]")).toHaveCount(2);
     await page.locator('[data-footnote="1"]').hover();
-    await expect(page.getByRole("tooltip")).toContainText("FIGMA");
+    await expect(page.getByRole("tooltip")).toContainText("FIG-202606");
   });
 
   await test.step("email footnote opens the original email; Escape closes it", async () => {
