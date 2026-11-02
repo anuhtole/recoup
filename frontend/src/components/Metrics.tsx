@@ -1,29 +1,13 @@
 import { AnimatePresence, motion, useReducedMotion, useSpring, useTransform } from "motion/react";
 import { useEffect, useState } from "react";
-import type { Summary } from "../api";
+import type { Finding, LeakType, Summary } from "../api";
 import { formatMoney } from "../format";
-import { useMediaQuery } from "../hooks/useIsNarrow";
 import { type Snapshot, useSummaryHistory } from "../hooks/useSummaryHistory";
 import { SPRING } from "../motion";
 import { LineSparkline } from "./charts/sparkline";
-import { SankeyChart, SankeyLink, SankeyNode } from "./charts/sankey";
 import { cn } from "@/lib/utils";
 
 const FLOW_KEY = "recoup.flow";
-
-interface Tile {
-  key: keyof Omit<Snapshot, "as_of">;
-  label: string;
-  isMoneyBack?: boolean;
-  isMuted?: boolean;
-}
-
-const TILES: Tile[] = [
-  { key: "claimable", label: "Ready to claim" },
-  { key: "in_flight", label: "Waiting on vendors" },
-  { key: "recovered", label: "Recovered", isMoneyBack: true },
-  { key: "expired", label: "Missed", isMuted: true },
-];
 
 /** A money figure that rolls to its new value on a spring (a jump under reduced motion). */
 function RollingMoney({ minor, currency, className }: { minor: number; currency: string; className?: string }) {
@@ -41,103 +25,61 @@ function RollingMoney({ minor, currency, className }: { minor: number; currency:
   );
 }
 
-function Flow({ summary }: { summary: Summary }) {
-  const reduce = useReducedMotion();
-  const requested = summary.in_flight_minor + summary.recovered_minor;
-  const found = summary.claimable_minor + requested + summary.expired_minor;
-  const nodes = [
-    { name: "Found", category: "source" as const },
-    { name: "Ready to claim" },
-    { name: "Missed" },
-    { name: "Requested" },
-    { name: "Recovered" },
-  ];
-  const links = [
-    { source: 0, target: 1, value: summary.claimable_minor },
-    { source: 0, target: 2, value: summary.expired_minor },
-    { source: 0, target: 3, value: requested },
-    { source: 3, target: 4, value: summary.recovered_minor },
-  ].filter((link) => link.value > 0);
-  // Keep only nodes that carry money, and renumber the links to match.
-  const used = [...new Set(links.flatMap((l) => [l.source, l.target]))].sort((a, b) => a - b);
-  const data = {
-    nodes: used.map((i) => nodes[i]),
-    links: links.map((l) => ({ ...l, source: used.indexOf(l.source), target: used.indexOf(l.target) })),
-  };
-  // One-line labels that carry their amount, so small flows never stack two lines on each other.
-  const totals = [found, summary.claimable_minor, summary.expired_minor, requested, summary.recovered_minor];
-  const labelled = {
-    ...data,
-    nodes: used.map((i) => ({ ...nodes[i], name: `${nodes[i].name}  ${formatMoney(totals[i], summary.currency)}` })),
-  };
-  if (found === 0 || data.links.length === 0) {
-    return <p className="py-6 text-sm text-dim">The flow appears once Recoup finds money owed.</p>;
+const TYPE_LABEL: Record<LeakType, string> = {
+  duplicate_charge: "Duplicate charges",
+  missing_refund: "Missed refunds",
+  charged_after_cancellation: "Billed after cancelling",
+  sla_credit: "Outage credits",
+};
+
+// Four steps of the one primary blue, darkest for the largest share.
+const SHADES = [
+  "var(--primary)",
+  "color-mix(in srgb, var(--primary) 62%, var(--base))",
+  "color-mix(in srgb, var(--primary) 38%, var(--base))",
+  "color-mix(in srgb, var(--primary) 20%, var(--base))",
+];
+
+/** Ready to claim, split by the kind of leak: one stacked bar and the same numbers as a list. */
+function ByType({ findings, total, currency }: { findings: Finding[]; total: number; currency: string }) {
+  const sums = new Map<LeakType, { amount: number; count: number }>();
+  for (const f of findings.filter((f) => f.stage === "todo")) {
+    const entry = sums.get(f.leak_type) ?? { amount: 0, count: 0 };
+    sums.set(f.leak_type, { amount: entry.amount + f.amount_minor, count: entry.count + 1 });
   }
-  const colourOf = ["var(--ink)", "var(--ink)", "var(--dim)", "var(--dim)", "var(--money)"];
-  const colour = (index: number) => colourOf[used[index]];
+  const rows = [...sums.entries()].sort((a, b) => b[1].amount - a[1].amount);
+  if (rows.length === 0 || total === 0) {
+    return <p className="text-14 text-dim">Nothing is ready to claim right now.</p>;
+  }
+  const share = (amount: number) => (amount / total) * 100;
   return (
-    <SankeyChart
-      data={labelled}
-      aspectRatio="11 / 1"
-      nodeWidth={6}
-      nodePadding={24}
-      margin={{ top: 6, right: 190, bottom: 6, left: 130 }}
-      className="min-h-[104px]"
-      animationDuration={reduce ? 0 : 700}
-      revealSignature={data.links.map((l) => l.value).join(",")}
-    >
-      <SankeyLink strokeOpacity={0.1} fadedOpacity={0.05} getNodeColor={(_, i) => colour(i)} />
-      <SankeyNode lineCap={3} showValueLabels={false} getNodeColor={(_, i) => colour(i)} />
-    </SankeyChart>
+    <div className="flex flex-col gap-4">
+      <p className="text-14 font-semibold">Ready to claim, by type</p>
+      <div aria-hidden className="flex h-3 gap-1 overflow-hidden rounded-full">
+        {rows.map(([type, { amount }], i) => (
+          <span key={type} className="h-full" style={{ width: `max(${share(amount)}%, 8px)`, background: SHADES[i] }} />
+        ))}
+      </div>
+      <ul className="m-0 flex flex-col gap-1 p-0">
+        {rows.map(([type, { amount, count }], i) => (
+          <li key={type} className="grid list-none grid-cols-[12px_minmax(0,1fr)_auto] items-center gap-x-3 py-1 text-14">
+            <span aria-hidden className="size-3 rounded-full" style={{ background: SHADES[i] }} />
+            <span className="min-w-0">
+              {TYPE_LABEL[type]} <span className="text-dim">· {count}</span>
+            </span>
+            <span className="figure text-right">
+              {formatMoney(amount, currency)} <span className="inline-block w-10 text-dim">{Math.round(share(amount))}%</span>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 
-/** The same flow as a list, for phones: nothing to clip at any width. */
-function FlowList({ summary }: { summary: Summary }) {
-  const money = (minor: number) => formatMoney(minor, summary.currency);
-  const requested = summary.in_flight_minor + summary.recovered_minor;
-  const found = summary.claimable_minor + requested + summary.expired_minor;
-  const rows: { label: string; value: number; depth: 0 | 1 | 2; tone?: "money" | "dim" }[] = [
-    { label: "Found", value: found, depth: 0 },
-    { label: "Ready to claim", value: summary.claimable_minor, depth: 1 },
-    { label: "Requested", value: requested, depth: 1 },
-    { label: "Recovered", value: summary.recovered_minor, depth: 2, tone: "money" },
-    { label: "Missed", value: summary.expired_minor, depth: 1, tone: "dim" },
-  ];
-  return (
-    <ul className="m-0 flex flex-col p-0">
-      {rows.map((row) => (
-        <li
-          key={row.label}
-          className={cn(
-            "flex list-none items-baseline justify-between gap-4 border-t border-line py-2.5 text-sm first:border-t-0 first:pt-0 last:pb-0",
-            row.depth === 1 && "pl-4",
-            row.depth === 2 && "pl-8",
-          )}
-        >
-          <span className={cn("min-w-0 truncate", row.depth === 0 ? "font-medium" : "text-dim")}>
-            {row.depth > 0 && <span aria-hidden className="mr-1.5 text-dim">↳</span>}
-            {row.label}
-          </span>
-          <span
-            className={cn(
-              "figure flex-none",
-              row.depth === 0 && "font-medium",
-              row.tone === "money" && row.value > 0 && "text-money-ink",
-              row.tone === "dim" && "text-dim",
-            )}
-          >
-            {money(row.value)}
-          </span>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-export function Metrics({ summary }: { summary: Summary }) {
+export function Metrics({ summary, findings }: { summary: Summary; findings: Finding[] }) {
   const history = useSummaryHistory(summary);
-  // The flow is a detail: closed by default, and the choice is remembered for the session.
+  // The breakdown is a detail: closed by default, and the choice is remembered for the session.
   const [showFlow, setShowFlow] = useState(() => {
     try {
       return sessionStorage.getItem(FLOW_KEY) === "open";
@@ -145,7 +87,6 @@ export function Metrics({ summary }: { summary: Summary }) {
       return false;
     }
   });
-  const isPhone = useMediaQuery("(max-width: 639px)");
   const toggleFlow = (open: boolean) => {
     setShowFlow(open);
     try {
@@ -154,49 +95,61 @@ export function Metrics({ summary }: { summary: Summary }) {
       // Storage unavailable; the toggle still works for this page.
     }
   };
-  const values: Record<Tile["key"], number> = {
-    claimable: summary.claimable_minor,
-    in_flight: summary.in_flight_minor,
-    recovered: summary.recovered_minor,
-    expired: summary.expired_minor,
-  };
+  const strip: { key: keyof Omit<Snapshot, "as_of">; label: string; value: number; className?: string }[] = [
+    { key: "in_flight", label: "In flight", value: summary.in_flight_minor },
+    {
+      key: "recovered",
+      label: "Recovered",
+      value: summary.recovered_minor,
+      className: summary.recovered_minor > 0 ? "text-money-ink" : undefined,
+    },
+    { key: "expired", label: "Missed", value: summary.expired_minor, className: "text-dim" },
+  ];
 
   return (
-    <section aria-label="Totals" className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 min-[360px]:grid-cols-2 lg:grid-cols-4">
-        {TILES.map((tile) => (
-          <div key={tile.key} className="glass flex min-w-0 flex-col rounded-card px-5 py-4">
-            <p className="truncate text-[13px] text-dim">{tile.label}</p>
-            <div className="mt-1 flex flex-wrap items-end justify-between gap-x-3 gap-y-1">
-              <RollingMoney
-                minor={values[tile.key]}
-                currency={summary.currency}
-                className={cn(
-                  "figure truncate text-[22px] font-semibold leading-tight tracking-[-0.02em] sm:text-[26px]",
-                  tile.isMoneyBack && values[tile.key] > 0 && "text-money",
-                  tile.isMuted && "text-dim",
-                )}
-              />
-              {/* One snapshot per demo advance; a single point draws no line. */}
-              {history.length > 1 && (
-                <div className="mb-1 w-20 flex-none">
-                  <LineSparkline
-                    data={history}
-                    dataKey={tile.key}
-                    height={26}
-                    strokeWidth={1.5}
-                    color={tile.isMoneyBack ? "var(--money)" : "var(--dim)"}
-                    endDot
-                    crosshair={false}
-                    aria-label={`${tile.label} after each two-week step: ${history
-                      .map((h) => formatMoney(h[tile.key], summary.currency))
-                      .join(", ")}`}
-                  />
-                </div>
-              )}
-            </div>
+    <section aria-label="Totals" className="flex flex-col gap-2 sm:gap-4">
+      <div className="flex flex-wrap items-end justify-between gap-x-8 gap-y-3">
+        <div className="min-w-0">
+          <p className="text-14 text-dim">Ready to claim</p>
+          <div className="flex items-end gap-4">
+            <RollingMoney
+              minor={summary.claimable_minor}
+              currency={summary.currency}
+              className="figure text-26 font-semibold tracking-[-0.02em] sm:text-40 sm:tracking-[-0.03em]"
+            />
+            {/* One snapshot per demo advance; a single point draws no line. */}
+            {history.length > 1 && (
+              <div className="mb-2 w-24 flex-none sm:w-28">
+                <LineSparkline
+                  data={history}
+                  dataKey="claimable"
+                  height={28}
+                  strokeWidth={1.5}
+                  color="var(--dim)"
+                  endDot
+                  crosshair={false}
+                  aria-label={`Ready to claim after each two-week step: ${history
+                    .map((h) => formatMoney(h.claimable, summary.currency))
+                    .join(", ")}`}
+                />
+              </div>
+            )}
           </div>
-        ))}
+        </div>
+        <dl className="m-0 grid w-full grid-cols-3 gap-4 sm:flex sm:w-auto sm:gap-8">
+          {strip.map((item) => (
+            <div key={item.key} className="min-w-0">
+              <dt className="truncate text-12 text-dim sm:text-14">{item.label}</dt>
+              <dd className="m-0">
+                <RollingMoney
+                  minor={item.value}
+                  currency={summary.currency}
+                  className={cn("figure text-16 font-semibold sm:text-20", item.className)}
+                />
+              </dd>
+            </div>
+          ))}
+        </dl>
       </div>
 
       <div className="flex flex-col">
@@ -205,10 +158,19 @@ export function Metrics({ summary }: { summary: Summary }) {
           aria-expanded={showFlow}
           aria-controls="money-flow"
           onClick={() => toggleFlow(!showFlow)}
-          className="inline-flex items-center gap-1.5 self-start rounded-md py-1 text-[13px] font-medium text-dim transition-[transform,color] duration-150 hover:text-ink active:scale-[0.97]"
+          className="inline-flex items-center gap-2 self-start py-1 text-14 font-medium text-dim transition-[transform,color] duration-150 hover:text-ink active:scale-[0.97]"
         >
           {showFlow ? "Hide where the money went" : "See where the money went"}
-          <svg viewBox="0 0 16 16" aria-hidden className={cn("size-3.5 transition-transform duration-200", showFlow && "rotate-180")} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+          <svg
+            viewBox="0 0 16 16"
+            aria-hidden
+            className={cn("size-4 transition-transform duration-200", showFlow && "rotate-180")}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
             <path d="M4 6l4 4 4-4" />
           </svg>
         </button>
@@ -223,8 +185,8 @@ export function Metrics({ summary }: { summary: Summary }) {
               exit={{ height: 0, opacity: 0 }}
               transition={SPRING}
             >
-              <div className="glass mt-2 rounded-card px-5 py-4">
-                {isPhone ? <FlowList summary={summary} /> : <Flow summary={summary} />}
+              <div className="mt-2 max-w-[720px] rounded-card bg-tint p-5">
+                <ByType findings={findings} total={summary.claimable_minor} currency={summary.currency} />
               </div>
             </motion.div>
           )}
