@@ -41,8 +41,8 @@
   --on-primary: #ffffff;
   --money-ink: color-mix(in srgb, var(--money) 70%, var(--ink));
   --tint: #f7f8f5; /* flat rows inside panels */
-  --tint-hover: #eff1ec;
-  --selected: #ebf0ea;
+  --tint-hover: #f4f5f3;
+  --selected: #f2f7f3; /* soft pine wash; the selected row also gets a pine bar on its left edge */
   --line: rgba(27, 33, 28, 0.08);
   --line-strong: rgba(27, 33, 28, 0.16);
   --field: #ffffff;

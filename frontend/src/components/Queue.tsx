@@ -73,7 +73,11 @@ function Row({ finding, isSelected, isNarrow, onSelect }: RowProps) {
           transition={SPRING}
           className={cn(
             "absolute inset-0 rounded-row transition-colors duration-150",
-            isSelected && !isNarrow ? "bg-selected" : isNarrow ? "bg-tint" : "group-hover:bg-tint-hover",
+            isSelected && !isNarrow
+              ? "bg-selected shadow-[inset_3px_0_0_var(--primary)]"
+              : isNarrow
+                ? "bg-tint"
+                : "group-hover:bg-tint-hover",
           )}
         />
         <span className="relative flex min-w-0 flex-wrap items-center gap-x-2 text-16 font-medium">
