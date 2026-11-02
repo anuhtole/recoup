@@ -12,38 +12,11 @@ import { useCases } from "./hooks/useCases";
 import { useIsNarrow } from "./hooks/useIsNarrow";
 import { useKeyboardNav } from "./hooks/useKeyboardNav";
 import { SPRING } from "./motion";
+import { orderStage } from "./queue";
 
 const ADVANCE_DAYS = 14;
 
 type NoticeInput = Omit<Notice, "id">;
-
-// Four ice glows, fixed and blurred behind everything. Rendered once.
-function Glows() {
-  const glows = [
-    { color: "var(--glow-1)", size: "58vmax", left: "-18vmax", top: "-22vmax" },
-    { color: "var(--glow-2)", size: "44vmax", left: "62vw", top: "-14vmax" },
-    { color: "var(--glow-3)", size: "50vmax", left: "30vw", top: "38vh" },
-    { color: "var(--glow-4)", size: "40vmax", left: "-10vmax", top: "62vh" },
-  ];
-  return (
-    <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {glows.map((glow) => (
-        <div
-          key={glow.color}
-          className="absolute rounded-full blur-[90px]"
-          style={{
-            background: glow.color,
-            opacity: "var(--glow-opacity)",
-            width: glow.size,
-            height: glow.size,
-            left: glow.left,
-            top: glow.top,
-          }}
-        />
-      ))}
-    </div>
-  );
-}
 
 function errorText(error: unknown): string {
   return error instanceof ApiError ? error.message : "Something went wrong. Check the API logs.";
@@ -97,13 +70,19 @@ export function App() {
   const isNarrow = useIsNarrow();
   const { detail, error: caseError } = useCase(selectedId, version);
 
-  const visible = useMemo(() => findings.filter((f) => f.stage === stage), [findings, stage]);
-  const ids = useMemo(() => visible.map((f) => f.id), [visible]);
-  const counts = useMemo(() => {
-    const total: Record<Stage, number> = { todo: 0, waiting: 0, done: 0 };
-    findings.forEach((f) => (total[f.stage] += 1));
-    return total;
-  }, [findings]);
+  // The same order the queue shows: live cases by days left, then the closed-window group.
+  const ids = useMemo(() => {
+    const { live, closed } = orderStage(findings, stage);
+    return [...live, ...closed].map((f) => f.id);
+  }, [findings, stage]);
+  const counts = useMemo(
+    () => ({
+      todo: orderStage(findings, "todo").live.length,
+      waiting: findings.filter((f) => f.stage === "waiting").length,
+      done: findings.filter((f) => f.stage === "done").length,
+    }),
+    [findings],
+  );
 
   // On wide screens keep a case open: the first one in the tab if nothing is selected.
   useEffect(() => {
@@ -163,7 +142,8 @@ export function App() {
 
   const changeStage = (next: Stage) => {
     setStage(next);
-    const first = findings.find((f) => f.stage === next);
+    const { live, closed } = orderStage(findings, next);
+    const first = live[0] ?? closed[0];
     setSelectedId(first ? first.id : null);
   };
 
@@ -193,9 +173,18 @@ export function App() {
       onSend={async (draftId) => {
         const ok = await act("case", async () => {
           const sent = await api.send(draftId);
-          return [{ tone: "info", title: `Sent to ${sent.to_addr}`, body: "It waits under Waiting until the vendor replies." }];
+          return [
+            {
+              tone: "info",
+              isResult: true,
+              title: `${sent.channel === "card_dispute" ? "Dispute" : "Request"} sent to ${sent.to_addr}`,
+              body: "The case is now under Waiting until the vendor replies.",
+            },
+          ];
         });
         if (!ok) throw new Error("Could not send.");
+        // Show the case where it now lives: the Waiting tab, still selected.
+        setStage("waiting");
       }}
     />
   );
@@ -205,7 +194,6 @@ export function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <Glows />
       <div className="relative min-h-dvh text-ink">
         <main className="mx-auto flex max-w-[1280px] flex-col gap-6 px-4 pb-24 pt-6 sm:px-6 lg:px-8">
           <TopBar
@@ -235,15 +223,15 @@ export function App() {
           />
 
           {error && (
-            <div role="alert" className="glass rounded-card px-5 py-4 text-sm">
+            <div role="alert" className="rounded-card bg-tint px-5 py-4 text-14">
               {error}
             </div>
           )}
 
-          {summary && showQueue && <Metrics summary={summary} />}
+          {summary && showQueue && <Metrics summary={summary} findings={findings} />}
 
           {isLoading ? (
-            <p className="text-sm text-dim">Loading cases…</p>
+            <p className="text-14 text-dim">Loading cases…</p>
           ) : (
             <div className="grid grid-cols-1 items-start gap-6 min-[900px]:grid-cols-[minmax(320px,400px)_minmax(0,1fr)]">
               {showQueue && (
@@ -262,7 +250,7 @@ export function App() {
               {showCase && (
                 <div className="min-w-0">
                   {selectedId === null ? (
-                    <div className="glass-lg rounded-panel px-8 py-12 text-center text-[15px] text-dim">
+                    <div className="glass-lg rounded-panel px-8 py-12 text-center text-16 text-dim">
                       {summary && summary.recovered_minor > 0
                         ? `${formatMoney(summary.recovered_minor)} recovered so far. Pick a case to see its evidence.`
                         : "Pick a case on the left to see what is owed, why, and what to do next."}
@@ -284,8 +272,8 @@ export function App() {
                         animate={{ opacity: 1 }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
                       >
-                        {caseError && <p className="px-6 py-8 text-sm text-dim">{caseError}</p>}
-                        {!caseError && !detail && <p className="px-6 py-8 text-sm text-dim">Loading case…</p>}
+                        {caseError && <p className="px-6 py-8 text-14 text-dim">{caseError}</p>}
+                        {!caseError && !detail && <p className="px-6 py-8 text-14 text-dim">Loading case…</p>}
                         {caseView}
                       </motion.div>
                     </article>
