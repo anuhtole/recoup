@@ -29,13 +29,13 @@ export function Correspondence({ emails, drafts }: { emails: Email[]; drafts: Dr
       {messages.map((message) => (
         <li key={message.key} className="list-none">
           <details className="group rounded-row transition-colors open:bg-tint hover:bg-tint">
-            <summary className="flex cursor-pointer select-none flex-col gap-0.5 rounded-row px-4 py-3">
-              <span className="truncate text-[15px] font-medium">{message.subject}</span>
-              <span className="truncate text-[13px] text-dim">
+            <summary className="flex cursor-pointer select-none flex-col gap-1 rounded-row px-4 py-3">
+              <span className="truncate text-16 font-medium">{message.subject}</span>
+              <span className="truncate text-14 text-dim">
                 {message.from} · <span className="figure">{formatDateTime(message.at)}</span>
               </span>
             </summary>
-            <p className="m-0 whitespace-pre-wrap px-4 pb-4 text-sm leading-relaxed">{message.body}</p>
+            <p className="m-0 whitespace-pre-wrap px-4 pb-4 text-14">{message.body}</p>
           </details>
         </li>
       ))}

@@ -18,10 +18,10 @@ const DRAFT_LABEL: Record<string, string> = {
 };
 
 const HINT: Record<string, string> = {
-  draft: "Recoup writes it from the evidence below. Nothing is sent until you approve it.",
+  draft: "Recoup writes it from the evidence below. Nothing is sent until you confirm it.",
   follow_up: "The vendor needs more from you, or has gone quiet.",
   escalate: "The vendor said no. Your card issuer can still reverse the charge.",
-  review: "Read the draft below, edit anything, then approve it.",
+  review: "Read the draft below, edit anything, then send it.",
   wait: "This closes by itself the moment the credit appears in your ledger.",
   none: "",
 };
@@ -36,18 +36,18 @@ export function ActionPanel({ detail, isBusy, onDraft, onDismiss }: Props) {
 
   if (kind === "none" && !canDismiss) {
     return (
-      <div className="rounded-card bg-tint px-5 py-4 shadow-[inset_0_0_0_1px_var(--line)]">
-        <p className="text-[13px] text-dim">Status</p>
-        <p className="mt-0.5 text-[15px] font-medium">{label}</p>
+      <div className="rounded-card bg-tint px-5 py-4">
+        <p className="text-14 text-dim">Status</p>
+        <p className="mt-1 text-16 font-medium">{label}</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-card bg-tint px-5 py-5 shadow-[inset_0_0_0_1px_var(--line)]">
-      <p className="text-[13px] text-dim">Next step</p>
-      <p className="mt-0.5 text-[17px] font-medium tracking-[-0.01em]">{label}</p>
-      {HINT[kind] && <p className="mt-1 max-w-[60ch] text-sm leading-relaxed text-dim">{HINT[kind]}</p>}
+    <div className="rounded-card bg-tint p-5">
+      <p className="text-14 text-dim">Next step</p>
+      <p className="mt-1 text-16 font-medium tracking-[-0.01em]">{label}</p>
+      {HINT[kind] && <p className="mt-1 max-w-[60ch] text-14 text-dim">{HINT[kind]}</p>}
 
       {(canDraft || canDismiss) && !isDismissing && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -78,7 +78,7 @@ export function ActionPanel({ detail, isBusy, onDraft, onDismiss }: Props) {
             }}
             className="mt-4 flex flex-col gap-3"
           >
-            <label htmlFor="dismiss-reason" className="text-[13px] text-dim">
+            <label htmlFor="dismiss-reason" className="text-14 text-dim">
               Why is this not owed? The reason is kept in the history.
             </label>
             <input
@@ -94,7 +94,7 @@ export function ActionPanel({ detail, isBusy, onDraft, onDismiss }: Props) {
               }}
               placeholder="For example: the second charge was a separate order"
               maxLength={500}
-              className="h-11 w-full rounded-row bg-field px-3.5 text-[15px] text-ink shadow-[inset_0_0_0_1px_var(--line-strong)] placeholder:text-dim focus-visible:outline-2 focus-visible:outline-accent"
+              className="h-11 w-full rounded-row bg-field px-4 text-16 text-ink border border-line-strong placeholder:text-dim focus-visible:outline-2 focus-visible:outline-accent"
             />
             <div className="flex flex-wrap gap-2">
               <Button type="submit" disabled={!reason.trim()} isBusy={isBusy}>

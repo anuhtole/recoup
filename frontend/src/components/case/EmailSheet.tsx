@@ -24,11 +24,11 @@ export function EmailSheet({ email, quote, onClose }: Props) {
   return (
     <Sheet labelId="email-sheet-title" title={email.subject} subtitle={`From ${email.from_addr} · ${formatDateTime(email.sent_at)}`} onClose={onClose}>
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-2">
-        <div className="whitespace-pre-wrap rounded-card bg-tint px-5 py-4 text-[15px] leading-relaxed shadow-[inset_0_0_0_1px_var(--line)]">
+        <div className="whitespace-pre-wrap rounded-card bg-tint px-5 py-4 text-16">
           {range ? (
             <>
               {email.body.slice(0, range.start)}
-              <mark ref={mark} className="rounded-[4px] bg-mark px-0.5 text-ink [box-decoration-break:clone]">
+              <mark ref={mark} className="rounded-[4px] bg-mark px-1 text-ink [box-decoration-break:clone]">
                 {email.body.slice(range.start, range.end)}
               </mark>
               {email.body.slice(range.end)}
@@ -38,7 +38,7 @@ export function EmailSheet({ email, quote, onClose }: Props) {
           )}
         </div>
       </div>
-      <p className="px-6 pb-6 pt-3 text-[13px] text-dim">
+      <p className="px-6 pb-6 pt-3 text-14 text-dim">
         {range
           ? "The highlighted sentence is the quote Recoup relies on, checked word for word against this email."
           : "Recoup checked the quote word for word against this email."}

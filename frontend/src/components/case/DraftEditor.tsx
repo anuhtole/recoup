@@ -11,7 +11,7 @@ interface Props {
 }
 
 const FIELD =
-  "w-full rounded-row bg-field px-3.5 text-[15px] text-ink shadow-[inset_0_0_0_1px_var(--line-strong)] transition-shadow focus-visible:outline-2 focus-visible:outline-accent";
+  "w-full rounded-row bg-field px-4 text-16 text-ink border border-line-strong transition-colors focus-visible:outline-2 focus-visible:outline-accent";
 
 export function DraftEditor({ draft, isBusy, onSave, onApprove }: Props) {
   const [subject, setSubject] = useState(draft.subject);
@@ -26,30 +26,30 @@ export function DraftEditor({ draft, isBusy, onSave, onApprove }: Props) {
   const isDispute = draft.channel === "card_dispute";
 
   return (
-    <div className="flex flex-col gap-4 rounded-card bg-tint p-5 shadow-[inset_0_0_0_1px_var(--line)]">
+    <div className="flex flex-col gap-4 rounded-card bg-tint p-5">
       <div className="flex flex-col gap-1">
-        <span className="text-[13px] text-dim">To</span>
-        <p className="flex flex-wrap items-baseline gap-x-2 text-[15px]">
+        <span className="text-14 text-dim">To</span>
+        <p className="flex flex-wrap items-baseline gap-x-2 text-16">
           <span className="font-medium">{draft.to_addr}</span>
-          <span className="text-[13px] text-dim">{isDispute ? "card dispute desk" : "from your vendor directory"}</span>
+          <span className="text-14 text-dim">{isDispute ? "card dispute desk" : "from your vendor directory"}</span>
         </p>
       </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="draft-subject" className="text-[13px] text-dim">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="draft-subject" className="text-14 text-dim">
           Subject
         </label>
         <input id="draft-subject" value={subject} onChange={(e) => setSubject(e.target.value)} className={`${FIELD} h-11`} />
       </div>
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="draft-body" className="text-[13px] text-dim">
+      <div className="flex flex-col gap-2">
+        <label htmlFor="draft-body" className="text-14 text-dim">
           Message
         </label>
         <textarea
           id="draft-body"
           value={body}
           onChange={(e) => setBody(e.target.value)}
-          rows={Math.min(16, Math.max(8, body.split("\n").length + 1))}
-          className={`${FIELD} resize-y py-3 leading-relaxed`}
+          rows={Math.max(8, body.split("\n").length + 2)}
+          className={`${FIELD} resize-y py-3 [field-sizing:content]`}
         />
       </div>
       <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -58,12 +58,12 @@ export function DraftEditor({ draft, isBusy, onSave, onApprove }: Props) {
           onClick={() => onApprove(subject, body)}
           disabled={!subject.trim() || !body.trim()}
         >
-          {isDispute ? "Approve and file" : "Approve and send"}
+          {isDispute ? "Send dispute" : "Send request"}
         </Button>
         <Button onClick={() => void onSave(subject, body).catch(() => undefined)} disabled={!isDirty} isBusy={isBusy}>
           Save edits
         </Button>
-        {isDirty && <span className="text-[13px] text-dim">Unsaved edits are saved when you approve.</span>}
+        {isDirty && <span className="text-14 text-dim">Unsaved edits are saved when you send.</span>}
       </div>
     </div>
   );

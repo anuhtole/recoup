@@ -3,6 +3,7 @@ import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { formatDate, formatMoney } from "../../format";
 import { SPRING } from "../../motion";
+import { titleCase } from "../../queue";
 import { type Citation, type CitedReason, type Source, splitIncident } from "./cite";
 
 const PREVIEW_WIDTH = 300;
@@ -13,45 +14,45 @@ function Preview({ source }: { source: Source }) {
     case "charge":
       return (
         <>
-          <p className="text-xs font-medium text-dim">{source.transactions.length > 1 ? "Charges on your card" : "Charge on your card"}</p>
-          <ul className="mt-2 flex flex-col gap-1.5">
+          <p className="text-12 font-medium text-dim">{source.transactions.length > 1 ? "Charges on your card" : "Charge on your card"}</p>
+          <ul className="mt-2 flex flex-col gap-2">
             {source.transactions.map((t) => (
-              <li key={t.id} className="grid grid-cols-[auto_1fr_auto] items-baseline gap-3 text-[13px]">
+              <li key={t.id} className="grid grid-cols-[auto_1fr_auto] items-baseline gap-3 text-14">
                 <span className="figure text-dim">{formatDate(t.posted_at)}</span>
-                <span className="truncate">{t.merchant}</span>
+                <span className="truncate">{titleCase(t.merchant)}</span>
                 <span className="figure">{formatMoney(t.amount_minor, t.currency)}</span>
               </li>
             ))}
           </ul>
           {source.transactions[0]?.reference && (
-            <p className="mt-2 text-xs text-dim">Reference <span className="ref"> {source.transactions[0].reference}</span></p>
+            <p className="mt-2 text-12 text-dim">Reference <span className="ref"> {source.transactions[0].reference}</span></p>
           )}
         </>
       );
     case "email":
       return (
         <>
-          <p className="text-xs font-medium text-dim">
+          <p className="text-12 font-medium text-dim">
             {source.quote.vendor}, <span className="figure">{formatDate(source.quote.day)}</span>
           </p>
-          <p className="mt-1.5 text-sm leading-snug">“{source.quote.quote}”</p>
-          {source.email && <p className="mt-2 text-xs text-dim">Click to read the whole email.</p>}
+          <p className="mt-2 text-14">“{source.quote.quote}”</p>
+          {source.email && <p className="mt-2 text-12 text-dim">Click to read the whole email.</p>}
         </>
       );
     case "contract":
       return (
         <>
-          <p className="ref truncate text-xs text-dim">{source.evidence.ref}</p>
-          <p className="mt-1.5 line-clamp-5 text-[13px] leading-snug">{source.evidence.detail}</p>
+          <p className="ref truncate text-12 text-dim">{source.evidence.ref}</p>
+          <p className="mt-2 line-clamp-5 text-14">{source.evidence.detail}</p>
         </>
       );
     case "incident":
       return (
         <>
-          <p className="text-xs font-medium text-dim">Vendor status page</p>
-          <ul className="mt-1.5 flex flex-col gap-1.5">
+          <p className="text-12 font-medium text-dim">Vendor status page</p>
+          <ul className="mt-2 flex flex-col gap-2">
             {source.items.map((item) => (
-              <li key={item.ref} className="text-[13px] leading-snug">
+              <li key={item.ref} className="text-14">
                 {splitIncident(item.detail).text}
               </li>
             ))}
@@ -135,7 +136,7 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
             setIsOpen((open) => !open);
           }
         }}
-        className="figure mx-px inline-grid h-[18px] min-w-[18px] -translate-y-[0.45em] place-items-center rounded-full bg-tint px-1 align-baseline text-[11px] font-medium leading-none text-dim shadow-[inset_0_0_0_1px_var(--line-strong)] transition-[transform,background-color,color] duration-150 hover:bg-tint-hover hover:text-ink active:scale-90"
+        className="figure relative inline-grid h-[18px] min-w-[18px] before:absolute before:-inset-[3px] before:content-[''] -translate-y-[0.45em] place-items-center rounded-full bg-selected px-1 align-baseline text-12 font-medium text-dim transition-[transform,background-color,color] duration-150 hover:bg-tint-hover hover:text-ink active:scale-90"
       >
         {citation.n}
       </button>
@@ -171,7 +172,7 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
 /** The one-sentence reason, with a numbered footnote on every claim we hold a source for. */
 export function Reason({ cited, onOpenEmail }: { cited: CitedReason; onOpenEmail: (source: Extract<Source, { kind: "email" }>) => void }) {
   return (
-    <p className="max-w-[62ch] text-[17px] leading-[1.6] text-ink text-pretty">
+    <p className="max-w-[62ch] text-16 text-ink text-pretty">
       {cited.parts.map((part, i) =>
         typeof part === "string" ? <span key={i}>{part}</span> : <Footnote key={`fn-${part.n}`} citation={part} onOpenEmail={onOpenEmail} />,
       )}
