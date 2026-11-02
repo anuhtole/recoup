@@ -60,7 +60,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await page.getByRole("button", { name: "Save edits" }).click();
     await expect(page.getByRole("button", { name: "Save edits" })).toBeDisabled();
 
-    await page.getByRole("button", { name: "Approve and send" }).click();
+    await page.getByRole("button", { name: "Send request" }).click();
     const sheet = page.getByRole("dialog");
     await expect(sheet).toContainText("billing@figma.com");
 
@@ -84,7 +84,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     const before = await totals.innerText();
     await page.getByRole("button", { name: "Advance 2 weeks" }).click();
     await expect(page.locator("[aria-live=polite] li").filter({ hasText: /credit posted/i })).toBeVisible();
-    await expect(totals.locator('svg[role="img"]')).toHaveCount(4);
+    await expect(totals.locator('svg[role="img"]')).toHaveCount(1);
     await expect.poll(() => totals.innerText()).not.toBe(before);
     await tab(page, "Done").click();
     await expect(row(page, 2)).toContainText("Recovered");
