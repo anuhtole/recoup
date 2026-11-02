@@ -3,6 +3,7 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from pydantic import SecretStr
 from sqlalchemy.orm import Session, sessionmaker
 
 from recoup.api.app import create_app
@@ -139,3 +140,28 @@ def test_full_loop_from_finding_to_money_back(client: TestClient) -> None:
     closed = next(f for f in findings if f["status"] == "recovered")
     timeline = client.get(f"/api/findings/{closed['id']}").json()["timeline"]
     assert [e["kind"] for e in timeline][-3:] == ["reply", "charge", "recovered"]
+
+
+def test_sources_reports_connections_without_exposing_credentials(
+    session_factory: sessionmaker[Session], settings: Settings, services: Services, sources: Sources
+) -> None:
+    load_and_run(session_factory, settings, services, sources)
+    secret = SecretStr("do-not-return-this")
+    ready = settings.model_copy(update={"ramp_client_id": "id", "ramp_client_secret": secret})
+    with TestClient(create_app(ready, services)) as client:
+        response = client.get("/api/sources")
+
+    assert response.json()["ramp"] == {
+        "connected": True,
+        "environment": "sandbox",
+        "last_sync": None,
+    }
+    assert {f["key"] for f in response.json()["status_feeds"]} == {"jira", "confluence", "github"}
+    assert "do-not-return-this" not in response.text
+
+
+def test_ramp_sync_without_credentials_is_a_clear_conflict(client: TestClient) -> None:
+    response = client.post("/api/sync/ramp")
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "Ramp is not connected."

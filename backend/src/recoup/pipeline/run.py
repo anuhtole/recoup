@@ -29,6 +29,7 @@ from recoup.domain.sources import Promise
 from recoup.domain.types import FindingCandidate, Outcome, Transaction
 from recoup.domain.workflow import Status
 from recoup.extract.validate import PromiseTiming
+from recoup.ingest.live import with_live_status
 from recoup.ingest.loader import row_to_transaction
 from recoup.ingest.sources import Sources
 from recoup.pipeline.inbox import read_inbox
@@ -180,6 +181,7 @@ def run_pipeline(
     transactions = [row_to_transaction(row) for row in rows]
     timing = PromiseTiming(settings.promise_default_days, settings.promise_grace_days)
 
+    sources = with_live_status(session, sources)
     inbox = read_inbox(session, services.extractor, services.classifier, sources.vendors, timing)
     data = DetectionInput(transactions, inbox.promises, sources, as_of)
 

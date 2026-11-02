@@ -39,6 +39,16 @@ class Settings(BaseSettings):
     # Where card dispute packets go when a vendor is not in the directory.
     card_dispute_address: str = "disputes@card-issuer.example"
 
+    # Ramp Developer API. Client credentials stay server-side, like the Claude key.
+    ramp_client_id: str | None = None
+    ramp_client_secret: SecretStr | None = None
+    ramp_env: Literal["sandbox", "production"] = "sandbox"
+    ramp_lookback_days: int = 180
+
+    @property
+    def ramp_configured(self) -> bool:
+        return bool(self.ramp_client_id and self.ramp_client_secret)
+
     @property
     def llm_enabled(self) -> bool:
         if self.llm == "off":

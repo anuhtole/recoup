@@ -2,7 +2,9 @@
   {
     "claim_window_days": 60,
     "clause": "\u00a77.2 If Monthly Uptime falls below 99.9%, Customer is eligible for a Service Credit of 10% of that month's fees (30% below 99.0%; 100% below 95.0%). Claims must be submitted within 60 days of the end of the affected month.",
+    "covered_components": [],
     "document": "aws-enterprise-agreement-2026.pdf",
+    "period": "month",
     "plan": "Enterprise Agreement",
     "sla_target_bp": 9990,
     "tiers": [
@@ -24,7 +26,9 @@
   {
     "claim_window_days": 30,
     "clause": "Schedule B. Uptime commitment of 99.9% per calendar month. Credits: 10% of the monthly fee below 99.9%, 25% below 99.5%, 50% below 99.0%. Customer must request credits within 30 days after the end of the month.",
+    "covered_components": [],
     "document": "slack-business-plus-order-form.pdf",
+    "period": "month",
     "plan": "Business+",
     "sla_target_bp": 9990,
     "tiers": [
@@ -46,7 +50,9 @@
   {
     "claim_window_days": 30,
     "clause": "Section 4. Monthly availability target 99.9%. Below target: 10% credit; below 99.5%: 25% credit. Requests must be made within 30 days after month end.",
+    "covered_components": [],
     "document": "zoom-business-terms.pdf",
+    "period": "month",
     "plan": "Business",
     "sla_target_bp": 9990,
     "tiers": [
@@ -64,7 +70,9 @@
   {
     "claim_window_days": 30,
     "clause": "Uptime commitment 99.9% per quarter-month. Below commitment: 10% service credit; below 99.0%: 25%. Claims within 30 days of month end.",
+    "covered_components": [],
     "document": "github-enterprise-cloud-sla.pdf",
+    "period": "month",
     "plan": "Enterprise Cloud",
     "sla_target_bp": 9990,
     "tiers": [
@@ -82,7 +90,9 @@
   {
     "claim_window_days": 30,
     "clause": "The Plus plan carries no uptime commitment or service credits.",
+    "covered_components": [],
     "document": "notion-plus-terms.pdf",
+    "period": "month",
     "plan": "Plus",
     "sla_target_bp": null,
     "tiers": [],

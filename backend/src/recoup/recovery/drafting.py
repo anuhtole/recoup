@@ -79,9 +79,9 @@ def _sla_credit(facts: CaseFacts) -> tuple[str, str]:
     incidents = "\n".join(f"- {e.detail}" for e in facts.evidence_of("incident"))
     rule = facts.evidence_of("rule")
     reference = facts.references[0] if facts.references else "the affected invoice"
-    clause = (
-        f"Our agreement ({contract[0].ref}) states:\n{contract[0].detail}\n\n" if contract else ""
-    )
+    # A link means public terms, which may not be what this customer signed.
+    source = "Your published SLA" if contract and "://" in contract[0].ref else "Our agreement"
+    clause = f"{source} ({contract[0].ref}) states:\n{contract[0].detail}\n\n" if contract else ""
     measured = f"{rule[0].detail}\n\n" if rule else ""
     return (
         f"Service credit request for invoice {reference}",

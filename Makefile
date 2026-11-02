@@ -1,4 +1,4 @@
-.PHONY: setup data db demo reset api web dev test eval eval-claude lint fmt typecheck check
+.PHONY: setup data db demo reset api web dev test eval eval-claude lint fmt typecheck check demo-status live live-api
 
 # Import the backend from source, so commands never depend on the editable install's .pth file
 # (macOS can flag those hidden, and Python 3.12+ then skips them).
@@ -22,6 +22,20 @@ db:
 reset:
 	rm -f backend/recoup.db
 	$(MAKE) db
+
+## demo-status: the Oct 1 demo plus real status-page outages from the recorded feeds
+demo-status: reset
+	cd backend && uv run recoup sync status --snapshot --demo-invoices
+
+## live: a separate database with only real data (needs Ramp credentials in backend/.env)
+LIVE_ENV = RECOUP_DATABASE_URL=sqlite:///./recoup_live.db RECOUP_DATA_DIR=../data/live
+live:
+	cd backend && $(LIVE_ENV) uv run alembic upgrade head
+	cd backend && $(LIVE_ENV) uv run recoup sync ramp
+	cd backend && $(LIVE_ENV) uv run recoup sync status
+
+live-api:
+	cd backend && $(LIVE_ENV) uv run recoup serve --reload
 
 ## dev: API on :8000 (demo controls on) and UI on :5173
 dev:

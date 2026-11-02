@@ -1,0 +1,165 @@
+[
+  {
+    "key": "FIGMA",
+    "name": "Figma",
+    "support_email": "billing@figma.com",
+    "domains": [
+      "figma.com"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "SLACK TECHNOLOGIES",
+    "name": "Slack",
+    "support_email": "billing@slack.com",
+    "domains": [
+      "slack.com"
+    ],
+    "aliases": [
+      "SLACK"
+    ]
+  },
+  {
+    "key": "NOTION LABS",
+    "name": "Notion",
+    "support_email": "team@makenotion.com",
+    "domains": [
+      "makenotion.com",
+      "notion.so"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "GITHUB",
+    "name": "GitHub",
+    "support_email": "billing@github.com",
+    "domains": [
+      "github.com"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "LINEAR APP",
+    "name": "Linear",
+    "support_email": "billing@linear.app",
+    "domains": [
+      "linear.app"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "ZOOM US",
+    "name": "Zoom",
+    "support_email": "billing@zoom.us",
+    "domains": [
+      "zoom.us"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "GOOGLE WORKSPACE",
+    "name": "Google Workspace",
+    "support_email": "workspace-billing@google.com",
+    "domains": [
+      "google.com"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "WEWORK",
+    "name": "WeWork",
+    "support_email": "members@wework.com",
+    "domains": [
+      "wework.com"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "AMAZON WEB SERVICES",
+    "name": "Amazon Web Services",
+    "support_email": "aws-billing@amazon.com",
+    "domains": [
+      "amazon.com",
+      "aws.amazon.com"
+    ],
+    "aliases": [
+      "AWS"
+    ]
+  },
+  {
+    "key": "AMZN MKTP US",
+    "name": "Amazon",
+    "support_email": "cs-reply@amazon.com",
+    "domains": [
+      "amazon.com"
+    ],
+    "aliases": [
+      "AMAZON"
+    ]
+  },
+  {
+    "key": "UNITED AIRLINES",
+    "name": "United Airlines",
+    "support_email": "refunds@united.com",
+    "domains": [
+      "united.com"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "MARRIOTT SF UNION SQ",
+    "name": "Marriott Union Square",
+    "support_email": "guest.services@marriott.com",
+    "domains": [
+      "marriott.com"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "STAPLES",
+    "name": "Staples",
+    "support_email": "orders@staples.com",
+    "domains": [
+      "staples.com"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "LOOM",
+    "name": "Loom",
+    "support_email": "billing@loom.com",
+    "domains": [
+      "loom.com"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "CALENDLY",
+    "name": "Calendly",
+    "support_email": "support@calendly.com",
+    "domains": [
+      "calendly.com"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "ATLASSIAN JIRA",
+    "name": "Jira (Atlassian)",
+    "support_email": "jira-sla-claims@atlassian.example",
+    "domains": [
+      "atlassian.com",
+      "atlassian.example"
+    ],
+    "aliases": []
+  },
+  {
+    "key": "ATLASSIAN CONFLUENCE",
+    "name": "Confluence (Atlassian)",
+    "support_email": "confluence-sla-claims@atlassian.example",
+    "domains": [
+      "atlassian.com",
+      "atlassian.example"
+    ],
+    "aliases": []
+  }
+]

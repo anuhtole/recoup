@@ -81,6 +81,11 @@ class Contract(BaseModel):
     tiers: tuple[SlaTier, ...] = ()
     claim_window_days: int = 30
     clause: str = ""
+    # How uptime is measured. Empty components means the whole service counts.
+    period: Literal["month", "quarter"] = "month"
+    covered_components: tuple[str, ...] = ()
+    # Public status data can't prove this customer was hit (a regional outage, say).
+    needs_customer_confirmation: bool = False
 
 
 class Incident(BaseModel):
@@ -92,6 +97,9 @@ class Incident(BaseModel):
     started_at: datetime
     ended_at: datetime
     status_url: str
+    # Status pages report per component. "partial" alone never confirms a breach.
+    component: str | None = None
+    severity: Literal["outage", "partial"] = "outage"
 
     @field_validator("started_at", "ended_at")
     @classmethod

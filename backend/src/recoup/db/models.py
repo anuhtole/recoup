@@ -161,3 +161,36 @@ class AuditEventRow(Base):
     action: Mapped[str] = mapped_column(String(64), index=True)
     finding_id: Mapped[int | None] = mapped_column(ForeignKey("findings.id"), index=True)
     payload: Mapped[dict[str, Any]] = mapped_column(JSON)
+
+
+class IncidentRow(Base):
+    """A span of real downtime read from a vendor's public status page.
+
+    Feeds only return recent incidents, so stored rows are what build up a full history.
+    """
+
+    __tablename__ = "incidents"
+
+    id: Mapped[str] = mapped_column(String(255), primary_key=True)
+    feed: Mapped[str] = mapped_column(String(64), index=True)
+    feed_incident_id: Mapped[str] = mapped_column(String(64), index=True)
+    vendor_key: Mapped[str] = mapped_column(String(255))
+    title: Mapped[str] = mapped_column(String(255))
+    component: Mapped[str] = mapped_column(String(255))
+    severity: Mapped[str] = mapped_column(String(16))
+    started_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    ended_at: Mapped[datetime] = mapped_column(UtcDateTime)
+    status_url: Mapped[str] = mapped_column(String(512))
+
+
+class SyncRunRow(Base):
+    """One attempt to pull from an external source, whether or not it worked."""
+
+    __tablename__ = "sync_runs"
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    source: Mapped[str] = mapped_column(String(64), index=True)
+    ok: Mapped[bool] = mapped_column()
+    origin: Mapped[str] = mapped_column(String(16))
+    detail: Mapped[dict[str, Any]] = mapped_column(JSON)
+    finished_at: Mapped[datetime] = mapped_column(UtcDateTime, default=lambda: datetime.now(UTC))

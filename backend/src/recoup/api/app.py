@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from recoup.api.deps import AppContext
-from recoup.api.routes import cases, demo, drafts
+from recoup.api.routes import cases, demo, drafts, sync
 from recoup.config import Settings, get_settings
 from recoup.db.session import make_engine, make_session_factory
 from recoup.ingest.sources import load_sources
@@ -37,4 +37,5 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     app.include_router(cases.router)
     app.include_router(drafts.router)
     app.include_router(demo.router)
+    app.include_router(sync.router)
     return app

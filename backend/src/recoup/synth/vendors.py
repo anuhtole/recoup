@@ -49,6 +49,19 @@ VENDORS: tuple[Vendor, ...] = (
     _vendor("STAPLES", "Staples", "orders@staples.com", ("staples.com",)),
     _vendor("LOOM", "Loom", "billing@loom.com", ("loom.com",)),
     _vendor("CALENDLY", "Calendly", "support@calendly.com", ("calendly.com",)),
+    # Reserved .example addresses: real Atlassian claims go through support.atlassian.com.
+    _vendor(
+        "ATLASSIAN JIRA",
+        "Jira (Atlassian)",
+        "jira-sla-claims@atlassian.example",
+        ("atlassian.com", "atlassian.example"),
+    ),
+    _vendor(
+        "ATLASSIAN CONFLUENCE",
+        "Confluence (Atlassian)",
+        "confluence-sla-claims@atlassian.example",
+        ("atlassian.com", "atlassian.example"),
+    ),
 )
 
 

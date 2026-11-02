@@ -25,6 +25,41 @@ make dev     # API on :8000, UI on http://localhost:5173
 
 The data is synthetic and every send goes to a local outbox. Nothing leaves your machine.
 
+## Real data
+
+Two connectors replace synthetic inputs with real ones. Both are read-only.
+
+**Vendor status pages (no credentials).** `recoup sync status` reads the public feeds for Jira, Confluence, and GitHub, works out uptime per covered component from each incident's timeline, and checks it against the vendor's published SLA.
+
+```bash
+make demo-status   # the Oct 1 demo plus real outages, from a recorded copy of the feeds
+make api           # then open the UI as usual
+```
+
+To pull today's feeds instead of the recording, run `recoup sync status --demo-invoices` in `backend/`.
+
+On the feeds recorded Nov 2, 2026, priced against fictional Northwind invoices:
+
+| Vendor | Period | Worst covered component | Uptime | Result |
+|---|---|---|---|---|
+| Jira | Sep 2026 | Create and edit | 99.17% with partial outages | **$180 open, needs review** (the full outage alone stayed within 99.9%) |
+| Jira | Apr, May, Jun, Jul, Aug 2026 | various | 98.97% to 99.82% | $1,170 in closed claim windows |
+| Confluence | Apr, May, Aug 2026 | various | 99.72% to 99.89% | $330 in closed claim windows |
+| GitHub | Q3 2026 | Pull Requests | 99.94% | No credit owed: inside 99.9% |
+
+The outages and SLA terms are real; the invoices are not. A status page can't prove a given customer was affected, and published terms may differ from an order form, so these cases are never marked Recoverable and each says what to confirm ([ADR 0008](docs/adr/0008-real-data-connectors.md)). Feeds also only reach back so far (GitHub's to Aug 20, 2026), so history can understate downtime, never overstate it.
+
+**Ramp transactions.** `recoup sync ramp` pulls posted card transactions through the [Ramp Developer API](https://docs.ramp.com/developer-api/v1/sandbox) using only the `transactions:read` scope, then runs every detector on them.
+
+1. [Request a Ramp sandbox](https://docs.ramp.com/developer-api/v1/sandbox-access), then create a developer app in it with Client credentials and `transactions:read`.
+2. Put the credentials in `backend/.env` as `RECOUP_RAMP_CLIENT_ID` and `RECOUP_RAMP_CLIENT_SECRET`.
+3. Run `make live`, then `make live-api` and `make web`. This uses a separate database holding only real data.
+4. To see a catch, press ⌘J in the sandbox and add two identical transactions, then run `make live` again.
+
+The connector is tested against the response shapes in Ramp's published API spec. **It has not yet run against a real sandbox.**
+
+`GET /api/sources` shows each connection, its last sync, and every uptime check, and `POST /api/sync/status` and `POST /api/sync/ramp` trigger a sync, for the UI to wire up.
+
 ## What it finds
 
 | Leak | Where the evidence lives | Who decides |
@@ -127,7 +162,7 @@ Without a key, everything still works on the keyword rules ([ADR 0007](docs/adr/
 - **Idempotent everywhere.** Re-ingesting inserts nothing, and re-running detection creates nothing new. Model output is cached, and each reply is applied exactly once. All of this is tested.
 - **UTC everywhere**, enforced by a column type that restores tzinfo on SQLite.
 - **Migrations are checked.** CI runs `alembic upgrade head && alembic check` against SQLite and Postgres 16, and also fails if the committed dataset or eval tables drift from the code.
-- **143 tests, 97% line coverage**, mypy in strict mode, and ruff.
+- ** tests, 96% line coverage**, mypy in strict mode, and ruff.
 
 ## Project layout
 
@@ -158,10 +193,13 @@ docs/adr/      architecture decision records
 | `make test` | All tests and quality gates |
 | `make eval` | Write the eval tables |
 | `make eval-claude` | Same, plus a Claude row (paid API calls) |
+| `make demo-status` | The demo plus real outages from the recorded feeds |
+| `make live` | Sync real Ramp and status data into a separate database |
 | `make check` | Everything CI runs |
 
 ## Roadmap
 
+1. **Read Ramp disputes,** so a charge already being disputed isn't flagged again.
 1. **Gmail connector.** Read-only ingest and send-only drafts behind the approval gate, with DKIM/SPF-verified senders.
 2. **Contract reader.** Claude reads order-form PDFs into the `Contract` schema, so outage credits and price-cap breaches need no manual setup.
 3. **Partial credits and price creep.** Match partial refunds, and flag renewals above a contracted cap.

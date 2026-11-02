@@ -1,17 +1,30 @@
-"""Command line entry point: `recoup generate | ingest | run | advance | serve`."""
+"""Command line entry point: `recoup generate | ingest | run | advance | sync | serve`."""
 
 import argparse
 import json
+import sys
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import asdict
 
+import httpx
 from sqlalchemy.orm import Session
 
 from recoup.config import get_settings
 from recoup.db.session import make_engine, make_session_factory, session_scope
+from recoup.db.state import get_as_of
 from recoup.demo.simulator import advance
 from recoup.ingest.dataset import ingest_dataset
+from recoup.ingest.live import (
+    demo_invoices,
+    http_fetcher,
+    snapshot_fetcher,
+    sync_ramp,
+    sync_status_feeds,
+    uptime_report,
+)
+from recoup.ingest.loader import ingest_transactions
+from recoup.ingest.ramp import RampError
 from recoup.ingest.sources import load_sources
 from recoup.pipeline.run import run_pipeline
 from recoup.services import build_services
@@ -55,6 +68,44 @@ def _advance(args: argparse.Namespace) -> None:
     print(json.dumps(asdict(result)))
 
 
+def _detect(session: Session) -> dict[str, object]:
+    settings = get_settings()
+    services = build_services(settings)
+    summary = run_pipeline(session, settings, services, load_sources(settings.data_dir))
+    return {**asdict(summary), "mode": services.mode}
+
+
+def _sync_status(args: argparse.Namespace) -> None:
+    settings = get_settings()
+    with _session() as session:
+        if args.demo_invoices:
+            ingest_transactions(session, demo_invoices())
+        if args.snapshot:
+            directory = settings.data_dir.parent / "live" / "status_snapshot"
+            feeds = sync_status_feeds(session, snapshot_fetcher(directory), origin="snapshot")
+        else:
+            with httpx.Client(timeout=20.0) as client:
+                feeds = sync_status_feeds(session, http_fetcher(client))
+        run = _detect(session)
+        checks = uptime_report(session, get_as_of(session, settings))
+    output = {
+        "feeds": [asdict(f) for f in feeds],
+        "uptime_checks": [asdict(c) for c in checks],
+        "run": run,
+    }
+    print(json.dumps(output, indent=2))
+
+
+def _sync_ramp(_: argparse.Namespace) -> None:
+    try:
+        with _session() as session:
+            sync = sync_ramp(session, get_settings())
+            run = _detect(session)
+    except RampError as exc:
+        sys.exit(str(exc))
+    print(json.dumps({"ramp": asdict(sync), "run": run}, indent=2))
+
+
 def _serve(args: argparse.Namespace) -> None:
     import uvicorn
 
@@ -78,6 +129,18 @@ def main() -> None:
     demo = commands.add_parser("advance", help="Demo: move the clock and play the vendors' side")
     demo.add_argument("--days", type=int, default=14)
     demo.set_defaults(handler=_advance)
+
+    sync = commands.add_parser("sync", help="Pull real data, then re-run detection")
+    targets = sync.add_subparsers(dest="target", required=True)
+    status = targets.add_parser("status", help="Read vendor status pages against published SLAs")
+    status.add_argument("--snapshot", action="store_true", help="Use the recorded real feeds")
+    status.add_argument(
+        "--demo-invoices", action="store_true", help="Add Northwind's fictional Atlassian bills"
+    )
+    status.set_defaults(handler=_sync_status)
+    targets.add_parser("ramp", help="Read transactions from the Ramp API").set_defaults(
+        handler=_sync_ramp
+    )
 
     serve = commands.add_parser("serve", help="Start the API server")
     serve.add_argument("--port", type=int, default=8000)
