@@ -1,57 +1,53 @@
 @import "tailwindcss";
 
-/* Recoup is always the light ice theme, so `dark:` utilities only apply under an explicit .dark class. */
+/* Recoup has one light theme, so `dark:` utilities only apply under an explicit .dark class. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Recoup design tokens: glacier liquid glass.
- * Every colour, radius, blur and font lives here, once, and Tailwind reads them through @theme.
- * One light ice theme, whatever the system appearance.
+ * Recoup design tokens: pine and stone.
+ * Every colour, radius and font lives here, once, and Tailwind reads them through @theme.
+ * A flat stone ground, white panels, and pine green for the one action and for money coming back.
  */
 
 :root {
   color-scheme: light;
 
-  /* Ground and the four ice glows behind everything */
-  --base: #edf6fc;
-  --glow-1: #d0ecff;
-  --glow-2: #bbe6f7;
-  --glow-3: #eef8ff;
-  --glow-4: #d4dfff;
+  /* Ground: flat stone, no gradient */
+  --base: #f2f3ef;
 
-  /* Glass */
-  --glass: rgba(255, 255, 255, 0.34);
-  --glass-strong: rgba(255, 255, 255, 0.72); /* sheets, previews and notices that float over content */
-  --glass-edge: rgba(255, 255, 255, 0.75);
-  --glass-highlight: rgba(255, 255, 255, 0.9);
-  --blur: 24px;
-  --blur-lg: 40px;
+  /* Panels: solid white with a hairline edge. (Token names kept from the glass era so components don't change.) */
+  --glass: #ffffff;
+  --glass-strong: #ffffff; /* sheets, previews and notices that float over content */
+  --glass-edge: #e1e3dc;
+  --glass-highlight: transparent;
+  --blur: 0px;
+  --blur-lg: 0px;
   /* Resting surfaces cast no shadow; only what floats (sheets, previews, notices) does. */
-  --shadow-float: 0 2px 6px rgba(11, 35, 64, 0.06), 0 24px 64px rgba(11, 35, 64, 0.16);
+  --shadow-float: 0 2px 6px rgba(27, 33, 28, 0.06), 0 24px 64px rgba(27, 33, 28, 0.14);
 
   /* Ink */
-  --ink: #0b2340;
-  --dim: #4d6a86;
-  --accent: #469dde;
-  --money: #0b8a6c;
+  --ink: #1b211c;
+  --dim: #5f665f;
+  --accent: #2d5a3d;
+  --money: #25764a;
   --amber: #7a4f00;
 
-  /* Ice-blue fills carry navy text (tabs, selection), which passes AA comfortably */
-  --accent-fill: #97c8ea;
-  --on-accent: #0b2340;
-  /* The one primary action per screen: a deeper fill with white text (4.7:1) */
-  --primary: #2b78ba;
-  --primary-hover: #2870b0;
+  /* Soft pine fills carry dark green text (tabs, selection) */
+  --accent-fill: #dbe5dc;
+  --on-accent: #1e3a28;
+  /* The one primary action per screen: deep pine with white text */
+  --primary: #2d5a3d;
+  --primary-hover: #264e35;
   --on-primary: #ffffff;
-  --money-ink: color-mix(in srgb, var(--money) 65%, var(--ink));
-  --tint: rgba(255, 255, 255, 0.4); /* flat rows inside glass: never glass on glass */
-  --tint-hover: rgba(255, 255, 255, 0.62);
-  --selected: color-mix(in srgb, var(--accent) 12%, rgba(255, 255, 255, 0.55));
-  --line: rgba(11, 35, 64, 0.09);
-  --line-strong: rgba(11, 35, 64, 0.18);
-  --field: rgba(255, 255, 255, 0.7);
-  --scrim: rgba(11, 35, 64, 0.3);
-  --mark: color-mix(in srgb, var(--accent) 22%, transparent);
+  --money-ink: color-mix(in srgb, var(--money) 70%, var(--ink));
+  --tint: #f7f8f5; /* flat rows inside panels */
+  --tint-hover: #eff1ec;
+  --selected: #ebf0ea;
+  --line: rgba(27, 33, 28, 0.08);
+  --line-strong: rgba(27, 33, 28, 0.16);
+  --field: #ffffff;
+  --scrim: rgba(27, 33, 28, 0.28);
+  --mark: color-mix(in srgb, var(--accent) 18%, transparent);
 
   /* Shape and type */
   --radius-panel: 24px;
@@ -68,7 +64,7 @@
 
   --font-sans-stack: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Inter Tight", "Segoe UI", sans-serif;
 
-  /* Bklit charts read these; they point at the glacier tokens */
+  /* Bklit charts read these; they point at the theme tokens */
   --chart-1: var(--accent);
   --chart-2: var(--money);
   --chart-3: var(--dim);
@@ -102,10 +98,10 @@
 /* Reduced transparency: solid surfaces, no blur, no glows. */
 @media (prefers-reduced-transparency: reduce) {
   :root {
-    --glass: #f3f8fd;
-    --glass-strong: #f8fbfe;
-    --tint: #e9f2fa;
-    --tint-hover: #e1edf8;
+    --glass: #ffffff;
+    --glass-strong: #ffffff;
+    --tint: #f7f8f5;
+    --tint-hover: #eff1ec;
     --blur: 0px;
     --blur-lg: 0px;
   }
@@ -200,21 +196,12 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
-  /* The ground is on html only: a body background would paint over the glows behind it. */
   body {
     margin: 0;
     min-height: 100dvh;
   }
-  /* The glacier light is the html background itself, laid over the whole document (not a viewport-sized
-     layer), so it has no edge at any height, in the browser or in a full-page capture. */
   html {
     background-color: var(--base);
-    background-image:
-      radial-gradient(60vmax 60vmax at 0% 0%, color-mix(in srgb, var(--glow-1) 82%, transparent), transparent 70%), /* taste-skill-ignore: the glacier light is the brief's chosen ground */
-      radial-gradient(48vmax 48vmax at 100% 4%, color-mix(in srgb, var(--glow-2) 82%, transparent), transparent 70%), /* taste-skill-ignore: the glacier light is the brief's chosen ground */
-      radial-gradient(56vmax 56vmax at 60% 70%, color-mix(in srgb, var(--glow-3) 82%, transparent), transparent 70%), /* taste-skill-ignore: the glacier light is the brief's chosen ground */
-      radial-gradient(44vmax 44vmax at 4% 100%, color-mix(in srgb, var(--glow-4) 82%, transparent), transparent 70%); /* taste-skill-ignore: the glacier light is the brief's chosen ground */
-    background-repeat: no-repeat;
     min-height: 100%;
   }
   :focus-visible {
