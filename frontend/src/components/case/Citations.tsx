@@ -136,9 +136,12 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
             setIsOpen((open) => !open);
           }
         }}
-        className="figure relative inline-grid h-[18px] min-w-[18px] before:absolute before:-inset-[3px] before:content-[''] -translate-y-[0.45em] place-items-center rounded-full bg-selected px-1 align-baseline text-12 font-medium text-dim transition-[transform,background-color,color] duration-150 hover:bg-tint-hover hover:text-ink active:scale-90"
+        // A 24px target around an 18px chip, so the citation is easy to hit without looking bigger.
+        className="group/fn -my-1 inline-grid size-6 -translate-y-[0.4em] place-items-center align-baseline transition-transform duration-150 active:scale-90"
       >
-        {citation.n}
+        <span className="figure inline-grid h-[18px] min-w-[18px] place-items-center rounded-full bg-selected px-1 text-12 font-medium text-dim transition-colors duration-150 group-hover/fn:bg-tint-hover group-hover/fn:text-ink">
+          {citation.n}
+        </span>
       </button>
       {createPortal(
         <AnimatePresence>

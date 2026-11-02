@@ -210,10 +210,10 @@
   html {
     background-color: var(--base);
     background-image:
-      radial-gradient(60vmax 60vmax at 0% 0%, color-mix(in srgb, var(--glow-1) 82%, transparent), transparent 70%),
-      radial-gradient(48vmax 48vmax at 100% 4%, color-mix(in srgb, var(--glow-2) 82%, transparent), transparent 70%),
-      radial-gradient(56vmax 56vmax at 60% 70%, color-mix(in srgb, var(--glow-3) 82%, transparent), transparent 70%),
-      radial-gradient(44vmax 44vmax at 4% 100%, color-mix(in srgb, var(--glow-4) 82%, transparent), transparent 70%);
+      radial-gradient(60vmax 60vmax at 0% 0%, color-mix(in srgb, var(--glow-1) 82%, transparent), transparent 70%), /* taste-skill-ignore: the glacier light is the brief's chosen ground */
+      radial-gradient(48vmax 48vmax at 100% 4%, color-mix(in srgb, var(--glow-2) 82%, transparent), transparent 70%), /* taste-skill-ignore: the glacier light is the brief's chosen ground */
+      radial-gradient(56vmax 56vmax at 60% 70%, color-mix(in srgb, var(--glow-3) 82%, transparent), transparent 70%), /* taste-skill-ignore: the glacier light is the brief's chosen ground */
+      radial-gradient(44vmax 44vmax at 4% 100%, color-mix(in srgb, var(--glow-4) 82%, transparent), transparent 70%); /* taste-skill-ignore: the glacier light is the brief's chosen ground */
     background-repeat: no-repeat;
     min-height: 100%;
   }

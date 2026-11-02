@@ -84,7 +84,7 @@ export function Evidence({ evidence, transactions, emails, numberOf, onOpenEmail
                   <button
                     type="button"
                     onClick={() => onOpenEmail(email, quote)}
-                    className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-current"
+                    className="py-1 font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-current"
                   >
                     Read the email
                   </button>
