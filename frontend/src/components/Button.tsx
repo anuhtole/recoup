@@ -5,15 +5,14 @@ type Variant = "primary" | "secondary" | "ghost";
 
 // Only the primary variant uses the accent; there is one per screen.
 const VARIANTS: Record<Variant, string> = {
-  primary:
-    "bg-accent-fill text-on-accent shadow-[inset_0_1px_0_rgb(255_255_255/0.22)] hover:brightness-110",
-  secondary: "bg-tint text-ink shadow-[inset_0_0_0_1px_var(--line-strong)] hover:bg-tint-hover",
+  primary: "bg-primary text-on-primary hover:bg-primary-hover",
+  secondary: "bg-tint text-ink hover:bg-tint-hover",
   ghost: "text-dim hover:bg-tint hover:text-ink",
 };
 
 const SIZES = {
-  sm: "h-9 px-3.5 text-[13px]",
-  md: "h-11 px-5 text-sm sm:h-10",
+  sm: "h-9 px-3 text-14",
+  md: "h-11 px-4 text-14 sm:h-10",
 };
 
 interface Props {

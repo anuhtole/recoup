@@ -18,7 +18,6 @@
   --glow-2: #bbe6f7;
   --glow-3: #eef8ff;
   --glow-4: #d4dfff;
-  --glow-opacity: 0.82;
 
   /* Glass */
   --glass: rgba(255, 255, 255, 0.34);
@@ -27,9 +26,7 @@
   --glass-highlight: rgba(255, 255, 255, 0.9);
   --blur: 24px;
   --blur-lg: 40px;
-  /* Resting surfaces sit close to the ground; only what floats (sheets, previews, notices) casts far. */
-  --shadow: 0 1px 2px rgba(11, 35, 64, 0.04), 0 4px 16px rgba(11, 35, 64, 0.05);
-  --shadow-lg: 0 1px 3px rgba(11, 35, 64, 0.05), 0 6px 28px rgba(11, 35, 64, 0.09);
+  /* Resting surfaces cast no shadow; only what floats (sheets, previews, notices) does. */
   --shadow-float: 0 2px 6px rgba(11, 35, 64, 0.06), 0 24px 64px rgba(11, 35, 64, 0.16);
 
   /* Ink */
@@ -39,9 +36,13 @@
   --money: #0b8a6c;
   --amber: #7a4f00;
 
-  /* Ice-blue fills carry navy text, which passes AA comfortably */
+  /* Ice-blue fills carry navy text (tabs, selection), which passes AA comfortably */
   --accent-fill: #97c8ea;
   --on-accent: #0b2340;
+  /* The one primary action per screen: a deeper fill with white text (4.7:1) */
+  --primary: #2b78ba;
+  --primary-hover: #2870b0;
+  --on-primary: #ffffff;
   --money-ink: color-mix(in srgb, var(--money) 65%, var(--ink));
   --tint: rgba(255, 255, 255, 0.4); /* flat rows inside glass: never glass on glass */
   --tint-hover: rgba(255, 255, 255, 0.62);
@@ -57,8 +58,15 @@
   --radius-card: 16px;
   --radius-row: 12px;
   --radius-control: 999px;
+  /* Type scale: six steps, each with its own line height */
+  --size-12: 12px;
+  --size-14: 14px;
+  --size-16: 16px;
+  --size-20: 20px;
+  --size-26: 26px;
+  --size-40: 40px;
+
   --font-sans-stack: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Inter Tight", "Segoe UI", sans-serif;
-  --font-mono-stack: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
 
   /* Bklit charts read these; they point at the glacier tokens */
   --chart-1: var(--accent);
@@ -100,7 +108,6 @@
     --tint-hover: #e1edf8;
     --blur: 0px;
     --blur-lg: 0px;
-    --glow-opacity: 0;
   }
 }
 
@@ -138,6 +145,22 @@
   --color-line-strong: var(--line-strong);
   --color-field: var(--field);
   --color-scrim: var(--scrim);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-on-primary: var(--on-primary);
+
+  --text-12: var(--size-12);
+  --text-12--line-height: 16px;
+  --text-14: var(--size-14);
+  --text-14--line-height: 20px;
+  --text-16: var(--size-16);
+  --text-16--line-height: 24px;
+  --text-20: var(--size-20);
+  --text-20--line-height: 28px;
+  --text-26: var(--size-26);
+  --text-26--line-height: 32px;
+  --text-40: var(--size-40);
+  --text-40--line-height: 44px;
   --color-mark: var(--mark);
 
   --radius-panel: var(--radius-panel);
@@ -146,7 +169,6 @@
   --radius-control: var(--radius-control);
 
   --font-sans: var(--font-sans-stack);
-  --font-mono: var(--font-mono-stack);
 
   /* Bklit chart tokens */
   --color-chart-1: var(--chart-1);
@@ -171,7 +193,8 @@
 
 @layer base {
   html {
-    background: var(--base);
+    font-size: 16px;
+    line-height: 24px;
     color: var(--ink);
     font-family: var(--font-sans-stack);
     -webkit-font-smoothing: antialiased;
@@ -181,6 +204,18 @@
   body {
     margin: 0;
     min-height: 100dvh;
+  }
+  /* The glacier light is the html background itself, laid over the whole document (not a viewport-sized
+     layer), so it has no edge at any height, in the browser or in a full-page capture. */
+  html {
+    background-color: var(--base);
+    background-image:
+      radial-gradient(60vmax 60vmax at 0% 0%, color-mix(in srgb, var(--glow-1) 82%, transparent), transparent 70%),
+      radial-gradient(48vmax 48vmax at 100% 4%, color-mix(in srgb, var(--glow-2) 82%, transparent), transparent 70%),
+      radial-gradient(56vmax 56vmax at 60% 70%, color-mix(in srgb, var(--glow-3) 82%, transparent), transparent 70%),
+      radial-gradient(44vmax 44vmax at 4% 100%, color-mix(in srgb, var(--glow-4) 82%, transparent), transparent 70%);
+    background-repeat: no-repeat;
+    min-height: 100%;
   }
   :focus-visible {
     outline: 2px solid var(--accent);
@@ -208,22 +243,11 @@
 }
 
 @layer components {
-  /* One glass material. Larger surfaces get more blur and a deeper shadow; rows inside are flat tints. */
-  .glass {
-    background: var(--glass);
-    border: 1px solid var(--glass-edge);
-    box-shadow:
-      inset 0 1px 0 var(--glass-highlight),
-      var(--shadow);
-    -webkit-backdrop-filter: blur(var(--blur)) saturate(180%);
-    backdrop-filter: blur(var(--blur)) saturate(180%);
-  }
+  /* The one glass material, used only by the queue and case panels. No resting shadow; rows inside are flat tints. */
   .glass-lg {
     background: var(--glass);
     border: 1px solid var(--glass-edge);
-    box-shadow:
-      inset 0 1px 0 var(--glass-highlight),
-      var(--shadow-lg);
+    box-shadow: inset 0 1px 0 var(--glass-highlight);
     -webkit-backdrop-filter: blur(var(--blur-lg)) saturate(180%);
     backdrop-filter: blur(var(--blur-lg)) saturate(180%);
   }
@@ -241,16 +265,17 @@
   .figure {
     font-variant-numeric: tabular-nums;
   }
-  /* References and IDs only (FIG-202606, file names): small, dim, monospace. */
+  /* References and IDs (FIG-202606, file names): the sans face, tabular, muted by the caller. */
   .ref {
-    font-family: var(--font-mono-stack);
     font-variant-numeric: tabular-nums;
   }
 }
 
 /* Reduced transparency and more contrast: the surfaces are solid, so drop the backdrop filter entirely. */
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .glass,
+  html {
+    background-image: none;
+  }
   .glass-lg,
   .glass-float {
     -webkit-backdrop-filter: none;

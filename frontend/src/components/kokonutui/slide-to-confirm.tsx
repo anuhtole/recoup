@@ -319,7 +319,7 @@ export default function SlideToConfirm({
             centers and reads as centered. */}
         <motion.span
           aria-hidden
-          className="absolute inset-0 flex items-center justify-center whitespace-nowrap pl-6 font-medium text-sm text-dim"
+          className="absolute inset-0 flex items-center justify-center whitespace-nowrap pl-6 font-medium text-14 text-dim"
           style={{ opacity: labelOpacity }}
         >
           {keyArmed ? armedLabel : label}
@@ -331,7 +331,7 @@ export default function SlideToConfirm({
           aria-hidden
           className={cn(
             "absolute inset-0 transition-colors duration-300 ease-out motion-reduce:transition-none",
-            "bg-accent-fill"
+            "bg-primary"
           )}
           style={{ clipPath: fillClip, opacity: fillOpacity }}
         >
@@ -339,8 +339,8 @@ export default function SlideToConfirm({
             <motion.span
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               className={cn(
-                "absolute inset-0 flex items-center justify-center gap-2 whitespace-nowrap font-medium text-sm",
-                "text-on-accent",
+                "absolute inset-0 flex items-center justify-center gap-2 whitespace-nowrap font-medium text-14",
+                "text-on-primary",
                 phase === "idle" || phase === "dragging" ? "pl-6" : "pr-6"
               )}
               exit={{ opacity: 0, y: -8, filter: "blur(2px)" }}
@@ -362,7 +362,7 @@ export default function SlideToConfirm({
           aria-label={keyArmed ? armedLabel : `${label}. Or press Enter twice.`}
           className={cn(
             "absolute flex touch-none items-center justify-center rounded-full outline-none",
-            "bg-ground text-ink shadow-[0_1px_2px_rgb(0_0_0/0.12),0_0_0_1px_var(--line-strong)]",
+            "bg-ground text-ink border border-line-strong",
             "focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
             phase === "idle" && !disabled && "cursor-grab",
             phase === "dragging" && "cursor-grabbing"
@@ -408,7 +408,7 @@ export default function SlideToConfirm({
             <Check
               aria-hidden
               className={cn(
-                "absolute inset-0 size-5 text-accent-fill transition-[opacity,scale,filter] duration-200 ease-out motion-reduce:transition-none",
+                "absolute inset-0 size-5 text-primary transition-[opacity,scale,filter] duration-200 ease-out motion-reduce:transition-none",
                 done ? "scale-100 opacity-100" : "scale-50 opacity-0 blur-[2px]"
               )}
               strokeWidth={2.5}

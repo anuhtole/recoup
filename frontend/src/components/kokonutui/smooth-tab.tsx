@@ -428,7 +428,7 @@ export default function SmoothTab({
       <div className={cn("flex", listClassName)}>
         <div
           aria-label={label}
-          className="relative inline-flex max-w-full rounded-full bg-tint p-1 shadow-[inset_0_0_0_1px_var(--line)]"
+          className="relative inline-flex max-w-full rounded-full bg-tint p-1"
           ref={tablistRef}
           role="tablist"
         >
@@ -440,7 +440,7 @@ export default function SmoothTab({
                 aria-controls={panelId(i)}
                 aria-selected={isSelected}
                 className={cn(
-                  "relative flex shrink-0 items-center gap-1.5 rounded-full px-3.5 py-1.5 font-medium text-sm",
+                  "relative flex shrink-0 items-center gap-2 rounded-full px-4 py-2 font-medium text-14",
                   "text-dim transition-colors duration-150 ease-out hover:text-ink",
                   "outline-none focus-visible:outline-2 focus-visible:outline-accent focus-visible:outline-offset-2"
                 )}
@@ -458,7 +458,7 @@ export default function SmoothTab({
                 {Icon && <Icon aria-hidden="true" className="size-4" />}
                 <span className="whitespace-nowrap">{item.title}</span>
                 {item.badge !== undefined && (
-                  <span className="figure text-xs opacity-70">{item.badge}</span>
+                  <span className="figure text-12">{item.badge}</span>
                 )}
               </button>
             );
@@ -480,7 +480,7 @@ export default function SmoothTab({
               return (
                 <span
                   className={cn(
-                    "flex shrink-0 items-center gap-1.5 px-3.5 py-1.5 font-medium text-sm",
+                    "flex shrink-0 items-center gap-2 px-4 py-2 font-medium text-14",
                     activeTextColor
                   )}
                   key={item.id}
@@ -488,7 +488,7 @@ export default function SmoothTab({
                   {Icon && <Icon className="size-4" />}
                   <span className="whitespace-nowrap">{item.title}</span>
                   {item.badge !== undefined && (
-                    <span className="figure text-xs opacity-70">{item.badge}</span>
+                    <span className="figure text-12">{item.badge}</span>
                   )}
                 </span>
               );

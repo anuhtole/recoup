@@ -37,10 +37,10 @@ function Card({ notice, onDismiss }: { notice: Notice; onDismiss: () => void }) 
       role={notice.tone === "error" ? "alert" : undefined}
       className="glass-float pointer-events-auto flex list-none items-start gap-3 rounded-card py-3 pl-4 pr-2"
     >
-      {notice.tone === "money" && <span aria-hidden className="mt-1.5 size-2 flex-none rounded-full bg-money" />}
+      {notice.tone === "money" && <span aria-hidden className="mt-2 size-2 flex-none rounded-full bg-money" />}
       <div className="min-w-0 flex-1">
-        <p className={cn("text-sm font-medium", notice.tone === "money" && "text-money-ink")}>{notice.title}</p>
-        {notice.body && <p className="mt-0.5 text-[13px] leading-snug text-dim">{notice.body}</p>}
+        <p className={cn("text-14 font-medium", notice.tone === "money" && "text-money-ink")}>{notice.title}</p>
+        {notice.body && <p className="mt-1 text-14 text-dim">{notice.body}</p>}
       </div>
       <button
         type="button"

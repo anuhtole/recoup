@@ -8,7 +8,7 @@ type Tone = "neutral" | "money" | "amber";
 
 // Money-back colour only for recovered money and "Recoverable"; amber only for "Needs review".
 const TONE_BG: Record<Tone, string> = {
-  neutral: "bg-tint shadow-[inset_0_0_0_1px_var(--line)]",
+  neutral: "bg-tint",
   money: "bg-money/12",
   amber: "bg-amber/12",
 };
@@ -30,7 +30,7 @@ function Pill({ label, tone, id }: { label: string; tone: Tone; id: string }) {
     <motion.span
       layout
       transition={SPRING}
-      className="relative inline-flex h-6 flex-none items-center overflow-hidden whitespace-nowrap rounded-full px-2.5 text-xs font-medium"
+      className="relative inline-flex h-6 flex-none items-center overflow-hidden whitespace-nowrap rounded-full px-3 text-12 font-medium"
     >
       <AnimatePresence initial={false}>
         <motion.span
@@ -76,7 +76,7 @@ export function isUrgent(daysLeft: number | null): boolean {
 // Deadlines are words, not colour: urgent ones are set in ink, the rest dim.
 export function Deadline({ label, daysLeft }: { label: string; daysLeft: number | null }) {
   return (
-    <span className={cn("whitespace-nowrap text-xs tabular-nums", isUrgent(daysLeft) ? "font-medium text-ink" : "text-dim")}>
+    <span className={cn("whitespace-nowrap text-14 tabular-nums", isUrgent(daysLeft) ? "font-medium text-ink" : "text-dim")}>
       {label}
     </span>
   );

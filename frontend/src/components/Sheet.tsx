@@ -91,10 +91,10 @@ export function Sheet({ title, subtitle, labelId, onClose, children, className, 
       >
         <div className="flex items-start justify-between gap-4 px-6 pb-2 pt-6">
           <div className="min-w-0">
-            <h2 id={labelId} className="text-lg font-semibold leading-snug tracking-[-0.01em]">
+            <h2 id={labelId} className="text-20 font-semibold tracking-[-0.01em]">
               {title}
             </h2>
-            {subtitle && <p className="mt-1 text-[13px] text-dim">{subtitle}</p>}
+            {subtitle && <p className="mt-1 text-14 text-dim">{subtitle}</p>}
           </div>
           <button
             type="button"
