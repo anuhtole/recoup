@@ -36,7 +36,7 @@ export function ActionPanel({ detail, isBusy, onDraft, onDismiss }: Props) {
 
   if (kind === "none" && !canDismiss) {
     return (
-      <div className="rounded-card bg-tint px-5 py-4">
+      <div className="rounded-card bg-selected px-5 py-4">
         <p className="text-14 text-dim">Status</p>
         <p className="mt-1 text-16 font-medium">{label}</p>
       </div>
@@ -44,7 +44,7 @@ export function ActionPanel({ detail, isBusy, onDraft, onDismiss }: Props) {
   }
 
   return (
-    <div className="rounded-card bg-tint p-5">
+    <div className="rounded-card bg-selected p-5">
       <p className="text-14 text-dim">Next step</p>
       <p className="mt-1 text-16 font-medium tracking-[-0.01em]">{label}</p>
       {HINT[kind] && <p className="mt-1 max-w-[60ch] text-14 text-dim">{HINT[kind]}</p>}
