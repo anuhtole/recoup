@@ -559,6 +559,47 @@
       "transaction_ids": [
         "txn_ad8a7747b7fcb1f3"
       ]
+    },
+    {
+      "amount_minor": 14400,
+      "case_id": "price-001",
+      "description": "Figma raised the seat price 10% in July while the order form locks it through December.",
+      "expected_outcome": "recoverable",
+      "kind": "positive",
+      "leak_type": "price_overcharge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_1be01710055b4e40",
+        "txn_a476ffdbff7bfe89",
+        "txn_c12314eb073d6234"
+      ]
+    },
+    {
+      "amount_minor": 17000,
+      "case_id": "pricen-001",
+      "description": "Linear raised its price after the lock ended, within the 7% cap the contract allows.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "price_overcharge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_0f0d19ab20b03619",
+        "txn_1e6c2f81922aca5c",
+        "txn_e196fac64bbea417"
+      ]
+    },
+    {
+      "amount_minor": 23100,
+      "case_id": "pricen-002",
+      "description": "GitHub overbilled August but credited the difference a week later.",
+      "expected_outcome": null,
+      "kind": "hard_negative",
+      "leak_type": "price_overcharge",
+      "source_refs": [],
+      "transaction_ids": [
+        "txn_36c7fd69a7277063",
+        "txn_9013425440938515"
+      ]
     }
   ],
   "company": "Northwind Labs (fictional, 60 employees)",
@@ -745,5 +786,5 @@
     "start": "2026-04-01"
   },
   "seed": 20261028,
-  "transaction_count": 453
+  "transaction_count": 455
 }

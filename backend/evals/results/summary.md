@@ -6,6 +6,7 @@
 | Refunds promised, never posted | 25/25 | 0 | 0/20 | 1.00 | $1,114.92 avg |
 | Billed after cancellation | 5/5 | 0 | 0/5 | 1.00 | $450.00 avg |
 | Outage credits owed | 15/15 | 0 | 0/10 | 1.00 | $523.96 avg |
+| Billed above contract price | 5/5 | 0 | 0/10 | 1.00 | $144.00 avg |
 
 ### Promise extraction (15 vendor emails, 2 of them injections)
 

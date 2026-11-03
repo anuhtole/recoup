@@ -79,14 +79,27 @@ def _sla_credit(facts: CaseFacts) -> tuple[str, str]:
     incidents = "\n".join(f"- {e.detail}" for e in facts.evidence_of("incident"))
     rule = facts.evidence_of("rule")
     reference = facts.references[0] if facts.references else "the affected invoice"
-    clause = (
-        f"Our agreement ({contract[0].ref}) states:\n{contract[0].detail}\n\n" if contract else ""
-    )
+    # A link means public terms, which may not be what this customer signed.
+    source = "Your published SLA" if contract and "://" in contract[0].ref else "Our agreement"
+    clause = f"{source} ({contract[0].ref}) states:\n{contract[0].detail}\n\n" if contract else ""
     measured = f"{rule[0].detail}\n\n" if rule else ""
     return (
         f"Service credit request for invoice {reference}",
         f"{clause}Your status page reports these incidents:\n{incidents}\n\n{measured}"
         f"We are requesting the service credit of {facts.amount} against invoice {reference}.",
+    )
+
+
+def _price_overcharge(facts: CaseFacts) -> tuple[str, str]:
+    contract = facts.evidence_of("contract")
+    clause = (
+        f"Our agreement ({contract[0].ref}) states:\n{contract[0].detail}\n\n" if contract else ""
+    )
+    return (
+        "Charges above our contracted price",
+        f"{clause}These charges came in above that price:\n\n{_lines(facts)}\n\n"
+        f"The difference is {facts.amount} in total. Please credit it to our card"
+        f"{_card(facts)} and bill the contracted price going forward.",
     )
 
 
@@ -107,6 +120,7 @@ _TEMPLATES = {
     LeakType.MISSING_REFUND: _missing_refund,
     LeakType.CHARGED_AFTER_CANCELLATION: _after_cancellation,
     LeakType.SLA_CREDIT: _sla_credit,
+    LeakType.PRICE_OVERCHARGE: _price_overcharge,
 }
 
 

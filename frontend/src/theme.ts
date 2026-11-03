@@ -7,6 +7,7 @@ export const LEAK_LABEL: Record<LeakType, string> = {
   missing_refund: "Refund never arrived",
   charged_after_cancellation: "Billed after cancelling",
   sla_credit: "Outage credit",
+  price_overcharge: "Price above contract",
 };
 
 export const OUTCOME_LABEL: Record<Outcome, string> = {

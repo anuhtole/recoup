@@ -141,5 +141,25 @@
     "key": "CALENDLY",
     "name": "Calendly",
     "support_email": "support@calendly.com"
+  },
+  {
+    "aliases": [],
+    "domains": [
+      "atlassian.com",
+      "atlassian.example"
+    ],
+    "key": "ATLASSIAN JIRA",
+    "name": "Jira (Atlassian)",
+    "support_email": "jira-sla-claims@atlassian.example"
+  },
+  {
+    "aliases": [],
+    "domains": [
+      "atlassian.com",
+      "atlassian.example"
+    ],
+    "key": "ATLASSIAN CONFLUENCE",
+    "name": "Confluence (Atlassian)",
+    "support_email": "confluence-sla-claims@atlassian.example"
   }
 ]

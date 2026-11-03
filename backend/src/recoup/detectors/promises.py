@@ -175,6 +175,7 @@ def _billed_after_cancel(
         evidence=(_email_evidence(promise), *(_txn_evidence(t) for t in after), rule),
         detector_version=DETECTOR_VERSION,
         recover_by=after[0].posted_at.date() + timedelta(days=config.dispute_window_days),
+        identity=f"{promise.vendor_key}#{promise.email_id}",
     )
 
 

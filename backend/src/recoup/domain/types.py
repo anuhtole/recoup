@@ -15,6 +15,7 @@ class LeakType(StrEnum):
     MISSING_REFUND = "missing_refund"
     CHARGED_AFTER_CANCELLATION = "charged_after_cancellation"
     SLA_CREDIT = "sla_credit"
+    PRICE_OVERCHARGE = "price_overcharge"
 
 
 class Outcome(StrEnum):
@@ -103,6 +104,8 @@ class FindingCandidate(BaseModel):
     evidence: tuple[Evidence, ...]
     detector_version: str
     recover_by: date | None = None
+    # Set when a case can grow: later charges or incidents update it instead of opening another.
+    identity: str | None = None
 
     @field_validator("transaction_ids", "source_refs")
     @classmethod
@@ -111,12 +114,8 @@ class FindingCandidate(BaseModel):
 
     @property
     def key(self) -> str:
-        """Identity used for idempotency: re-running detection never duplicates a finding.
-
-        A cancellation is one case per confirmation email: later charges grow that
-        case instead of opening an overlapping one.
-        """
-        grows = self.leak_type is LeakType.CHARGED_AFTER_CANCELLATION and self.source_refs
-        ids = () if grows else self.transaction_ids
-        key = f"{self.leak_type.value}:{'|'.join(ids)}"
+        """Identity used for idempotency: re-running detection never duplicates a finding."""
+        if self.identity is not None:
+            return f"{self.leak_type.value}:{self.identity}"
+        key = f"{self.leak_type.value}:{'|'.join(self.transaction_ids)}"
         return f"{key}#{'|'.join(self.source_refs)}" if self.source_refs else key

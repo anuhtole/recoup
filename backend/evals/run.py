@@ -28,6 +28,7 @@ LABELS = {
     LeakType.MISSING_REFUND: "Refunds promised, never posted",
     LeakType.CHARGED_AFTER_CANCELLATION: "Billed after cancellation",
     LeakType.SLA_CREDIT: "Outage credits owed",
+    LeakType.PRICE_OVERCHARGE: "Billed above contract price",
 }
 
 

@@ -8,6 +8,7 @@ from fastapi import Depends, Request
 from sqlalchemy.orm import Session, sessionmaker
 
 from recoup.config import Settings
+from recoup.connectors.scheduler import BackgroundSync
 from recoup.ingest.sources import Sources
 from recoup.services import Services
 
@@ -18,6 +19,7 @@ class AppContext:
     factory: sessionmaker[Session]
     services: Services
     sources: Sources
+    sync: BackgroundSync
 
 
 def get_context(request: Request) -> AppContext:

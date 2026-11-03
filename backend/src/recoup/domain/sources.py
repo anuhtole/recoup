@@ -81,6 +81,19 @@ class Contract(BaseModel):
     tiers: tuple[SlaTier, ...] = ()
     claim_window_days: int = 30
     clause: str = ""
+    # How uptime is measured. Empty components means the whole service counts.
+    period: Literal["month", "quarter"] = "month"
+    covered_components: tuple[str, ...] = ()
+    # Public status data can't prove this customer was hit (a regional outage, say).
+    needs_customer_confirmation: bool = False
+    # The recurring price the order form commits to, per charge, in minor units.
+    price_minor: int | None = None
+    price_currency: str = "USD"
+    # Unset means the price holds for the whole term.
+    price_locked_until: date | None = None
+    # After the lock, the most the price may rise, in basis points. Unset means no limit.
+    price_increase_cap_bp: int | None = None
+    price_clause: str = ""
 
 
 class Incident(BaseModel):
@@ -92,6 +105,9 @@ class Incident(BaseModel):
     started_at: datetime
     ended_at: datetime
     status_url: str
+    # Status pages report per component. "partial" alone never confirms a breach.
+    component: str | None = None
+    severity: Literal["outage", "partial"] = "outage"
 
     @field_validator("started_at", "ended_at")
     @classmethod

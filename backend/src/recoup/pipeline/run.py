@@ -23,12 +23,14 @@ from recoup.db.models import AuditEventRow, FindingRow, TransactionRow
 from recoup.db.state import get_as_of
 from recoup.detectors.duplicates import DuplicateConfig, detect_duplicates
 from recoup.detectors.outages import OutageConfig, detect_sla_credits
+from recoup.detectors.pricing import PricingConfig, detect_price_overcharges
 from recoup.detectors.promises import PromiseConfig, detect_broken_promises
 from recoup.domain.merchants import normalize_merchant
 from recoup.domain.sources import Promise
 from recoup.domain.types import FindingCandidate, Outcome, Transaction
 from recoup.domain.workflow import Status
 from recoup.extract.validate import PromiseTiming
+from recoup.ingest.live import with_live_status
 from recoup.ingest.loader import row_to_transaction
 from recoup.ingest.sources import Sources
 from recoup.pipeline.inbox import read_inbox
@@ -76,6 +78,10 @@ def detectors_from_settings(settings: Settings) -> list[Detector]:
         dispute_window_days=settings.dispute_window_days,
     )
     outages = OutageConfig(min_amount_minor=settings.min_recoverable_minor)
+    pricing = PricingConfig(
+        min_amount_minor=settings.min_recoverable_minor,
+        dispute_window_days=settings.dispute_window_days,
+    )
     return [
         lambda d: detect_duplicates(d.transactions, duplicates),
         lambda d: detect_broken_promises(
@@ -88,6 +94,9 @@ def detectors_from_settings(settings: Settings) -> list[Detector]:
             d.sources.vendors,
             d.as_of,
             outages,
+        ),
+        lambda d: detect_price_overcharges(
+            d.transactions, d.sources.contracts, d.sources.vendors, d.as_of, pricing
         ),
     ]
 
@@ -180,6 +189,7 @@ def run_pipeline(
     transactions = [row_to_transaction(row) for row in rows]
     timing = PromiseTiming(settings.promise_default_days, settings.promise_grace_days)
 
+    sources = with_live_status(session, sources)
     inbox = read_inbox(session, services.extractor, services.classifier, sources.vendors, timing)
     data = DetectionInput(transactions, inbox.promises, sources, as_of)
 

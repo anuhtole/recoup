@@ -1,0 +1,6740 @@
+{
+"captured_at": "2026-11-02",
+"source": "https://jira-software.status.atlassian.com",
+"incidents": [
+{
+"id": "1blzrf38268l",
+"name": "Fields missing across Jira Work Items for some users",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-11-02T00:10:48.689Z",
+"started_at": "2026-11-02T00:10:48.681Z",
+"resolved_at": "2026-11-02T00:38:50.966Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-11-02T00:38:50.966Z",
+"display_at": "2026-11-02T00:38:50.966Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-11-02T00:25:25.214Z",
+"display_at": "2026-11-02T00:25:25.214Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-11-02T00:10:48.852Z",
+"display_at": "2026-11-02T00:10:48.852Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "1yh59bb4lw20",
+"name": "Jira - Project Sidebar Loading Degradation",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-21T14:28:49.567Z",
+"started_at": "2026-10-21T14:28:49.560Z",
+"resolved_at": "2026-10-21T15:45:09.455Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-21T15:45:09.455Z",
+"display_at": "2026-10-21T15:45:09.455Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-21T15:01:51.735Z",
+"display_at": "2026-10-21T15:01:51.735Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-21T14:28:49.659Z",
+"display_at": "2026-10-21T14:28:49.659Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "vwrp378v0zmk",
+"name": "Job processing and scheduling is degraded affecting multiple Atlassian products",
+"impact": "major",
+"status": "postmortem",
+"created_at": "2026-10-01T02:55:55.505Z",
+"started_at": "2026-10-01T02:55:55.497Z",
+"resolved_at": "2026-10-01T07:51:30.377Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-09T18:24:30.790Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-10-01T07:51:30.377Z",
+"display_at": "2026-10-01T07:51:30.377Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-01T07:01:47.693Z",
+"display_at": "2026-10-01T07:01:47.693Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-01T05:00:55.230Z",
+"display_at": "2026-10-01T05:00:55.230Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "degraded_performance"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-01T04:03:57.512Z",
+"display_at": "2026-10-01T04:03:57.512Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-01T03:47:44.683Z",
+"display_at": "2026-10-01T03:47:44.683Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-01T02:55:55.630Z",
+"display_at": "2026-10-01T02:55:55.630Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "wzv0rl24mm4s",
+"name": "Degraded Performance Viewing Issues and Boards",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-24T13:54:20.402Z",
+"started_at": "2026-09-24T13:54:20.394Z",
+"resolved_at": "2026-09-24T15:53:04.126Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-24T15:53:04.126Z",
+"display_at": "2026-09-24T15:53:04.126Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-24T14:58:28.222Z",
+"display_at": "2026-09-24T14:58:28.222Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-24T13:54:20.484Z",
+"display_at": "2026-09-24T13:54:20.484Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "z77zzqy19l1v",
+"name": "Degraded Performance Accessing Jira",
+"impact": "none",
+"status": "resolved",
+"created_at": "2026-09-24T08:52:22.114Z",
+"started_at": "2026-09-24T08:52:22.106Z",
+"resolved_at": "2026-09-24T11:46:14.490Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-24T11:46:14.490Z",
+"display_at": "2026-09-24T11:46:14.490Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-24T10:34:06.737Z",
+"display_at": "2026-09-24T10:34:06.737Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-24T08:52:22.163Z",
+"display_at": "2026-09-24T08:52:22.163Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+}
+]
+},
+{
+"id": "kvpmkndcdfyk",
+"name": "Degraded performance affecting Jira Software and Jira Service Management",
+"impact": "minor",
+"status": "postmortem",
+"created_at": "2026-09-11T07:46:31.085Z",
+"started_at": "2026-09-11T07:46:31.074Z",
+"resolved_at": "2026-09-11T08:37:46.776Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-21T22:36:29.696Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-09-11T08:37:46.776Z",
+"display_at": "2026-09-11T08:37:46.776Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-11T08:06:04.344Z",
+"display_at": "2026-09-11T08:06:04.344Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-11T07:46:31.194Z",
+"display_at": "2026-09-11T07:46:31.194Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "ws0393rxcgyl",
+"name": "Disrupted JIRA availability in US East",
+"impact": "critical",
+"status": "postmortem",
+"created_at": "2026-09-03T15:57:31.708Z",
+"started_at": "2026-09-03T15:57:31.693Z",
+"resolved_at": "2026-09-03T17:02:02.867Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-10T18:15:33.771Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-09-03T17:02:02.867Z",
+"display_at": "2026-09-03T17:02:02.867Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-03T16:35:58.621Z",
+"display_at": "2026-09-03T16:35:58.000Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-03T15:57:31.948Z",
+"display_at": "2026-09-03T15:57:31.948Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "2ghgdxhpfx4l",
+"name": "Degraded performance of JIRA",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-01T17:09:05.519Z",
+"started_at": "2026-09-01T17:09:05.509Z",
+"resolved_at": "2026-09-01T21:35:09.604Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-01T21:35:09.604Z",
+"display_at": "2026-09-01T21:35:09.604Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-01T21:24:02.671Z",
+"display_at": "2026-09-01T21:24:02.671Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-01T20:33:13.574Z",
+"display_at": "2026-09-01T20:33:13.574Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-01T18:27:54.788Z",
+"display_at": "2026-09-01T18:27:54.788Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-01T17:09:05.632Z",
+"display_at": "2026-09-01T17:09:05.632Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "yntgmb0w71xn",
+"name": "Jira - Work Item transition failures",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-01T09:12:37.221Z",
+"started_at": "2026-09-01T09:12:37.212Z",
+"resolved_at": "2026-09-01T11:44:04.667Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-01T11:44:04.667Z",
+"display_at": "2026-09-01T11:44:04.667Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-01T10:11:45.374Z",
+"display_at": "2026-09-01T10:11:45.374Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-01T09:12:37.314Z",
+"display_at": "2026-09-01T09:12:37.314Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "3w5c3rkxcgwz",
+"name": "Fetching mails from Microsoft accounts producing errors and preventing email based creation of Jira work items",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-08-31T18:28:21.774Z",
+"started_at": "2026-08-31T18:28:21.764Z",
+"resolved_at": "2026-09-01T05:18:01.326Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-01T05:18:01.326Z",
+"display_at": "2026-09-01T05:18:01.326Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-01T00:47:46.028Z",
+"display_at": "2026-09-01T00:47:46.028Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-08-31T18:28:21.864Z",
+"display_at": "2026-08-31T18:28:21.864Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "jv8mdjyh9cn7",
+"name": "Issues accessing multiple Atlassian products in some regions",
+"impact": "critical",
+"status": "postmortem",
+"created_at": "2026-08-27T04:22:09.107Z",
+"started_at": "2026-08-27T04:22:09.094Z",
+"resolved_at": "2026-08-27T05:16:07.364Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-07T02:53:18.563Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-08-27T05:16:07.364Z",
+"display_at": "2026-08-27T05:16:07.364Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-27T04:51:26.554Z",
+"display_at": "2026-08-27T04:51:26.554Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-27T04:33:20.449Z",
+"display_at": "2026-08-27T04:33:20.449Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-27T04:25:11.880Z",
+"display_at": "2026-08-27T04:25:11.880Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-27T04:22:09.374Z",
+"display_at": "2026-08-27T04:22:09.374Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "l9ryy7d07wky",
+"name": "Notifications are delayed",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-08-25T08:42:48.022Z",
+"started_at": "2026-08-25T08:42:48.014Z",
+"resolved_at": "2026-08-25T14:33:57.194Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-25T14:33:57.194Z",
+"display_at": "2026-08-25T14:33:57.194Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-25T13:01:39.232Z",
+"display_at": "2026-08-25T13:01:39.232Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-08-25T10:49:57.382Z",
+"display_at": "2026-08-25T10:49:57.382Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-08-25T09:44:51.974Z",
+"display_at": "2026-08-25T09:44:51.974Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-08-25T08:42:48.109Z",
+"display_at": "2026-08-25T08:42:48.109Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "fnvv9p58fphf",
+"name": "Degraded performance of Notifications",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-08-24T19:22:47.581Z",
+"started_at": "2026-08-24T19:22:47.574Z",
+"resolved_at": "2026-08-24T23:15:20.507Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-24T23:15:20.507Z",
+"display_at": "2026-08-24T23:15:20.507Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-24T21:30:42.100Z",
+"display_at": "2026-08-24T21:30:42.100Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-24T20:25:56.629Z",
+"display_at": "2026-08-24T20:25:56.629Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-24T19:22:47.652Z",
+"display_at": "2026-08-24T19:22:47.652Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "tv6rfjx9233y",
+"name": "Performance and access related issues with Jira",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-08-07T11:30:55.200Z",
+"started_at": "2026-08-07T11:30:55.190Z",
+"resolved_at": "2026-08-07T12:52:22.989Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-07T12:52:22.989Z",
+"display_at": "2026-08-07T12:52:22.989Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-07T12:22:31.315Z",
+"display_at": "2026-08-07T12:22:31.315Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-07T11:30:55.327Z",
+"display_at": "2026-08-07T11:30:55.327Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "r2dllgb24x2h",
+"name": "Degraded performance of JIRA",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-08-07T01:24:52.118Z",
+"started_at": "2026-08-07T01:24:52.110Z",
+"resolved_at": "2026-08-07T01:46:47.707Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-07T01:46:47.707Z",
+"display_at": "2026-08-07T01:46:47.707Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-07T01:39:43.437Z",
+"display_at": "2026-08-07T01:39:43.437Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-07T01:33:21.126Z",
+"display_at": "2026-08-07T01:33:21.126Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-07T01:26:48.714Z",
+"display_at": "2026-08-07T01:26:48.714Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-07T01:24:52.199Z",
+"display_at": "2026-08-07T01:24:52.199Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "sd7x009p6h63",
+"name": "Degraded performance of Jira Automation rules",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-07-20T20:18:31.877Z",
+"started_at": "2026-07-20T20:18:31.869Z",
+"resolved_at": "2026-07-22T00:56:02.773Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-07-22T00:56:02.773Z",
+"display_at": "2026-07-22T00:56:02.773Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-21T04:53:58.641Z",
+"display_at": "2026-07-21T04:53:58.641Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-07-20T21:27:13.053Z",
+"display_at": "2026-07-20T21:27:13.053Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-07-20T20:18:31.963Z",
+"display_at": "2026-07-20T20:18:31.963Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "4wxvsr6lwth5",
+"name": "Degraded performance of Jira Automation rules",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-07-20T16:03:35.363Z",
+"started_at": "2026-07-20T16:03:35.356Z",
+"resolved_at": "2026-07-20T17:23:09.536Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-07-20T17:23:09.536Z",
+"display_at": "2026-07-20T17:23:09.536Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-20T16:58:29.317Z",
+"display_at": "2026-07-20T16:58:29.317Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-07-20T16:03:35.420Z",
+"display_at": "2026-07-20T16:03:35.420Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "qtq461tgf0ky",
+"name": "Degraded performance of JIRA Automation",
+"impact": "minor",
+"status": "postmortem",
+"created_at": "2026-07-06T16:11:16.707Z",
+"started_at": "2026-07-06T16:11:16.684Z",
+"resolved_at": "2026-07-06T18:52:11.920Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-07-27T06:57:39.659Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-07-06T18:52:11.920Z",
+"display_at": "2026-07-06T18:52:11.920Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-06T18:41:55.625Z",
+"display_at": "2026-07-06T18:41:55.625Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-06T17:57:30.017Z",
+"display_at": "2026-07-06T17:57:30.017Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-07-06T17:12:05.218Z",
+"display_at": "2026-07-06T17:12:05.218Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-07-06T16:11:16.905Z",
+"display_at": "2026-07-06T16:11:16.905Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "4k8mdw0fgzqc",
+"name": "Reliability issues with Jira and Confluence",
+"impact": "major",
+"status": "postmortem",
+"created_at": "2026-07-06T09:23:39.728Z",
+"started_at": "2026-07-06T09:23:39.703Z",
+"resolved_at": "2026-07-06T13:04:02.037Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-07-17T16:59:34.522Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-07-06T13:04:02.037Z",
+"display_at": "2026-07-06T13:04:02.037Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-06T12:25:51.900Z",
+"display_at": "2026-07-06T12:25:51.900Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-06T11:46:19.359Z",
+"display_at": "2026-07-06T11:46:19.359Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-06T10:04:41.683Z",
+"display_at": "2026-07-06T10:04:41.683Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-06T09:23:39.990Z",
+"display_at": "2026-07-06T09:23:39.990Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "wz4nsfzcddyv",
+"name": "Jira : Incoming emails partial outage",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-06-19T22:46:56.475Z",
+"started_at": "2026-06-19T22:46:56.448Z",
+"resolved_at": "2026-06-26T05:13:01.620Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-06-26T05:13:01.620Z",
+"display_at": "2026-06-26T05:13:01.620Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-19T22:46:56.770Z",
+"display_at": "2026-06-19T22:46:56.770Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "c436c8y239dv",
+"name": "Delays in processing incoming Emails, Work Item notifications, and Scheduled Triggers in Marketplace Apps",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-06-10T04:55:12.859Z",
+"started_at": "2026-06-10T04:55:12.844Z",
+"resolved_at": "2026-06-10T06:31:05.636Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-06-10T06:31:05.636Z",
+"display_at": "2026-06-10T06:31:05.636Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-10T06:14:06.339Z",
+"display_at": "2026-06-10T06:14:06.339Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-06-10T05:39:42.141Z",
+"display_at": "2026-06-10T05:39:42.141Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-06-10T04:55:12.983Z",
+"display_at": "2026-06-10T04:55:12.983Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "jgzp93wzrws3",
+"name": "Some users experiencing issues viewing boards and work items",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-06-09T05:29:37.613Z",
+"started_at": "2026-06-09T05:29:37.576Z",
+"resolved_at": "2026-06-09T18:28:13.487Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-06-09T18:28:13.487Z",
+"display_at": "2026-06-09T18:28:13.487Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-09T10:36:09.147Z",
+"display_at": "2026-06-09T10:36:09.147Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-09T10:21:32.746Z",
+"display_at": "2026-06-09T10:21:32.746Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-06-09T10:20:31.507Z",
+"display_at": "2026-06-09T10:20:31.507Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-06-09T09:27:44.310Z",
+"display_at": "2026-06-09T09:27:44.310Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-06-09T09:26:43.310Z",
+"display_at": "2026-06-09T09:26:43.310Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-06-09T06:22:22.559Z",
+"display_at": "2026-06-09T06:22:22.559Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-06-09T06:21:21.435Z",
+"display_at": "2026-06-09T06:21:21.435Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-06-09T05:29:37.798Z",
+"display_at": "2026-06-09T05:29:37.798Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "zz7l9ggnb181",
+"name": "Users experiencing issues loading work items in Jira and JSM",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-06-08T01:53:57.162Z",
+"started_at": "2026-06-08T01:53:57.139Z",
+"resolved_at": "2026-06-08T02:56:33.698Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-06-08T02:56:33.698Z",
+"display_at": "2026-06-08T02:56:33.698Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-08T02:36:29.656Z",
+"display_at": "2026-06-08T02:36:29.656Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-06-08T01:53:57.405Z",
+"display_at": "2026-06-08T01:53:57.405Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "hfbts51tbzqr",
+"name": "Users experiencing issues loading work items in Atlassian products",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-06-06T23:21:41.314Z",
+"started_at": "2026-06-06T23:21:41.305Z",
+"resolved_at": "2026-06-07T00:13:10.899Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-06-07T00:13:10.899Z",
+"display_at": "2026-06-07T00:13:10.899Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-07T00:07:37.554Z",
+"display_at": "2026-06-07T00:07:37.554Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-06-06T23:21:41.436Z",
+"display_at": "2026-06-06T23:21:41.436Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "4drnxvxspl0g",
+"name": "Degraded performance of Jira and JSM automations in US East",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-06-02T15:32:56.010Z",
+"started_at": "2026-06-02T15:32:55.990Z",
+"resolved_at": "2026-06-02T16:51:29.000Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-06-02T16:51:29.601Z",
+"display_at": "2026-06-02T16:51:29.000Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-02T15:32:56.167Z",
+"display_at": "2026-06-02T15:32:56.167Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "4jrw66wzznqx",
+"name": "For Jira-software viewIssues and viewBoard are degraded",
+"impact": "major",
+"status": "postmortem",
+"created_at": "2026-06-01T07:40:53.142Z",
+"started_at": "2026-06-01T07:40:53.106Z",
+"resolved_at": "2026-06-01T13:23:43.574Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-06-12T06:49:15.105Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-06-01T13:23:43.574Z",
+"display_at": "2026-06-01T13:23:43.574Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-01T09:07:50.078Z",
+"display_at": "2026-06-01T09:07:50.078Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-01T08:06:32.060Z",
+"display_at": "2026-06-01T08:06:32.060Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-06-01T07:40:53.768Z",
+"display_at": "2026-06-01T07:40:53.768Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "jk8ndk4xkl27",
+"name": "Forge custom fields are not getting created",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-05-20T09:17:17.560Z",
+"started_at": "2026-05-20T09:17:17.551Z",
+"resolved_at": "2026-05-20T14:14:34.795Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-05-20T14:14:34.795Z",
+"display_at": "2026-05-20T14:14:34.795Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-20T12:06:23.838Z",
+"display_at": "2026-05-20T12:06:23.838Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-20T11:20:14.313Z",
+"display_at": "2026-05-20T11:20:14.313Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-20T09:17:17.661Z",
+"display_at": "2026-05-20T09:17:17.661Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "zq3f0j7wph20",
+"name": "Users experiencing issues accessing multiple Atlassian products",
+"impact": "critical",
+"status": "postmortem",
+"created_at": "2026-05-14T04:54:57.981Z",
+"started_at": "2026-05-14T06:41:36.000Z",
+"resolved_at": "2026-05-14T06:48:27.762Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-05-19T19:04:06.366Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-05-14T06:48:27.762Z",
+"display_at": "2026-05-14T06:48:27.762Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-14T06:41:36.263Z",
+"display_at": "2026-05-14T06:41:36.000Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-14T06:40:48.710Z",
+"display_at": "2026-05-14T06:40:48.710Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-14T05:43:24.232Z",
+"display_at": "2026-05-14T05:43:24.232Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-05-14T05:34:14.519Z",
+"display_at": "2026-05-14T05:34:14.519Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-05-14T05:24:53.768Z",
+"display_at": "2026-05-14T05:24:53.768Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-05-14T05:11:19.128Z",
+"display_at": "2026-05-14T05:11:19.128Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-05-14T05:03:32.237Z",
+"display_at": "2026-05-14T05:03:32.237Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-05-14T04:54:58.282Z",
+"display_at": "2026-05-14T04:54:58.282Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "90cyzwh234yl",
+"name": "Automations within Jira, Jira Service Management and JSM Assist experiencing delays for some users",
+"impact": "major",
+"status": "postmortem",
+"created_at": "2026-05-13T01:37:35.031Z",
+"started_at": "2026-05-13T01:37:35.022Z",
+"resolved_at": "2026-05-13T09:59:05.956Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-06-01T21:50:08.591Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-05-13T09:59:05.956Z",
+"display_at": "2026-05-13T09:59:05.956Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-13T08:42:56.957Z",
+"display_at": "2026-05-13T08:42:56.957Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-05-13T07:42:44.700Z",
+"display_at": "2026-05-13T07:42:44.700Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-05-13T06:38:14.469Z",
+"display_at": "2026-05-13T06:38:14.469Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-05-13T05:38:47.462Z",
+"display_at": "2026-05-13T05:38:47.462Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-05-13T02:41:47.129Z",
+"display_at": "2026-05-13T02:41:47.129Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-05-13T01:37:35.110Z",
+"display_at": "2026-05-13T01:37:35.110Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "ryvrzdfwh57v",
+"name": "Multiple Atlassian services are experiencing issues",
+"impact": "minor",
+"status": "postmortem",
+"created_at": "2026-05-08T01:31:38.232Z",
+"started_at": "2026-05-08T01:31:38.218Z",
+"resolved_at": "2026-05-08T19:45:32.352Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-05-20T06:50:19.327Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-05-08T19:45:32.352Z",
+"display_at": "2026-05-08T19:45:32.352Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-08T11:12:09.754Z",
+"display_at": "2026-05-08T11:12:09.754Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-08T08:03:04.078Z",
+"display_at": "2026-05-08T08:03:04.078Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T05:53:41.452Z",
+"display_at": "2026-05-08T05:53:41.452Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T04:10:46.951Z",
+"display_at": "2026-05-08T04:10:46.951Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T04:10:41.893Z",
+"display_at": "2026-05-08T04:10:41.893Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T04:10:32.044Z",
+"display_at": "2026-05-08T04:10:32.044Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T03:00:17.153Z",
+"display_at": "2026-05-08T03:00:17.153Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T03:00:10.998Z",
+"display_at": "2026-05-08T03:00:10.998Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T02:15:41.257Z",
+"display_at": "2026-05-08T02:15:41.257Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T01:31:38.472Z",
+"display_at": "2026-05-08T01:31:38.472Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "h5692lfkkmgt",
+"name": "Jira users unable to log time while on business board",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-05-06T03:18:26.385Z",
+"started_at": "2026-05-06T03:18:26.379Z",
+"resolved_at": "2026-05-06T06:39:27.521Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-05-06T06:39:27.521Z",
+"display_at": "2026-05-06T06:39:27.521Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-06T04:16:20.688Z",
+"display_at": "2026-05-06T04:16:20.688Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-05-06T03:18:26.452Z",
+"display_at": "2026-05-06T03:18:26.452Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "vbl5kktb1tqy",
+"name": "The Work Item view experience of Jira is restored",
+"impact": "critical",
+"status": "postmortem",
+"created_at": "2026-05-02T00:55:47.631Z",
+"started_at": "2026-05-02T00:55:47.623Z",
+"resolved_at": "2026-05-02T02:48:03.092Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-05-14T19:44:06.866Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-05-02T02:48:03.092Z",
+"display_at": "2026-05-02T02:48:03.092Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-02T02:00:13.377Z",
+"display_at": "2026-05-02T02:00:13.377Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-05-02T01:38:34.051Z",
+"display_at": "2026-05-02T01:38:34.051Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-05-02T00:55:47.744Z",
+"display_at": "2026-05-02T00:55:47.744Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "jr6nwpw15dc4",
+"name": "Delays in Jira webhook delivery",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-04-30T08:59:03.731Z",
+"started_at": "2026-04-30T08:59:03.723Z",
+"resolved_at": "2026-04-30T14:56:58.699Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-04-30T14:56:58.699Z",
+"display_at": "2026-04-30T14:56:58.699Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-30T13:36:14.741Z",
+"display_at": "2026-04-30T13:36:14.741Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-30T10:05:20.745Z",
+"display_at": "2026-04-30T10:05:20.745Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-04-30T08:59:03.816Z",
+"display_at": "2026-04-30T08:59:03.816Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "brrnrqg73r0s",
+"name": "Disrupted Rovo availability for Automation rules",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-04-14T12:12:58.153Z",
+"started_at": "2026-04-14T12:12:58.144Z",
+"resolved_at": "2026-04-14T16:11:31.287Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-04-14T16:11:31.287Z",
+"display_at": "2026-04-14T16:11:31.287Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-14T15:46:12.755Z",
+"display_at": "2026-04-14T15:46:12.755Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-14T14:11:39.452Z",
+"display_at": "2026-04-14T14:11:39.452Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-14T12:25:18.225Z",
+"display_at": "2026-04-14T12:25:18.225Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-14T12:12:58.237Z",
+"display_at": "2026-04-14T12:12:58.237Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "5b6kytgmnt43",
+"name": "Users experiencing issues with login across Atlassian products",
+"impact": "minor",
+"status": "postmortem",
+"created_at": "2026-04-13T07:29:45.417Z",
+"started_at": "2026-04-13T07:29:45.408Z",
+"resolved_at": "2026-04-13T10:17:20.728Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-04-21T02:33:52.301Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-04-13T10:17:20.728Z",
+"display_at": "2026-04-13T10:17:20.728Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-13T08:33:50.649Z",
+"display_at": "2026-04-13T08:33:50.649Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-04-13T07:29:45.538Z",
+"display_at": "2026-04-13T07:29:45.538Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "dl5fbnxkfwpn",
+"name": "Multiple products impacted by search failures",
+"impact": "critical",
+"status": "postmortem",
+"created_at": "2026-04-08T05:41:18.107Z",
+"started_at": "2026-04-08T05:41:18.097Z",
+"resolved_at": "2026-04-08T11:43:29.742Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-04-17T16:25:10.183Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-04-08T11:43:29.742Z",
+"display_at": "2026-04-08T11:43:29.742Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-08T09:03:45.073Z",
+"display_at": "2026-04-08T09:03:45.073Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "b01bgtvb4q2j",
+"name": "Create and edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+},
+{
+"code": "yzll2534txvb",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "50wvm3nm8nd3",
+"name": "Marketplace",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "39kyw28g27ws",
+"name": "Mobile",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jmgfbtr0k28j",
+"name": "Viewing content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "0hjw3h7qpkc6",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fgq39r8cz7mj",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "9hyf9lm0fswd",
+"name": "Automation for Jira",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-08T09:03:42.519Z",
+"display_at": "2026-04-08T09:03:42.519Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T08:33:13.548Z",
+"display_at": "2026-04-08T08:33:13.548Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-08T08:33:10.160Z",
+"display_at": "2026-04-08T08:33:10.160Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T07:40:26.431Z",
+"display_at": "2026-04-08T07:40:26.431Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-08T07:40:23.836Z",
+"display_at": "2026-04-08T07:40:23.836Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T06:25:52.711Z",
+"display_at": "2026-04-08T06:25:52.711Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T06:25:50.611Z",
+"display_at": "2026-04-08T06:25:50.611Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T06:24:48.966Z",
+"display_at": "2026-04-08T06:24:48.966Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T06:01:39.145Z",
+"display_at": "2026-04-08T06:01:39.145Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "sftzwrxsjrry",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "y76gc542s6nd",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T06:01:37.602Z",
+"display_at": "2026-04-08T06:01:37.602Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T05:41:18.190Z",
+"display_at": "2026-04-08T05:41:18.190Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "sv1xfn9br170",
+"name": "Search",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+}
+]
+}

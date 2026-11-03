@@ -1,0 +1,5985 @@
+{
+"captured_at": "2026-11-02",
+"source": "https://www.githubstatus.com",
+"incidents": [
+{
+"id": "db4x8hh362t8",
+"name": "Elevated errors on GPT-5.4 Nano",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-11-02T17:46:23.166Z",
+"started_at": "2026-11-02T17:46:23.160Z",
+"resolved_at": "2026-11-02T18:24:23.169Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-11-02T18:24:23.169Z",
+"display_at": "2026-11-02T18:24:23.169Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-11-02T18:10:34.889Z",
+"display_at": "2026-11-02T18:10:34.889Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-11-02T17:58:33.420Z",
+"display_at": "2026-11-02T17:58:33.420Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-11-02T17:46:34.646Z",
+"display_at": "2026-11-02T17:46:34.646Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-11-02T17:46:23.347Z",
+"display_at": "2026-11-02T17:46:23.347Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "lyyfm7j4pkgl",
+"name": "Incident with Dependabot",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-30T20:59:14.225Z",
+"started_at": "2026-10-30T20:59:14.215Z",
+"resolved_at": "2026-10-30T23:29:06.291Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-30T23:29:06.291Z",
+"display_at": "2026-10-30T23:29:06.291Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-10-30T22:32:14.170Z",
+"display_at": "2026-10-30T22:32:14.170Z",
+"status": "monitoring",
+"affected_components": null
+},
+{
+"created_at": "2026-10-30T22:32:08.552Z",
+"display_at": "2026-10-30T22:32:08.552Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-30T21:44:52.903Z",
+"display_at": "2026-10-30T21:44:52.903Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-30T21:00:18.322Z",
+"display_at": "2026-10-30T21:00:18.322Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-30T20:59:14.291Z",
+"display_at": "2026-10-30T20:59:14.291Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "pwxsjgnvrk6b",
+"name": "Incident with Actions, Pages, and Webhooks",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-10-30T17:50:54.677Z",
+"started_at": "2026-10-30T17:50:54.670Z",
+"resolved_at": "2026-10-30T19:23:40.177Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-30T19:23:40.177Z",
+"display_at": "2026-10-30T19:23:40.177Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-30T18:32:39.824Z",
+"display_at": "2026-10-30T18:32:39.824Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-30T18:32:23.550Z",
+"display_at": "2026-10-30T18:32:23.550Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-30T18:06:21.711Z",
+"display_at": "2026-10-30T18:06:21.711Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-30T18:00:58.169Z",
+"display_at": "2026-10-30T18:00:58.169Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-30T17:50:54.785Z",
+"display_at": "2026-10-30T17:50:54.785Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "nxy2l0ssxm10",
+"name": "Disruption with GitHub services",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-10-30T14:31:16.537Z",
+"started_at": "2026-10-30T14:31:16.529Z",
+"resolved_at": "2026-10-30T15:02:51.002Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-30T15:02:51.002Z",
+"display_at": "2026-10-30T15:02:51.002Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-30T14:49:46.388Z",
+"display_at": "2026-10-30T14:49:46.388Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-30T14:48:00.120Z",
+"display_at": "2026-10-30T14:48:00.120Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-30T14:45:58.580Z",
+"display_at": "2026-10-30T14:45:58.580Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-30T14:39:42.881Z",
+"display_at": "2026-10-30T14:39:42.881Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-30T14:36:00.563Z",
+"display_at": "2026-10-30T14:36:00.563Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-30T14:35:42.638Z",
+"display_at": "2026-10-30T14:35:42.638Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-30T14:31:16.604Z",
+"display_at": "2026-10-30T14:31:16.604Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "rn76zdy367m2",
+"name": "Disruption with Copilot Cloud services",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-29T10:19:55.318Z",
+"started_at": "2026-10-29T10:19:55.313Z",
+"resolved_at": "2026-10-29T12:49:52.145Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-29T12:49:52.145Z",
+"display_at": "2026-10-29T12:49:52.145Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-10-29T12:33:32.177Z",
+"display_at": "2026-10-29T12:33:32.177Z",
+"status": "monitoring",
+"affected_components": null
+},
+{
+"created_at": "2026-10-29T11:37:53.430Z",
+"display_at": "2026-10-29T11:37:53.430Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-29T11:01:07.990Z",
+"display_at": "2026-10-29T11:01:07.990Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-29T10:22:18.212Z",
+"display_at": "2026-10-29T10:22:18.212Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-29T10:19:55.374Z",
+"display_at": "2026-10-29T10:19:55.374Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "l7ycmglmykgg",
+"name": "Disruption with some Copilot services",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-10-28T14:12:53.821Z",
+"started_at": "2026-10-28T14:12:53.814Z",
+"resolved_at": "2026-10-28T15:28:19.237Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-28T15:28:19.237Z",
+"display_at": "2026-10-28T15:28:19.237Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "pjmpxvq2cmr2",
+"name": "Copilot",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-28T15:26:14.736Z",
+"display_at": "2026-10-28T15:26:14.736Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "pjmpxvq2cmr2",
+"name": "Copilot",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-28T15:24:40.346Z",
+"display_at": "2026-10-28T15:24:40.346Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "pjmpxvq2cmr2",
+"name": "Copilot",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-28T15:15:25.873Z",
+"display_at": "2026-10-28T15:15:25.873Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-28T14:55:32.445Z",
+"display_at": "2026-10-28T14:55:32.445Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-28T14:33:55.402Z",
+"display_at": "2026-10-28T14:33:55.402Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-28T14:15:46.574Z",
+"display_at": "2026-10-28T14:15:46.574Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-28T14:12:53.892Z",
+"display_at": "2026-10-28T14:12:53.892Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "dnslv7xdl4fj",
+"name": "Elevated 404s for GitHub App s2s tokens in git/API",
+"impact": "none",
+"status": "resolved",
+"created_at": "2026-10-27T08:00:00.000Z",
+"started_at": "2026-10-27T20:21:53.803Z",
+"resolved_at": "2026-10-27T08:00:00.000Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-27T20:21:53.872Z",
+"display_at": "2026-10-27T08:00:00.000Z",
+"status": "resolved",
+"affected_components": null
+}
+]
+},
+{
+"id": "f1vvv30224wd",
+"name": "Incident with Actions, Issues, API Requests and Pull Requests",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-26T18:48:26.235Z",
+"started_at": "2026-10-26T18:48:26.225Z",
+"resolved_at": "2026-10-26T18:57:22.958Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-26T18:57:22.958Z",
+"display_at": "2026-10-26T18:57:22.958Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-26T18:54:04.333Z",
+"display_at": "2026-10-26T18:54:04.333Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-26T18:50:58.284Z",
+"display_at": "2026-10-26T18:50:58.284Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-26T18:48:26.313Z",
+"display_at": "2026-10-26T18:48:26.313Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+}
+]
+},
+{
+"id": "khv5nj9qy2kk",
+"name": "Grok 4.6 and Grok 4.7 Service Issues",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-23T23:41:54.223Z",
+"started_at": "2026-10-23T23:41:54.214Z",
+"resolved_at": "2026-10-24T00:23:32.689Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-24T00:23:32.689Z",
+"display_at": "2026-10-24T00:23:32.689Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-24T00:23:17.249Z",
+"display_at": "2026-10-24T00:23:17.249Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-23T23:42:06.101Z",
+"display_at": "2026-10-23T23:42:06.101Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-23T23:41:54.338Z",
+"display_at": "2026-10-23T23:41:54.338Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "71y513kjvbzh",
+"name": "Disruption with Dependabot Alerts",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-23T14:58:48.748Z",
+"started_at": "2026-10-23T14:58:48.741Z",
+"resolved_at": "2026-10-23T18:51:24.490Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-23T18:51:24.490Z",
+"display_at": "2026-10-23T18:51:24.490Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-10-23T18:36:15.053Z",
+"display_at": "2026-10-23T18:36:15.053Z",
+"status": "monitoring",
+"affected_components": null
+},
+{
+"created_at": "2026-10-23T17:27:48.210Z",
+"display_at": "2026-10-23T17:27:48.210Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-23T16:43:03.822Z",
+"display_at": "2026-10-23T16:43:03.822Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-23T16:11:18.501Z",
+"display_at": "2026-10-23T16:11:18.501Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-23T15:39:57.071Z",
+"display_at": "2026-10-23T15:39:57.071Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-23T15:00:01.746Z",
+"display_at": "2026-10-23T15:00:01.746Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-23T14:58:48.893Z",
+"display_at": "2026-10-23T14:58:48.893Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "ntrfd2jqldn6",
+"name": "Delayed Actions status check results",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-23T07:29:03.081Z",
+"started_at": "2026-10-23T07:29:03.074Z",
+"resolved_at": "2026-10-23T08:05:27.354Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-23T08:05:27.354Z",
+"display_at": "2026-10-23T08:05:27.354Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-23T07:56:35.639Z",
+"display_at": "2026-10-23T07:56:35.639Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-23T07:53:40.388Z",
+"display_at": "2026-10-23T07:53:40.388Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-23T07:31:54.566Z",
+"display_at": "2026-10-23T07:31:54.566Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-23T07:29:03.320Z",
+"display_at": "2026-10-23T07:29:03.320Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "wq8305lppdc2",
+"name": "Project updates delayed",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-22T15:28:03.986Z",
+"started_at": "2026-10-22T15:28:03.979Z",
+"resolved_at": "2026-10-23T02:30:25.221Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-23T02:30:25.221Z",
+"display_at": "2026-10-23T02:30:25.221Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-23T00:55:18.035Z",
+"display_at": "2026-10-23T00:55:18.035Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T23:48:05.358Z",
+"display_at": "2026-10-22T23:48:05.358Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T22:07:36.307Z",
+"display_at": "2026-10-22T22:07:36.307Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T20:46:26.570Z",
+"display_at": "2026-10-22T20:46:26.570Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T19:56:09.809Z",
+"display_at": "2026-10-22T19:56:09.809Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T19:04:03.282Z",
+"display_at": "2026-10-22T19:04:03.282Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T18:26:31.116Z",
+"display_at": "2026-10-22T18:26:31.116Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T17:43:44.874Z",
+"display_at": "2026-10-22T17:43:44.874Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T17:41:38.697Z",
+"display_at": "2026-10-22T17:41:38.697Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T17:16:06.206Z",
+"display_at": "2026-10-22T17:16:06.206Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-22T16:41:52.512Z",
+"display_at": "2026-10-22T16:41:52.512Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-22T16:35:07.604Z",
+"display_at": "2026-10-22T16:35:07.604Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-22T16:28:56.822Z",
+"display_at": "2026-10-22T16:28:56.822Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "st3j38cctv9l",
+"name": "Packages",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-22T16:26:16.966Z",
+"display_at": "2026-10-22T16:26:16.966Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-22T16:08:04.783Z",
+"display_at": "2026-10-22T16:08:04.783Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-22T15:33:52.378Z",
+"display_at": "2026-10-22T15:33:52.378Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-22T15:28:04.258Z",
+"display_at": "2026-10-22T15:28:04.258Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "q29p76qtnkyk",
+"name": "Incident with Actions",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-22T14:18:15.723Z",
+"started_at": "2026-10-22T14:18:15.716Z",
+"resolved_at": "2026-10-22T15:18:46.284Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-22T15:18:46.284Z",
+"display_at": "2026-10-22T15:18:46.284Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T15:18:41.559Z",
+"display_at": "2026-10-22T15:18:41.559Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T15:17:23.929Z",
+"display_at": "2026-10-22T15:17:23.929Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-22T15:06:35.474Z",
+"display_at": "2026-10-22T15:06:35.474Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-22T14:35:29.241Z",
+"display_at": "2026-10-22T14:35:29.241Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-22T14:19:32.589Z",
+"display_at": "2026-10-22T14:19:32.589Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-22T14:18:15.815Z",
+"display_at": "2026-10-22T14:18:15.815Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "nms1dpzmh9d9",
+"name": "Delays for Pull Requests and Webhook deliveries",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-10-21T14:52:49.979Z",
+"started_at": "2026-10-21T14:52:49.969Z",
+"resolved_at": "2026-10-21T19:22:52.633Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-21T19:22:52.633Z",
+"display_at": "2026-10-21T19:22:52.633Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-21T19:22:38.037Z",
+"display_at": "2026-10-21T19:22:38.037Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-21T18:52:50.073Z",
+"display_at": "2026-10-21T18:52:50.073Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-21T18:18:11.377Z",
+"display_at": "2026-10-21T18:18:11.377Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-21T17:09:35.307Z",
+"display_at": "2026-10-21T17:09:35.307Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-21T16:59:45.159Z",
+"display_at": "2026-10-21T16:59:45.159Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-21T16:57:42.160Z",
+"display_at": "2026-10-21T16:57:42.160Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-21T16:34:49.131Z",
+"display_at": "2026-10-21T16:34:49.131Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-21T16:33:10.619Z",
+"display_at": "2026-10-21T16:33:10.619Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-21T16:25:30.230Z",
+"display_at": "2026-10-21T16:25:30.230Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-21T16:17:23.261Z",
+"display_at": "2026-10-21T16:17:23.261Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-21T15:58:38.767Z",
+"display_at": "2026-10-21T15:58:38.767Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-21T15:36:47.783Z",
+"display_at": "2026-10-21T15:36:47.783Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-21T15:15:04.970Z",
+"display_at": "2026-10-21T15:15:04.970Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-21T14:52:50.122Z",
+"display_at": "2026-10-21T14:52:50.122Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "8tzbpcnl75jp",
+"name": "Degraded availability for GitHub Actions, GitHub Pages and Webhooks",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-10-19T15:49:25.828Z",
+"started_at": "2026-10-19T15:49:25.822Z",
+"resolved_at": "2026-10-19T16:56:58.390Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-19T16:56:58.390Z",
+"display_at": "2026-10-19T16:56:58.390Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-19T16:56:54.747Z",
+"display_at": "2026-10-19T16:56:54.747Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-19T16:30:29.644Z",
+"display_at": "2026-10-19T16:30:29.644Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-19T15:56:34.098Z",
+"display_at": "2026-10-19T15:56:34.098Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-19T15:50:10.810Z",
+"display_at": "2026-10-19T15:50:10.810Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-19T15:49:25.946Z",
+"display_at": "2026-10-19T15:49:25.946Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "vlxrztp88101",
+"name": "CCA Automations are delayed when starting an Automation",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-15T18:31:49.838Z",
+"started_at": "2026-10-15T18:31:49.832Z",
+"resolved_at": "2026-10-15T18:56:04.250Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-15T18:56:04.250Z",
+"display_at": "2026-10-15T18:56:04.250Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-10-15T18:53:04.477Z",
+"display_at": "2026-10-15T18:53:04.477Z",
+"status": "monitoring",
+"affected_components": null
+},
+{
+"created_at": "2026-10-15T18:34:34.711Z",
+"display_at": "2026-10-15T18:34:34.711Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-15T18:31:49.894Z",
+"display_at": "2026-10-15T18:31:49.894Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "6yk962mhlr3h",
+"name": "[Retroactive] Actions workflow run logs delayed",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-13T20:30:00.000Z",
+"started_at": "2026-10-14T00:12:44.500Z",
+"resolved_at": "2026-10-13T20:30:00.000Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-14T00:12:44.559Z",
+"display_at": "2026-10-13T20:30:00.000Z",
+"status": "resolved",
+"affected_components": null
+}
+]
+},
+{
+"id": "93njd414rpbx",
+"name": "Incident with Actions, Pull Requests and Issues",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-12T12:21:47.972Z",
+"started_at": "2026-10-12T12:21:47.965Z",
+"resolved_at": "2026-10-12T20:16:07.447Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-12T20:16:07.447Z",
+"display_at": "2026-10-12T20:16:07.447Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-12T19:28:42.836Z",
+"display_at": "2026-10-12T19:28:42.836Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-12T17:34:24.812Z",
+"display_at": "2026-10-12T17:34:24.812Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-12T15:50:39.420Z",
+"display_at": "2026-10-12T15:50:39.420Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-12T15:19:00.679Z",
+"display_at": "2026-10-12T15:19:00.679Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-12T14:37:49.319Z",
+"display_at": "2026-10-12T14:37:49.319Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-12T14:36:09.442Z",
+"display_at": "2026-10-12T14:36:09.442Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-12T14:35:49.253Z",
+"display_at": "2026-10-12T14:35:49.253Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-12T13:38:44.570Z",
+"display_at": "2026-10-12T13:38:44.570Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-12T13:02:17.366Z",
+"display_at": "2026-10-12T13:02:17.366Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-12T12:57:44.849Z",
+"display_at": "2026-10-12T12:57:44.849Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-12T12:33:21.895Z",
+"display_at": "2026-10-12T12:33:21.895Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-12T12:21:48.115Z",
+"display_at": "2026-10-12T12:21:48.115Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "qpfv5p86dmrl",
+"name": "Incident with Git Operations, Issues, Actions and Pull Requests",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-10-07T17:17:05.776Z",
+"started_at": "2026-10-07T17:17:05.768Z",
+"resolved_at": "2026-10-07T18:04:49.441Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-07T18:04:49.441Z",
+"display_at": "2026-10-07T18:04:49.441Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T18:00:49.016Z",
+"display_at": "2026-10-07T18:00:49.016Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T17:27:12.641Z",
+"display_at": "2026-10-07T17:27:12.641Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T17:25:26.112Z",
+"display_at": "2026-10-07T17:25:26.112Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T17:17:05.991Z",
+"display_at": "2026-10-07T17:17:05.991Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+}
+]
+},
+{
+"id": "djlmxz2zd0j7",
+"name": "Incident with Git Operations, Pull Requests and Actions",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-10-07T15:14:45.614Z",
+"started_at": "2026-10-07T16:25:14.000Z",
+"resolved_at": "2026-10-07T16:25:14.000Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-07T16:25:14.613Z",
+"display_at": "2026-10-07T16:25:14.000Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T16:23:44.946Z",
+"display_at": "2026-10-07T16:23:44.946Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:58:35.060Z",
+"display_at": "2026-10-07T15:58:35.060Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:56:17.284Z",
+"display_at": "2026-10-07T15:56:17.284Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:49:57.261Z",
+"display_at": "2026-10-07T15:49:57.261Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:49:53.336Z",
+"display_at": "2026-10-07T15:49:53.336Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:47:07.617Z",
+"display_at": "2026-10-07T15:47:07.617Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:41:29.675Z",
+"display_at": "2026-10-07T15:41:29.675Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:35:30.140Z",
+"display_at": "2026-10-07T15:35:30.140Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:32:02.178Z",
+"display_at": "2026-10-07T15:32:02.178Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:31:55.952Z",
+"display_at": "2026-10-07T15:31:55.952Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:27:28.426Z",
+"display_at": "2026-10-07T15:27:28.426Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:27:16.071Z",
+"display_at": "2026-10-07T15:27:16.071Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:25:42.563Z",
+"display_at": "2026-10-07T15:25:42.563Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:24:11.997Z",
+"display_at": "2026-10-07T15:24:11.997Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:21:36.696Z",
+"display_at": "2026-10-07T15:21:36.696Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:16:03.939Z",
+"display_at": "2026-10-07T15:16:03.939Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "major_outage"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:15:18.491Z",
+"display_at": "2026-10-07T15:15:18.491Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:14:55.866Z",
+"display_at": "2026-10-07T15:14:55.866Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-10-07T15:14:45.762Z",
+"display_at": "2026-10-07T15:14:45.762Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "8l4ygp009s5s",
+"name": "Git Operations",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "cjwszcf57bff",
+"name": "Several services are degraded",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-10-06T19:57:35.445Z",
+"started_at": "2026-10-06T19:57:35.439Z",
+"resolved_at": "2026-10-06T23:40:44.165Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-06T23:40:44.165Z",
+"display_at": "2026-10-06T23:40:44.165Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-06T22:40:56.734Z",
+"display_at": "2026-10-06T22:40:56.734Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-06T21:29:46.918Z",
+"display_at": "2026-10-06T21:29:46.918Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-06T20:57:19.844Z",
+"display_at": "2026-10-06T20:57:19.844Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-06T20:26:46.442Z",
+"display_at": "2026-10-06T20:26:46.442Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-06T20:22:31.621Z",
+"display_at": "2026-10-06T20:22:31.621Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-06T20:12:00.989Z",
+"display_at": "2026-10-06T20:12:00.989Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-06T20:04:28.720Z",
+"display_at": "2026-10-06T20:04:28.720Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-06T19:57:35.580Z",
+"display_at": "2026-10-06T19:57:35.580Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4230lsnqdsld",
+"name": "Webhooks",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "2kxnqcxcrr7f",
+"name": "Disruption with some GitHub services",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-10-05T23:47:45.202Z",
+"started_at": "2026-10-05T23:47:45.195Z",
+"resolved_at": "2026-10-06T01:32:43.679Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-06T01:32:43.679Z",
+"display_at": "2026-10-06T01:32:43.679Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-10-06T00:05:58.926Z",
+"display_at": "2026-10-06T00:05:58.926Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-05T23:47:45.254Z",
+"display_at": "2026-10-05T23:47:45.254Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "3q1yb5m7ltvb",
+"name": "Incident with Actions",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-10-05T19:11:58.382Z",
+"started_at": "2026-10-05T19:11:58.373Z",
+"resolved_at": "2026-10-05T22:49:42.660Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-05T22:49:42.660Z",
+"display_at": "2026-10-05T22:49:42.660Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-05T22:40:41.795Z",
+"display_at": "2026-10-05T22:40:41.795Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-05T21:54:23.028Z",
+"display_at": "2026-10-05T21:54:23.028Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-05T21:32:31.460Z",
+"display_at": "2026-10-05T21:32:31.460Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-05T21:31:18.177Z",
+"display_at": "2026-10-05T21:31:18.177Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-05T21:22:39.017Z",
+"display_at": "2026-10-05T21:22:39.017Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-10-05T21:09:15.654Z",
+"display_at": "2026-10-05T21:09:15.654Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-10-05T20:47:22.557Z",
+"display_at": "2026-10-05T20:47:22.557Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-10-05T20:39:27.955Z",
+"display_at": "2026-10-05T20:39:27.955Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-05T19:50:50.720Z",
+"display_at": "2026-10-05T19:50:50.720Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-05T19:15:17.486Z",
+"display_at": "2026-10-05T19:15:17.486Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-05T19:11:58.492Z",
+"display_at": "2026-10-05T19:11:58.492Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "2dpbcq5j165n",
+"name": "Actions Job Delays",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-01T14:47:48.138Z",
+"started_at": "2026-10-01T14:47:48.132Z",
+"resolved_at": "2026-10-01T17:56:54.260Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-01T17:56:54.260Z",
+"display_at": "2026-10-01T17:56:54.260Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-01T17:50:54.351Z",
+"display_at": "2026-10-01T17:50:54.351Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-01T16:48:51.025Z",
+"display_at": "2026-10-01T16:48:51.025Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-01T16:10:24.539Z",
+"display_at": "2026-10-01T16:10:24.539Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-01T15:29:46.969Z",
+"display_at": "2026-10-01T15:29:46.969Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-01T15:20:46.089Z",
+"display_at": "2026-10-01T15:20:46.089Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-01T15:10:52.227Z",
+"display_at": "2026-10-01T15:10:52.227Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-01T15:02:41.043Z",
+"display_at": "2026-10-01T15:02:41.043Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-01T14:54:13.101Z",
+"display_at": "2026-10-01T14:54:13.101Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-01T14:47:48.228Z",
+"display_at": "2026-10-01T14:47:48.228Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "c8466lzvnmsv",
+"name": "Elevated request latency",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-01T13:37:33.066Z",
+"started_at": "2026-10-01T13:37:33.060Z",
+"resolved_at": "2026-10-01T13:57:59.327Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-01T13:57:59.327Z",
+"display_at": "2026-10-01T13:57:59.327Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-10-01T13:51:20.147Z",
+"display_at": "2026-10-01T13:51:20.147Z",
+"status": "monitoring",
+"affected_components": null
+},
+{
+"created_at": "2026-10-01T13:39:10.094Z",
+"display_at": "2026-10-01T13:39:10.094Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-10-01T13:37:33.128Z",
+"display_at": "2026-10-01T13:37:33.128Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "dqn46wtvbdzv",
+"name": "[Retroactive] Actions workflow run failures after deployment gate approvals",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-10-01T02:00:00.000Z",
+"started_at": "2026-10-01T11:34:16.856Z",
+"resolved_at": "2026-10-01T02:00:00.000Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-01T11:34:16.913Z",
+"display_at": "2026-10-01T02:00:00.000Z",
+"status": "resolved",
+"affected_components": null
+}
+]
+},
+{
+"id": "169pg72gg9jr",
+"name": "Copilot Code Review is unable to complete reviews",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-09-28T21:16:39.012Z",
+"started_at": "2026-09-28T21:16:39.006Z",
+"resolved_at": "2026-09-28T22:08:20.216Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-28T22:08:20.216Z",
+"display_at": "2026-09-28T22:08:20.216Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-09-28T22:08:12.851Z",
+"display_at": "2026-09-28T22:08:12.851Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-09-28T21:23:59.226Z",
+"display_at": "2026-09-28T21:23:59.226Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-09-28T21:16:39.060Z",
+"display_at": "2026-09-28T21:16:39.060Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "1dk955gg3bvz",
+"name": "Disruption with billing information updates",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-24T16:51:32.619Z",
+"started_at": "2026-09-24T16:51:32.611Z",
+"resolved_at": "2026-09-24T20:41:12.518Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-24T20:41:12.518Z",
+"display_at": "2026-09-24T20:41:12.518Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-09-24T20:24:57.876Z",
+"display_at": "2026-09-24T20:24:57.876Z",
+"status": "monitoring",
+"affected_components": null
+},
+{
+"created_at": "2026-09-24T20:10:12.006Z",
+"display_at": "2026-09-24T20:10:12.006Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-09-24T18:22:35.640Z",
+"display_at": "2026-09-24T18:22:35.640Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-09-24T17:40:15.902Z",
+"display_at": "2026-09-24T17:40:15.902Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-09-24T16:51:48.684Z",
+"display_at": "2026-09-24T16:51:48.684Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-09-24T16:51:32.660Z",
+"display_at": "2026-09-24T16:51:32.660Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "8zc63m64hy36",
+"name": "Incident across several services",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-23T10:11:12.845Z",
+"started_at": "2026-09-23T10:11:12.836Z",
+"resolved_at": "2026-09-24T04:55:33.949Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-24T04:55:33.949Z",
+"display_at": "2026-09-24T04:55:33.949Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-24T04:55:27.414Z",
+"display_at": "2026-09-24T04:55:27.414Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-24T03:14:15.709Z",
+"display_at": "2026-09-24T03:14:15.709Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-24T02:00:37.040Z",
+"display_at": "2026-09-24T02:00:37.040Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-24T00:16:49.448Z",
+"display_at": "2026-09-24T00:16:49.448Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-23T21:39:30.068Z",
+"display_at": "2026-09-23T21:39:30.068Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-23T20:26:02.259Z",
+"display_at": "2026-09-23T20:26:02.259Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-23T18:42:01.379Z",
+"display_at": "2026-09-23T18:42:01.379Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-23T17:30:30.444Z",
+"display_at": "2026-09-23T17:30:30.444Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-23T17:01:27.947Z",
+"display_at": "2026-09-23T17:01:27.947Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-23T13:35:44.672Z",
+"display_at": "2026-09-23T13:35:44.672Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-23T11:38:30.053Z",
+"display_at": "2026-09-23T11:38:30.053Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-23T10:58:27.097Z",
+"display_at": "2026-09-23T10:58:27.097Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-23T10:57:57.451Z",
+"display_at": "2026-09-23T10:57:57.451Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-23T10:20:06.970Z",
+"display_at": "2026-09-23T10:20:06.970Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-23T10:11:12.927Z",
+"display_at": "2026-09-23T10:11:12.927Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "f6yrxnz5f7bs",
+"name": "Incident with Pull Requests",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-20T22:13:37.889Z",
+"started_at": "2026-09-20T22:13:37.880Z",
+"resolved_at": "2026-09-20T23:22:16.710Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-20T23:22:16.710Z",
+"display_at": "2026-09-20T23:22:16.710Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-20T22:32:02.624Z",
+"display_at": "2026-09-20T22:32:02.624Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-20T22:27:28.769Z",
+"display_at": "2026-09-20T22:27:28.769Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-20T22:13:37.969Z",
+"display_at": "2026-09-20T22:13:37.969Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "nvy2q96mcmyg",
+"name": "Elevated rate of errors for OpenAI models provided by Copilot",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-17T20:59:02.074Z",
+"started_at": "2026-09-17T20:59:02.067Z",
+"resolved_at": "2026-09-17T21:49:01.417Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-17T21:49:01.417Z",
+"display_at": "2026-09-17T21:49:01.417Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-17T21:39:28.929Z",
+"display_at": "2026-09-17T21:39:28.929Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-17T20:59:02.127Z",
+"display_at": "2026-09-17T20:59:02.127Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+}
+]
+},
+{
+"id": "nlxnbqnkdzdl",
+"name": "Degradation with Gemini 3.8 Flash",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-09-16T07:20:59.980Z",
+"started_at": "2026-09-16T07:20:59.972Z",
+"resolved_at": "2026-09-16T17:48:49.246Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-16T17:48:49.246Z",
+"display_at": "2026-09-16T17:48:49.246Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-16T11:45:34.367Z",
+"display_at": "2026-09-16T11:45:34.367Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-16T10:58:41.042Z",
+"display_at": "2026-09-16T10:58:41.042Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "partial_outage",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-16T08:28:57.275Z",
+"display_at": "2026-09-16T08:28:57.275Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-09-16T07:21:00.055Z",
+"display_at": "2026-09-16T07:21:00.055Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "bk7zgdcq7s9t",
+"name": "Disruption with some GitHub services",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-15T19:11:31.344Z",
+"started_at": "2026-09-15T19:11:31.334Z",
+"resolved_at": "2026-09-15T20:00:50.512Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-15T20:00:50.512Z",
+"display_at": "2026-09-15T20:00:50.512Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-09-15T19:48:02.813Z",
+"display_at": "2026-09-15T19:48:02.813Z",
+"status": "monitoring",
+"affected_components": null
+},
+{
+"created_at": "2026-09-15T19:11:31.396Z",
+"display_at": "2026-09-15T19:11:31.396Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "qwdwmtqghpk5",
+"name": "Disruption with some GitHub services",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-15T09:47:15.093Z",
+"started_at": "2026-09-15T09:47:15.085Z",
+"resolved_at": "2026-09-15T11:17:22.038Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-15T11:17:22.038Z",
+"display_at": "2026-09-15T11:17:22.038Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-15T11:17:13.405Z",
+"display_at": "2026-09-15T11:17:13.405Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-15T11:09:33.869Z",
+"display_at": "2026-09-15T11:09:33.869Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-15T10:32:25.736Z",
+"display_at": "2026-09-15T10:32:25.736Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-15T10:20:13.627Z",
+"display_at": "2026-09-15T10:20:13.627Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-15T09:48:04.095Z",
+"display_at": "2026-09-15T09:48:04.095Z",
+"status": "monitoring",
+"affected_components": null
+},
+{
+"created_at": "2026-09-15T09:47:15.162Z",
+"display_at": "2026-09-15T09:47:15.162Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "kzh5j0mt7qwc",
+"name": "Actions Larger Runner Jobs for some customers may be slow to start",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-14T18:40:25.082Z",
+"started_at": "2026-09-14T18:40:25.072Z",
+"resolved_at": "2026-09-14T19:35:48.136Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-14T19:35:48.136Z",
+"display_at": "2026-09-14T19:35:48.136Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-09-14T19:01:52.783Z",
+"display_at": "2026-09-14T19:01:52.783Z",
+"status": "monitoring",
+"affected_components": null
+},
+{
+"created_at": "2026-09-14T18:40:25.134Z",
+"display_at": "2026-09-14T18:40:25.134Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "0rn90wk115q9",
+"name": "Incident with several GitHub Services",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-09-13T09:16:11.480Z",
+"started_at": "2026-09-13T09:16:11.468Z",
+"resolved_at": "2026-09-13T10:44:55.016Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-13T10:44:55.016Z",
+"display_at": "2026-09-13T10:44:55.016Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-13T10:28:45.961Z",
+"display_at": "2026-09-13T10:28:45.961Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-13T10:26:55.219Z",
+"display_at": "2026-09-13T10:26:55.219Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-09-13T09:36:23.221Z",
+"display_at": "2026-09-13T09:36:23.221Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-09-13T09:25:56.000Z",
+"display_at": "2026-09-13T09:25:56.000Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-09-13T09:16:11.624Z",
+"display_at": "2026-09-13T09:16:11.624Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "brv1bkgrwx7q",
+"name": "API Requests",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "kr09ddfgbfsf",
+"name": "Issues",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "zw1hbx2yyhvr",
+"name": "Disruption with Copilot Code Review",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-09-04T20:39:03.203Z",
+"started_at": "2026-09-04T20:39:03.195Z",
+"resolved_at": "2026-09-04T22:26:46.740Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-04T22:26:46.740Z",
+"display_at": "2026-09-04T22:26:46.740Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-09-04T22:25:44.372Z",
+"display_at": "2026-09-04T22:25:44.372Z",
+"status": "monitoring",
+"affected_components": null
+},
+{
+"created_at": "2026-09-04T21:54:22.688Z",
+"display_at": "2026-09-04T21:54:22.688Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-09-04T20:57:53.116Z",
+"display_at": "2026-09-04T20:57:53.116Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-09-04T20:39:03.249Z",
+"display_at": "2026-09-04T20:39:03.249Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "r05vk75c594j",
+"name": "Degradation in repos contents API",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-04T22:02:15.790Z",
+"started_at": "2026-09-04T22:02:15.783Z",
+"resolved_at": "2026-09-04T22:23:34.887Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-04T22:23:34.887Z",
+"display_at": "2026-09-04T22:23:34.887Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-09-04T22:02:15.829Z",
+"display_at": "2026-09-04T22:02:15.829Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "ktdr5t0xwnhp",
+"name": "Incident with Grok Copilot AI Model Provider",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-03T14:17:27.485Z",
+"started_at": "2026-09-03T14:17:27.478Z",
+"resolved_at": "2026-09-03T17:11:47.860Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-03T17:11:47.860Z",
+"display_at": "2026-09-03T17:11:47.860Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-03T17:11:39.081Z",
+"display_at": "2026-09-03T17:11:39.081Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-03T14:22:44.366Z",
+"display_at": "2026-09-03T14:22:44.366Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-03T14:20:35.378Z",
+"display_at": "2026-09-03T14:20:35.378Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-03T14:17:27.565Z",
+"display_at": "2026-09-03T14:17:27.565Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "jk2dy5h9yp3m",
+"name": "Delays in commit processing",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-09-01T15:00:22.104Z",
+"started_at": "2026-09-01T15:00:22.096Z",
+"resolved_at": "2026-09-01T16:01:21.369Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-01T16:01:21.369Z",
+"display_at": "2026-09-01T16:01:21.369Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-09-01T16:00:50.423Z",
+"display_at": "2026-09-01T16:00:50.423Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-01T15:00:46.084Z",
+"display_at": "2026-09-01T15:00:46.084Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-09-01T15:00:22.181Z",
+"display_at": "2026-09-01T15:00:22.181Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "7fxts6gmq5gr",
+"name": "Elevated rate of errors for OpenAI models provided by Copilot",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-08-31T09:15:48.908Z",
+"started_at": "2026-08-31T09:15:48.900Z",
+"resolved_at": "2026-08-31T09:58:14.157Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-31T09:58:14.157Z",
+"display_at": "2026-08-31T09:58:14.157Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-31T09:58:02.165Z",
+"display_at": "2026-08-31T09:58:02.165Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-31T09:51:13.994Z",
+"display_at": "2026-08-31T09:51:13.994Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-31T09:48:12.092Z",
+"display_at": "2026-08-31T09:48:12.092Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-31T09:22:18.980Z",
+"display_at": "2026-08-31T09:22:18.980Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-31T09:15:48.981Z",
+"display_at": "2026-08-31T09:15:48.981Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "5bn0vk444m1w",
+"name": "Disruption with GitHub Billing",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-08-26T23:37:20.579Z",
+"started_at": "2026-08-26T23:37:20.570Z",
+"resolved_at": "2026-08-27T19:44:08.799Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-27T19:44:08.799Z",
+"display_at": "2026-08-27T19:44:08.799Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-08-27T17:58:39.316Z",
+"display_at": "2026-08-27T17:58:39.316Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-27T16:20:23.748Z",
+"display_at": "2026-08-27T16:20:23.748Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-27T14:49:36.266Z",
+"display_at": "2026-08-27T14:49:36.266Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-27T01:35:35.233Z",
+"display_at": "2026-08-27T01:35:35.233Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-27T00:31:22.335Z",
+"display_at": "2026-08-27T00:31:22.335Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-26T23:42:06.271Z",
+"display_at": "2026-08-26T23:42:06.271Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-26T23:37:20.628Z",
+"display_at": "2026-08-26T23:37:20.628Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "tx9qn4khd664",
+"name": "Incident with Copilot AI Model Providers",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-08-27T10:04:52.529Z",
+"started_at": "2026-08-27T10:04:52.519Z",
+"resolved_at": "2026-08-27T12:12:58.387Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-27T12:12:58.387Z",
+"display_at": "2026-08-27T12:12:58.387Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-27T12:12:47.566Z",
+"display_at": "2026-08-27T12:12:47.566Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-27T11:58:04.976Z",
+"display_at": "2026-08-27T11:58:04.976Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-27T10:43:00.946Z",
+"display_at": "2026-08-27T10:43:00.946Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-27T10:04:52.621Z",
+"display_at": "2026-08-27T10:04:52.621Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "kfspvrz14xr0",
+"name": "Incident with Actions and Pull Requests",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-08-26T22:56:31.800Z",
+"started_at": "2026-08-26T22:56:31.793Z",
+"resolved_at": "2026-08-27T00:26:44.772Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-27T00:26:44.772Z",
+"display_at": "2026-08-27T00:26:44.772Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-27T00:26:05.990Z",
+"display_at": "2026-08-27T00:26:05.990Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-27T00:25:58.933Z",
+"display_at": "2026-08-27T00:25:58.933Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-27T00:01:05.905Z",
+"display_at": "2026-08-27T00:01:05.905Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-26T22:57:08.551Z",
+"display_at": "2026-08-26T22:57:08.551Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-26T22:56:31.878Z",
+"display_at": "2026-08-26T22:56:31.878Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "hhtssxt0f5v2",
+"name": "Pull Requests",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "y1t7p9fzrlj2",
+"name": "Incident with Actions",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-08-26T15:11:58.254Z",
+"started_at": "2026-08-26T15:11:58.248Z",
+"resolved_at": "2026-08-26T18:01:30.665Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-26T18:01:30.665Z",
+"display_at": "2026-08-26T18:01:30.665Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-26T18:00:48.674Z",
+"display_at": "2026-08-26T18:00:48.674Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-26T17:54:33.454Z",
+"display_at": "2026-08-26T17:54:33.454Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-26T17:32:22.120Z",
+"display_at": "2026-08-26T17:32:22.120Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-26T16:50:28.428Z",
+"display_at": "2026-08-26T16:50:28.428Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-26T16:49:07.342Z",
+"display_at": "2026-08-26T16:49:07.342Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-26T16:14:16.981Z",
+"display_at": "2026-08-26T16:14:16.981Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-26T15:48:07.385Z",
+"display_at": "2026-08-26T15:48:07.385Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-26T15:23:10.599Z",
+"display_at": "2026-08-26T15:23:10.599Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-26T15:12:21.306Z",
+"display_at": "2026-08-26T15:12:21.306Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "vg70hn9s2tyj",
+"name": "Pages",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-26T15:11:58.307Z",
+"display_at": "2026-08-26T15:11:58.307Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "hcbtzksccj2f",
+"name": "Disruption with some GitHub services",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-08-26T15:09:03.575Z",
+"started_at": "2026-08-26T15:09:03.568Z",
+"resolved_at": "2026-08-26T16:07:52.512Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-26T16:07:52.512Z",
+"display_at": "2026-08-26T16:07:52.512Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-08-26T15:09:03.607Z",
+"display_at": "2026-08-26T15:09:03.607Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+},
+{
+"id": "lyppgxbq1nyk",
+"name": "Actions delays in starting runs",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-08-24T13:56:54.972Z",
+"started_at": "2026-08-24T13:56:54.964Z",
+"resolved_at": "2026-08-24T14:34:42.451Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-24T14:34:42.451Z",
+"display_at": "2026-08-24T14:34:42.451Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-24T14:26:11.194Z",
+"display_at": "2026-08-24T14:26:11.194Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-24T14:22:59.979Z",
+"display_at": "2026-08-24T14:22:59.979Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-24T13:56:55.051Z",
+"display_at": "2026-08-24T13:56:55.051Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "br0l2tvcx85d",
+"name": "Actions",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "wt3hjqcrczfg",
+"name": "Elevated errors on Fable 5 due to upstream provider",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-08-24T07:12:05.373Z",
+"started_at": "2026-08-24T07:12:05.367Z",
+"resolved_at": "2026-08-24T07:58:41.636Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-24T07:58:41.636Z",
+"display_at": "2026-08-24T07:58:41.636Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-24T07:12:33.362Z",
+"display_at": "2026-08-24T07:12:33.362Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-08-24T07:12:05.431Z",
+"display_at": "2026-08-24T07:12:05.431Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "cnnb39dkkk82",
+"name": "Copilot AI Model Providers",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "wms44hv62t3p",
+"name": "Degraded Git Operations over SSH",
+"impact": "none",
+"status": "resolved",
+"created_at": "2026-08-21T14:00:00.000Z",
+"started_at": "2026-08-24T07:19:22.991Z",
+"resolved_at": "2026-08-21T14:00:00.000Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-24T07:19:23.042Z",
+"display_at": "2026-08-21T14:00:00.000Z",
+"status": "resolved",
+"affected_components": null
+}
+]
+},
+{
+"id": "bhbcjn4n3jzp",
+"name": "Intermittent failures creating agent tasks",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-08-20T14:43:01.531Z",
+"started_at": "2026-08-20T14:43:01.526Z",
+"resolved_at": "2026-08-21T00:37:20.224Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-21T00:37:20.224Z",
+"display_at": "2026-08-21T00:37:20.224Z",
+"status": "resolved",
+"affected_components": null
+},
+{
+"created_at": "2026-08-20T20:37:06.155Z",
+"display_at": "2026-08-20T20:37:06.155Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-20T19:35:31.262Z",
+"display_at": "2026-08-20T19:35:31.262Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-20T18:45:23.427Z",
+"display_at": "2026-08-20T18:45:23.427Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-20T18:04:55.838Z",
+"display_at": "2026-08-20T18:04:55.838Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-20T17:32:39.883Z",
+"display_at": "2026-08-20T17:32:39.883Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-20T17:05:20.047Z",
+"display_at": "2026-08-20T17:05:20.047Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-20T16:14:46.251Z",
+"display_at": "2026-08-20T16:14:46.251Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-20T15:41:11.771Z",
+"display_at": "2026-08-20T15:41:11.771Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-20T15:01:51.859Z",
+"display_at": "2026-08-20T15:01:51.859Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-20T14:51:51.495Z",
+"display_at": "2026-08-20T14:51:51.495Z",
+"status": "investigating",
+"affected_components": null
+},
+{
+"created_at": "2026-08-20T14:43:01.567Z",
+"display_at": "2026-08-20T14:43:01.567Z",
+"status": "investigating",
+"affected_components": null
+}
+]
+}
+]
+}

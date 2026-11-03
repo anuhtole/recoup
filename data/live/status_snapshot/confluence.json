@@ -1,0 +1,5208 @@
+{
+"captured_at": "2026-11-02",
+"source": "https://confluence.status.atlassian.com",
+"incidents": [
+{
+"id": "n0kn9r01zyd4",
+"name": "Job processing and scheduling is degraded affecting multiple Atlassian products",
+"impact": "major",
+"status": "postmortem",
+"created_at": "2026-10-01T02:55:55.926Z",
+"started_at": "2026-10-01T02:55:55.918Z",
+"resolved_at": "2026-10-01T07:51:30.367Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-10-09T18:24:30.659Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-10-01T07:51:30.367Z",
+"display_at": "2026-10-01T07:51:30.367Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-10-01T07:01:47.575Z",
+"display_at": "2026-10-01T07:01:47.575Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-01T05:00:54.989Z",
+"display_at": "2026-10-01T05:00:54.989Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "partial_outage",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-10-01T04:03:57.604Z",
+"display_at": "2026-10-01T04:03:57.604Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-10-01T03:47:45.775Z",
+"display_at": "2026-10-01T03:47:45.775Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-10-01T02:55:56.047Z",
+"display_at": "2026-10-01T02:55:56.047Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "qq07180qzmpp",
+"name": "Issues accessing multiple Atlassian products in some regions",
+"impact": "critical",
+"status": "postmortem",
+"created_at": "2026-08-27T04:22:09.127Z",
+"started_at": "2026-08-27T04:22:09.109Z",
+"resolved_at": "2026-08-27T05:16:07.474Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-09-07T02:53:18.559Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-08-27T05:16:07.474Z",
+"display_at": "2026-08-27T05:16:07.474Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-27T04:51:26.551Z",
+"display_at": "2026-08-27T04:51:26.551Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-27T04:33:20.462Z",
+"display_at": "2026-08-27T04:33:20.462Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-27T04:25:12.081Z",
+"display_at": "2026-08-27T04:25:12.081Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-08-27T04:22:09.586Z",
+"display_at": "2026-08-27T04:22:09.586Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "n719bx37vb9h",
+"name": "Notifications are delayed",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-08-25T08:42:48.035Z",
+"started_at": "2026-08-25T08:42:48.029Z",
+"resolved_at": "2026-08-25T14:33:57.169Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-25T14:33:57.169Z",
+"display_at": "2026-08-25T14:33:57.169Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-25T13:01:39.218Z",
+"display_at": "2026-08-25T13:01:39.218Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-08-25T10:49:57.375Z",
+"display_at": "2026-08-25T10:49:57.375Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-08-25T09:44:51.896Z",
+"display_at": "2026-08-25T09:44:51.896Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-08-25T08:42:48.100Z",
+"display_at": "2026-08-25T08:42:48.100Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "zr18p2cv7c14",
+"name": "Degraded performance of Notifications",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-08-24T19:22:47.308Z",
+"started_at": "2026-08-24T19:22:47.300Z",
+"resolved_at": "2026-08-24T23:15:20.518Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-24T23:15:20.518Z",
+"display_at": "2026-08-24T23:15:20.518Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-24T21:30:42.100Z",
+"display_at": "2026-08-24T21:30:42.100Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-24T20:25:56.652Z",
+"display_at": "2026-08-24T20:25:56.652Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-24T19:22:47.398Z",
+"display_at": "2026-08-24T19:22:47.398Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "k6nf4t8dgd1x",
+"name": "Marketplace App Macros Not Rendering in Confluence",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-08-21T07:16:32.123Z",
+"started_at": "2026-08-21T07:16:32.113Z",
+"resolved_at": "2026-08-21T10:10:30.571Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-21T10:10:30.571Z",
+"display_at": "2026-08-21T10:10:30.571Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-21T08:15:38.551Z",
+"display_at": "2026-08-21T08:15:38.551Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-08-21T07:16:32.277Z",
+"display_at": "2026-08-21T07:16:32.277Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "0x62gw860393",
+"name": "Confluence intermittent errors",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-08-12T20:11:34.000Z",
+"started_at": "2026-08-12T20:11:34.000Z",
+"resolved_at": "2026-08-12T22:13:28.260Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-08-12T22:13:28.260Z",
+"display_at": "2026-08-12T22:13:28.260Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-08-12T20:11:34.250Z",
+"display_at": "2026-08-12T20:11:34.000Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "partial_outage"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+}
+]
+},
+{
+"id": "d9dmvhzl0lx4",
+"name": "Reliability issues with Jira and Confluence",
+"impact": "critical",
+"status": "postmortem",
+"created_at": "2026-07-06T09:23:39.471Z",
+"started_at": "2026-07-06T09:23:39.444Z",
+"resolved_at": "2026-07-06T13:04:02.024Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-07-17T16:59:34.524Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-07-06T13:04:02.024Z",
+"display_at": "2026-07-06T13:04:02.024Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-06T12:25:51.856Z",
+"display_at": "2026-07-06T12:25:51.856Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-06T11:46:19.044Z",
+"display_at": "2026-07-06T11:46:19.044Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-06T10:04:42.182Z",
+"display_at": "2026-07-06T10:04:42.182Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-07-06T09:23:39.709Z",
+"display_at": "2026-07-06T09:23:39.709Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "vcf8hmz1l4w2",
+"name": "Confluence Cloud experiencing degraded viewing experience",
+"impact": "minor",
+"status": "postmortem",
+"created_at": "2026-06-16T13:46:41.998Z",
+"started_at": "2026-06-16T13:46:41.982Z",
+"resolved_at": "2026-06-16T15:56:40.613Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-06-23T18:25:45.496Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-06-16T15:56:40.613Z",
+"display_at": "2026-06-16T15:56:40.613Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-16T14:53:40.235Z",
+"display_at": "2026-06-16T14:53:40.235Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-16T14:28:14.966Z",
+"display_at": "2026-06-16T14:28:14.966Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-06-16T13:46:42.198Z",
+"display_at": "2026-06-16T13:46:42.198Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "6v0066q7rdjx",
+"name": "Degraded performance with Confluence Cloud",
+"impact": "minor",
+"status": "postmortem",
+"created_at": "2026-06-12T07:39:11.109Z",
+"started_at": "2026-06-12T08:45:15.000Z",
+"resolved_at": "2026-06-12T11:15:09.000Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-06-23T18:28:23.826Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-06-12T11:15:09.081Z",
+"display_at": "2026-06-12T11:15:09.000Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-12T10:29:54.592Z",
+"display_at": "2026-06-12T10:29:54.592Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-06-12T08:45:15.567Z",
+"display_at": "2026-06-12T08:45:15.000Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-06-12T07:39:11.321Z",
+"display_at": "2026-06-12T07:39:11.321Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "7lx9dwy4g7gf",
+"name": "Delays in processing incoming Emails, Work Item notifications, and Scheduled Triggers in Marketplace Apps",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-06-10T06:14:02.096Z",
+"started_at": "2026-06-10T06:14:02.078Z",
+"resolved_at": "2026-06-10T06:31:04.920Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-06-10T06:31:04.920Z",
+"display_at": "2026-06-10T06:31:04.920Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-06-10T06:14:06.010Z",
+"display_at": "2026-06-10T06:14:06.010Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-06-10T06:14:03.881Z",
+"display_at": "2026-06-10T06:14:03.881Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-06-10T06:14:02.268Z",
+"display_at": "2026-06-10T06:14:02.268Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "f57nlkkxp613",
+"name": "Users facing errors when attempting to view Calendars in Confluence",
+"impact": "major",
+"status": "resolved",
+"created_at": "2026-05-27T06:03:31.792Z",
+"started_at": "2026-05-27T06:03:31.776Z",
+"resolved_at": "2026-05-27T07:48:49.273Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-05-27T07:48:49.273Z",
+"display_at": "2026-05-27T07:48:49.273Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-27T07:06:32.730Z",
+"display_at": "2026-05-27T07:06:32.730Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "partial_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-05-27T06:03:31.947Z",
+"display_at": "2026-05-27T06:03:31.947Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "partial_outage"
+}
+]
+}
+]
+},
+{
+"id": "lyq4q92jc03l",
+"name": "Some macros failing to load in the Confluence Cloud editor",
+"impact": "minor",
+"status": "resolved",
+"created_at": "2026-05-26T10:40:00.024Z",
+"started_at": "2026-05-26T10:40:00.008Z",
+"resolved_at": "2026-05-26T13:55:52.365Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-05-26T13:55:52.365Z",
+"display_at": "2026-05-26T13:55:52.365Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-26T11:58:38.976Z",
+"display_at": "2026-05-26T11:58:38.976Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-26T11:58:37.032Z",
+"display_at": "2026-05-26T11:58:37.032Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-26T10:40:00.271Z",
+"display_at": "2026-05-26T10:40:00.271Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "6d4pspqjz580",
+"name": "Users experiencing issues accessing multiple Atlassian products",
+"impact": "critical",
+"status": "postmortem",
+"created_at": "2026-05-14T04:54:57.984Z",
+"started_at": "2026-05-14T04:54:57.959Z",
+"resolved_at": "2026-05-14T06:48:27.957Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-05-19T19:04:38.760Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-05-14T06:48:27.957Z",
+"display_at": "2026-05-14T06:48:27.957Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-14T06:41:35.273Z",
+"display_at": "2026-05-14T06:41:35.000Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-14T06:40:48.468Z",
+"display_at": "2026-05-14T06:40:48.468Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "partial_outage",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "partial_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-14T05:43:24.516Z",
+"display_at": "2026-05-14T05:43:24.516Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "partial_outage"
+}
+]
+},
+{
+"created_at": "2026-05-14T05:34:14.185Z",
+"display_at": "2026-05-14T05:34:14.185Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-05-14T05:24:54.951Z",
+"display_at": "2026-05-14T05:24:54.951Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-05-14T05:11:20.214Z",
+"display_at": "2026-05-14T05:11:20.214Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-05-14T05:03:32.515Z",
+"display_at": "2026-05-14T05:03:32.515Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-05-14T04:54:58.401Z",
+"display_at": "2026-05-14T04:54:58.401Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "h46z9lwflp2s",
+"name": "Multiple Atlassian services are experiencing issues",
+"impact": "minor",
+"status": "postmortem",
+"created_at": "2026-05-08T01:31:38.293Z",
+"started_at": "2026-05-08T01:31:38.273Z",
+"resolved_at": "2026-05-08T19:45:31.411Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-05-20T06:55:47.688Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-05-08T19:45:31.411Z",
+"display_at": "2026-05-08T19:45:31.411Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-08T11:12:09.572Z",
+"display_at": "2026-05-08T11:12:09.572Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-08T08:03:03.501Z",
+"display_at": "2026-05-08T08:03:03.501Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-08T05:53:41.623Z",
+"display_at": "2026-05-08T05:53:41.623Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-08T04:10:46.764Z",
+"display_at": "2026-05-08T04:10:46.764Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-05-08T04:10:38.747Z",
+"display_at": "2026-05-08T04:10:38.747Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T04:10:32.115Z",
+"display_at": "2026-05-08T04:10:32.115Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T03:00:17.142Z",
+"display_at": "2026-05-08T03:00:17.142Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T03:00:10.944Z",
+"display_at": "2026-05-08T03:00:10.944Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T02:15:40.961Z",
+"display_at": "2026-05-08T02:15:40.961Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-05-08T01:31:38.672Z",
+"display_at": "2026-05-08T01:31:38.672Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "4fwvl5sdyz7m",
+"name": "Disrupted Rovo availability for Automation rules",
+"impact": "critical",
+"status": "resolved",
+"created_at": "2026-04-14T12:25:17.081Z",
+"started_at": "2026-04-14T12:25:17.072Z",
+"resolved_at": "2026-04-14T16:11:31.593Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-04-14T16:11:31.593Z",
+"display_at": "2026-04-14T16:11:31.593Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-14T15:46:12.758Z",
+"display_at": "2026-04-14T15:46:12.758Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-14T14:11:39.436Z",
+"display_at": "2026-04-14T14:11:39.436Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-14T12:25:18.232Z",
+"display_at": "2026-04-14T12:25:18.232Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-14T12:25:17.174Z",
+"display_at": "2026-04-14T12:25:17.174Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+},
+{
+"id": "h5wxgc6k1rm6",
+"name": "Users experiencing issues with login across Atlassian products",
+"impact": "minor",
+"status": "postmortem",
+"created_at": "2026-04-13T07:29:45.536Z",
+"started_at": "2026-04-13T07:29:45.527Z",
+"resolved_at": "2026-04-13T10:17:20.784Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-04-21T02:33:31.859Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-04-13T10:17:20.784Z",
+"display_at": "2026-04-13T10:17:20.784Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-13T08:33:50.645Z",
+"display_at": "2026-04-13T08:33:50.645Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "degraded_performance",
+"new_status": "degraded_performance"
+}
+]
+},
+{
+"created_at": "2026-04-13T07:29:45.628Z",
+"display_at": "2026-04-13T07:29:45.628Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "degraded_performance"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "degraded_performance"
+}
+]
+}
+]
+},
+{
+"id": "7g63c08d951j",
+"name": "Multiple products impacted by search failures",
+"impact": "critical",
+"status": "postmortem",
+"created_at": "2026-04-08T05:41:18.009Z",
+"started_at": "2026-04-08T05:41:18.002Z",
+"resolved_at": "2026-04-08T11:43:29.727Z",
+"scheduled_for": null,
+"incident_updates": [
+{
+"created_at": "2026-04-17T16:24:57.564Z",
+"display_at": null,
+"status": "postmortem",
+"affected_components": null
+},
+{
+"created_at": "2026-04-08T11:43:29.727Z",
+"display_at": "2026-04-08T11:43:29.727Z",
+"status": "resolved",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "operational"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-08T09:03:45.065Z",
+"display_at": "2026-04-08T09:03:45.065Z",
+"status": "monitoring",
+"affected_components": [
+{
+"code": "bl9mxbb582vk",
+"name": "View Content",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "y4z6hxpf7d7t",
+"name": "Create and Edit",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "snpbn00x0g0k",
+"name": "Comments",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "4gcj9wwwkfrm",
+"name": "Notifications",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "s0zdf6p5dhv7",
+"name": "Marketplace Apps",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "jwv14kjhl1yt",
+"name": "Mobile - iOS App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "gxy3929vqtmy",
+"name": "Mobile - Android App",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "hht3wjcyn1fv",
+"name": "Purchasing & Licensing",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "qkxm9wlprp6h",
+"name": "Signup",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "fsg199jjm9nd",
+"name": "Confluence Automations",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "f9x9tkh1gczl",
+"name": "Cloud to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+},
+{
+"code": "h2k8s91d715g",
+"name": "Server to Cloud Migrations - Copy Product Data",
+"old_status": "operational",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-08T09:03:42.047Z",
+"display_at": "2026-04-08T09:03:42.047Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T08:33:13.571Z",
+"display_at": "2026-04-08T08:33:13.571Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-08T08:33:10.174Z",
+"display_at": "2026-04-08T08:33:10.174Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "degraded_performance",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T07:40:26.441Z",
+"display_at": "2026-04-08T07:40:26.441Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "degraded_performance"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "operational"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "operational"
+}
+]
+},
+{
+"created_at": "2026-04-08T07:40:23.708Z",
+"display_at": "2026-04-08T07:40:23.708Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T06:25:52.778Z",
+"display_at": "2026-04-08T06:25:52.778Z",
+"status": "identified",
+"affected_components": [
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T06:25:50.790Z",
+"display_at": "2026-04-08T06:25:50.790Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T06:24:49.037Z",
+"display_at": "2026-04-08T06:24:49.037Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T06:01:39.128Z",
+"display_at": "2026-04-08T06:01:39.128Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+},
+{
+"code": "p8qwf8g1xjs4",
+"name": "Administration",
+"old_status": "operational",
+"new_status": "major_outage"
+},
+{
+"code": "n779hf70xvvb",
+"name": "Authentication and User Management",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T06:01:37.603Z",
+"display_at": "2026-04-08T06:01:37.603Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "major_outage",
+"new_status": "major_outage"
+}
+]
+},
+{
+"created_at": "2026-04-08T05:41:18.076Z",
+"display_at": "2026-04-08T05:41:18.076Z",
+"status": "investigating",
+"affected_components": [
+{
+"code": "5fjwzmlch883",
+"name": "Search",
+"old_status": "operational",
+"new_status": "major_outage"
+}
+]
+}
+]
+}
+]
+}

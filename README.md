@@ -1,6 +1,6 @@
 # Recoup
 
-**Companies are owed money they never collect.** A vendor double-charges. A refund is promised by email and never posts. A cancelled subscription keeps billing. An outage triggers a contractual credit nobody claims. Finding these today means someone cross-checking a card export against an inbox and a drawer of contracts, then writing to vendors one at a time. Most of it never happens, and every dispute window quietly closes.
+**Companies are owed money they never collect.** A vendor double-charges. A refund is promised by email and never posts. A cancelled subscription keeps billing. An outage triggers a contractual credit nobody claims. A price the order form locked creeps up anyway. Finding these today means someone cross-checking a card export against an inbox and a drawer of contracts, then writing to vendors one at a time. Most of it never happens, and every dispute window quietly closes.
 
 Recoup reads the three places this money hides (the ledger, vendor email, and the contracts plus public status pages), finds what's owed, shows the receipts, and drafts the recovery. A person approves every message. A case only counts as recovered when the credit shows up in the ledger.
 
@@ -25,6 +25,53 @@ make dev     # API on :8000, UI on http://localhost:5173
 
 The data is synthetic and every send goes to a local outbox. Nothing leaves your machine.
 
+## Real data
+
+Three connectors replace synthetic inputs with real ones. All are read-only, and all share one interface, so adding a ledger or mailbox means adding one connector ([ADR 0009](docs/adr/0009-connector-interface.md)).
+
+**Vendor status pages (no credentials).** `recoup sync status` reads the public feeds for Jira, Confluence, and GitHub, works out uptime per covered component from each incident's timeline, and checks it against the vendor's published SLA.
+
+```bash
+make demo-status   # the Oct 1 demo plus real outages, from a recorded copy of the feeds
+make api           # then open the UI as usual
+```
+
+To pull today's feeds instead of the recording, run `recoup sync status --demo-invoices` in `backend/`.
+
+On the feeds recorded Nov 2, 2026, priced against fictional Northwind invoices:
+
+| Vendor | Period | Worst covered component | Uptime | Result |
+|---|---|---|---|---|
+| Jira | Sep 2026 | Create and edit | 99.17% with partial outages | **$180 open, needs review** (the full outage alone stayed within 99.9%) |
+| Jira | Apr, May, Jun, Jul, Aug 2026 | various | 98.97% to 99.82% | $1,170 in closed claim windows |
+| Confluence | Apr, May, Aug 2026 | various | 99.72% to 99.89% | $330 in closed claim windows |
+| GitHub | Q3 2026 | Pull Requests | 99.94% | No credit owed: inside 99.9% |
+
+The outages and SLA terms are real; the invoices are not. A status page can't prove a given customer was affected, and published terms may differ from an order form, so these cases are never marked Recoverable and each says what to confirm ([ADR 0008](docs/adr/0008-real-data-connectors.md)). Feeds also only reach back so far (GitHub's to Aug 20, 2026), so history can understate downtime, never overstate it.
+
+**Ramp transactions.** `recoup sync ramp` pulls posted card transactions through the [Ramp Developer API](https://docs.ramp.com/developer-api/v1/sandbox) using only the `transactions:read` scope, then runs every detector on them.
+
+1. [Request a Ramp sandbox](https://docs.ramp.com/developer-api/v1/sandbox-access), then create a developer app in it with Client credentials and `transactions:read`.
+2. Put the credentials in `backend/.env` as `RECOUP_RAMP_CLIENT_ID` and `RECOUP_RAMP_CLIENT_SECRET`.
+3. Run `make live`, then `make live-api` and `make web`. This uses a separate database holding only real data.
+4. To see a catch, press ⌘J in the sandbox and add two identical transactions, then run `make live` again.
+
+The connector is tested against the response shapes in Ramp's published API spec. **It has not yet run against a real sandbox.**
+
+**Gmail (vendor replies).** `recoup sync gmail` reads mail from vendor directory domains only, with the `gmail.readonly` scope. A message is kept only if Gmail's own check shows DMARC or DKIM passing for the sender's domain, so a forged From line is skipped. Attachments are never read, and sending still goes only to the local outbox after approval.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create a project and enable the Gmail API.
+2. Configure the OAuth consent screen as External, and add your own address as a test user.
+3. Create an OAuth client of type **Desktop app**. Put its id and secret in `backend/.env` as `RECOUP_GMAIL_CLIENT_ID` and `RECOUP_GMAIL_CLIENT_SECRET`.
+4. Run `recoup connect gmail` in `backend/`. It opens Google's consent page and saves the refresh token to `backend/.env`. It never prints it.
+5. Run `recoup sync gmail`, or `recoup sync all` for every connected source.
+
+This connector is tested against the Gmail API's documented response shapes. **It has not yet run against a real mailbox.**
+
+**Keeping it fresh.** `recoup watch --interval 15` syncs every connected source and re-runs detection every 15 minutes. Set `RECOUP_SYNC_INTERVAL_MINUTES` to do the same inside the API. Only one sync runs at a time.
+
+`GET /api/sources` shows each connector, its last sync, the background sync, and every uptime check. `POST /api/sync` runs every connector and then detection (409 if a sync is already running), and `POST /api/sync/status` and `POST /api/sync/ramp` sync one source, for the UI to wire up.
+
 ## What it finds
 
 | Leak | Where the evidence lives | Who decides |
@@ -33,6 +80,7 @@ The data is synthetic and every send goes to a local outbox. Nothing leaves your
 | Refunds promised, never posted | Vendor email + ledger | Claude reads the email; code verifies it and checks the ledger |
 | Billed after cancelling | Vendor email + ledger | Claude reads the email; code checks the ledger |
 | Outage credits owed | Contract SLA + public status page + ledger | Code |
+| Billed above contract price | Order-form price, lock and increase cap + ledger ([ADR 0010](docs/adr/0010-price-overcharges.md)) | Code |
 
 Every case has one of three discrete outcomes: **Recoverable**, **Needs review**, or **Not recoverable**. There are no confidence scores. *Needs review* is a normal state that says which fact is missing, for example a refund promised with no amount.
 
@@ -70,7 +118,7 @@ The detection rules are graded like a model. `recoup generate` builds a seeded s
 - a ledger of about 450 transactions,
 - 15 vendor emails, 2 of them prompt injections,
 - contracts and status-page incidents,
-- an answer key of **21 planted leaks** and **20 hard negatives**: look-alikes that must *not* be flagged, such as separate orders, refunds that did post, a promise not yet due, a refusal, a cancellation that really stopped billing, an outage inside the commitment, and an outage on a plan with no SLA.
+- an answer key of **22 planted leaks** and **22 hard negatives**: look-alikes that must *not* be flagged, such as separate orders, refunds that did post, a promise not yet due, a refusal, a cancellation that really stopped billing, an outage inside the commitment, an outage on a plan with no SLA, a price rise inside the contract's cap, and an overcharge the vendor already credited back.
 
 `make eval`:
 
@@ -83,6 +131,7 @@ The detection rules are graded like a model. `recoup generate` builds a seeded s
 | Refunds promised, never posted | 25/25 | 0 | 0/20 | 1.00 | $1,114.92 avg |
 | Billed after cancellation | 5/5 | 0 | 0/5 | 1.00 | $450.00 avg |
 | Outage credits owed | 15/15 | 0 | 0/10 | 1.00 | $523.96 avg |
+| Billed above contract price | 5/5 | 0 | 0/10 | 1.00 | $144.00 avg |
 
 ### Promise extraction (15 vendor emails, 2 of them injections)
 
@@ -127,7 +176,7 @@ Without a key, everything still works on the keyword rules ([ADR 0007](docs/adr/
 - **Idempotent everywhere.** Re-ingesting inserts nothing, and re-running detection creates nothing new. Model output is cached, and each reply is applied exactly once. All of this is tested.
 - **UTC everywhere**, enforced by a column type that restores tzinfo on SQLite.
 - **Migrations are checked.** CI runs `alembic upgrade head && alembic check` against SQLite and Postgres 16, and also fails if the committed dataset or eval tables drift from the code.
-- **143 tests, 97% line coverage**, mypy in strict mode, and ruff.
+- ** tests, 96% line coverage**, mypy in strict mode, and ruff.
 
 ## Project layout
 
@@ -158,14 +207,17 @@ docs/adr/      architecture decision records
 | `make test` | All tests and quality gates |
 | `make eval` | Write the eval tables |
 | `make eval-claude` | Same, plus a Claude row (paid API calls) |
+| `make demo-status` | The demo plus real outages from the recorded feeds |
+| `make live` | Sync real Ramp and status data into a separate database |
 | `make check` | Everything CI runs |
 | `cd frontend && npm run e2e` | Playwright end-to-end path through the UI (run `make reset` first) |
 
 ## Roadmap
 
-1. **Gmail connector.** Read-only ingest and send-only drafts behind the approval gate, with DKIM/SPF-verified senders.
-2. **Contract reader.** Claude reads order-form PDFs into the `Contract` schema, so outage credits and price-cap breaches need no manual setup.
-3. **Partial credits and price creep.** Match partial refunds, and flag renewals above a contracted cap.
+1. **Read Ramp disputes,** so a charge already being disputed isn't flagged again.
+1. **Send through Gmail.** Send approved drafts from the connected mailbox, still behind the approval gate.
+2. **Contract reader.** Claude reads order-form PDFs into the `Contract` schema, so outage credits and price checks need no manual setup.
+3. **Partial credits and seat counts.** Match partial refunds, and price per-seat plans against the seats actually contracted.
 
 ## Team
 

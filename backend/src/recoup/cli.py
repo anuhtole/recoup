@@ -1,17 +1,40 @@
-"""Command line entry point: `recoup generate | ingest | run | advance | serve`."""
+"""Command line entry point.
+
+`recoup generate | ingest | run | advance | sync | connect | watch | serve`.
+"""
 
 import argparse
 import json
-from collections.abc import Iterator
+import sys
+import time
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import asdict
+from pathlib import Path
 
+import httpx
 from sqlalchemy.orm import Session
 
 from recoup.config import get_settings
+from recoup.connectors.registry import build_connectors
+from recoup.connectors.scheduler import BackgroundSync
 from recoup.db.session import make_engine, make_session_factory, session_scope
+from recoup.db.state import get_as_of
 from recoup.demo.simulator import advance
 from recoup.ingest.dataset import ingest_dataset
+from recoup.ingest.gmail import GmailError
+from recoup.ingest.google_oauth import connect_gmail
+from recoup.ingest.live import (
+    demo_invoices,
+    http_fetcher,
+    snapshot_fetcher,
+    sync_gmail,
+    sync_ramp,
+    sync_status_feeds,
+    uptime_report,
+)
+from recoup.ingest.loader import ingest_transactions
+from recoup.ingest.ramp import RampError
 from recoup.ingest.sources import load_sources
 from recoup.pipeline.run import run_pipeline
 from recoup.services import build_services
@@ -55,6 +78,115 @@ def _advance(args: argparse.Namespace) -> None:
     print(json.dumps(asdict(result)))
 
 
+def _detect(session: Session) -> dict[str, object]:
+    settings = get_settings()
+    services = build_services(settings)
+    summary = run_pipeline(session, settings, services, load_sources(settings.data_dir))
+    return {**asdict(summary), "mode": services.mode}
+
+
+def _sync_status(args: argparse.Namespace) -> None:
+    settings = get_settings()
+    with _session() as session:
+        if args.demo_invoices:
+            ingest_transactions(session, demo_invoices())
+        if args.snapshot:
+            directory = settings.data_dir.parent / "live" / "status_snapshot"
+            feeds = sync_status_feeds(session, snapshot_fetcher(directory), origin="snapshot")
+        else:
+            with httpx.Client(timeout=20.0) as client:
+                feeds = sync_status_feeds(session, http_fetcher(client))
+        run = _detect(session)
+        checks = uptime_report(session, get_as_of(session, settings))
+    output = {
+        "feeds": [asdict(f) for f in feeds],
+        "uptime_checks": [asdict(c) for c in checks],
+        "run": run,
+    }
+    print(json.dumps(output, indent=2))
+
+
+def _sync_ramp(_: argparse.Namespace) -> None:
+    try:
+        with _session() as session:
+            sync = sync_ramp(session, get_settings())
+            run = _detect(session)
+    except RampError as exc:
+        sys.exit(str(exc))
+    print(json.dumps({"ramp": asdict(sync), "run": run}, indent=2))
+
+
+def _sync_gmail(_: argparse.Namespace) -> None:
+    settings = get_settings()
+    try:
+        with _session() as session:
+            sync = sync_gmail(session, settings, load_sources(settings.data_dir).vendors)
+            run = _detect(session)
+    except GmailError as exc:
+        sys.exit(str(exc))
+    print(json.dumps({"gmail": asdict(sync), "run": run}, indent=2))
+
+
+def _background(interval_minutes: int) -> tuple[BackgroundSync, Callable[[], None]]:
+    settings = get_settings()
+    engine = make_engine(settings.database_url)
+    sources = load_sources(settings.data_dir)
+    sync = BackgroundSync(
+        make_session_factory(engine),
+        settings,
+        build_services(settings),
+        sources,
+        build_connectors(settings, sources),
+        interval_seconds=interval_minutes * 60,
+    )
+    return sync, engine.dispose
+
+
+def _sync_all(_: argparse.Namespace) -> None:
+    sync, dispose = _background(0)
+    try:
+        report = sync.run_once()
+    finally:
+        dispose()
+    print(json.dumps(asdict(report) if report else None, indent=2))
+
+
+def _watch(args: argparse.Namespace) -> None:
+    """Sync everything on a timer in the foreground; Ctrl-C stops it."""
+    if args.interval < 1:
+        sys.exit("--interval must be at least 1 minute.")
+    sync, dispose = _background(args.interval)
+    try:
+        while True:
+            report = sync.run_once()
+            if report is not None:
+                print(json.dumps({"finished_at": report.finished_at, "run": asdict(report.run)}))
+            time.sleep(sync.interval_seconds)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        dispose()
+
+
+def _connect_gmail(args: argparse.Namespace) -> None:
+    settings = get_settings()
+    if not settings.gmail_client_id or settings.gmail_client_secret is None:
+        sys.exit(
+            "Set RECOUP_GMAIL_CLIENT_ID and RECOUP_GMAIL_CLIENT_SECRET in backend/.env first "
+            "(a Google Cloud OAuth client of type Desktop app)."
+        )
+    print("Opening Google sign-in in your browser. Recoup asks for read-only Gmail access.")
+    try:
+        connect_gmail(
+            settings.gmail_client_id,
+            settings.gmail_client_secret.get_secret_value(),
+            args.env_file,
+        )
+    except GmailError as exc:
+        sys.exit(str(exc))
+    print(f"Gmail connected. The refresh token was saved to {args.env_file}.")
+
+
 def _serve(args: argparse.Namespace) -> None:
     import uvicorn
 
@@ -78,6 +210,34 @@ def main() -> None:
     demo = commands.add_parser("advance", help="Demo: move the clock and play the vendors' side")
     demo.add_argument("--days", type=int, default=14)
     demo.set_defaults(handler=_advance)
+
+    sync = commands.add_parser("sync", help="Pull real data, then re-run detection")
+    targets = sync.add_subparsers(dest="target", required=True)
+    status = targets.add_parser("status", help="Read vendor status pages against published SLAs")
+    status.add_argument("--snapshot", action="store_true", help="Use the recorded real feeds")
+    status.add_argument(
+        "--demo-invoices", action="store_true", help="Add Northwind's fictional Atlassian bills"
+    )
+    status.set_defaults(handler=_sync_status)
+    targets.add_parser("ramp", help="Read transactions from the Ramp API").set_defaults(
+        handler=_sync_ramp
+    )
+    targets.add_parser("gmail", help="Read vendor mail from Gmail, read-only").set_defaults(
+        handler=_sync_gmail
+    )
+    targets.add_parser("all", help="Every connected source, then detection").set_defaults(
+        handler=_sync_all
+    )
+
+    connect = commands.add_parser("connect", help="Grant Recoup access to a data source")
+    providers = connect.add_subparsers(dest="provider", required=True)
+    gmail = providers.add_parser("gmail", help="Read-only Gmail consent in the browser")
+    gmail.add_argument("--env-file", type=Path, default=Path(".env"))
+    gmail.set_defaults(handler=_connect_gmail)
+
+    watch = commands.add_parser("watch", help="Sync every source on a timer until stopped")
+    watch.add_argument("--interval", type=int, default=15, help="Minutes between syncs")
+    watch.set_defaults(handler=_watch)
 
     serve = commands.add_parser("serve", help="Start the API server")
     serve.add_argument("--port", type=int, default=8000)

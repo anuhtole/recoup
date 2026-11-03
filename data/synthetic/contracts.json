@@ -2,8 +2,16 @@
   {
     "claim_window_days": 60,
     "clause": "\u00a77.2 If Monthly Uptime falls below 99.9%, Customer is eligible for a Service Credit of 10% of that month's fees (30% below 99.0%; 100% below 95.0%). Claims must be submitted within 60 days of the end of the affected month.",
+    "covered_components": [],
     "document": "aws-enterprise-agreement-2026.pdf",
+    "needs_customer_confirmation": false,
+    "period": "month",
     "plan": "Enterprise Agreement",
+    "price_clause": "",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": null,
+    "price_minor": null,
     "sla_target_bp": 9990,
     "tiers": [
       {
@@ -24,8 +32,16 @@
   {
     "claim_window_days": 30,
     "clause": "Schedule B. Uptime commitment of 99.9% per calendar month. Credits: 10% of the monthly fee below 99.9%, 25% below 99.5%, 50% below 99.0%. Customer must request credits within 30 days after the end of the month.",
+    "covered_components": [],
     "document": "slack-business-plus-order-form.pdf",
+    "needs_customer_confirmation": false,
+    "period": "month",
     "plan": "Business+",
+    "price_clause": "",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": null,
+    "price_minor": null,
     "sla_target_bp": 9990,
     "tiers": [
       {
@@ -46,8 +62,16 @@
   {
     "claim_window_days": 30,
     "clause": "Section 4. Monthly availability target 99.9%. Below target: 10% credit; below 99.5%: 25% credit. Requests must be made within 30 days after month end.",
+    "covered_components": [],
     "document": "zoom-business-terms.pdf",
+    "needs_customer_confirmation": false,
+    "period": "month",
     "plan": "Business",
+    "price_clause": "",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": null,
+    "price_minor": null,
     "sla_target_bp": 9990,
     "tiers": [
       {
@@ -64,8 +88,16 @@
   {
     "claim_window_days": 30,
     "clause": "Uptime commitment 99.9% per quarter-month. Below commitment: 10% service credit; below 99.0%: 25%. Claims within 30 days of month end.",
+    "covered_components": [],
     "document": "github-enterprise-cloud-sla.pdf",
+    "needs_customer_confirmation": false,
+    "period": "month",
     "plan": "Enterprise Cloud",
+    "price_clause": "Order form: Enterprise Cloud at $210.00 per month for the 12-month term.",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": null,
+    "price_minor": 21000,
     "sla_target_bp": 9990,
     "tiers": [
       {
@@ -82,10 +114,52 @@
   {
     "claim_window_days": 30,
     "clause": "The Plus plan carries no uptime commitment or service credits.",
+    "covered_components": [],
     "document": "notion-plus-terms.pdf",
+    "needs_customer_confirmation": false,
+    "period": "month",
     "plan": "Plus",
+    "price_clause": "",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": null,
+    "price_minor": null,
     "sla_target_bp": null,
     "tiers": [],
     "vendor_key": "NOTION LABS"
+  },
+  {
+    "claim_window_days": 30,
+    "clause": "",
+    "covered_components": [],
+    "document": "figma-organization-order-form.pdf",
+    "needs_customer_confirmation": false,
+    "period": "month",
+    "plan": "Organization",
+    "price_clause": "\u00a73.1 Fees: $480.00 per month for 8 Organization seats. Fees are fixed through December 31, 2026 and may not be increased during that period.",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": "2026-12-31",
+    "price_minor": 48000,
+    "sla_target_bp": null,
+    "tiers": [],
+    "vendor_key": "FIGMA"
+  },
+  {
+    "claim_window_days": 30,
+    "clause": "",
+    "covered_components": [],
+    "document": "linear-business-order-form.pdf",
+    "needs_customer_confirmation": false,
+    "period": "month",
+    "plan": "Business",
+    "price_clause": "Pricing: $160.00 per month through June 30, 2026. After that, Linear may raise fees by no more than 7% per renewal year.",
+    "price_currency": "USD",
+    "price_increase_cap_bp": 700,
+    "price_locked_until": "2026-06-30",
+    "price_minor": 16000,
+    "sla_target_bp": null,
+    "tiers": [],
+    "vendor_key": "LINEAR APP"
   }
 ]
