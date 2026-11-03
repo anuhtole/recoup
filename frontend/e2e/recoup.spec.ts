@@ -18,8 +18,27 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
   page.on("console", (message) => message.type() === "error" && errors.push(message.text()));
   page.on("pageerror", (error) => errors.push(String(error)));
 
-  await test.step("load, switch tabs, move with j/k", async () => {
+  await test.step("the overview is the landing page", async () => {
     await page.goto("/");
+    await expect(page.getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "page");
+    await expect(page.getByLabel("Totals")).toContainText("$14,961.34");
+    const expiring = page.getByRole("region", { name: "Expiring soon" });
+    await expect(expiring.locator("[data-expiring-id]")).toHaveCount(5);
+    await expect(expiring.locator("[data-expiring-id]").first()).toContainText("Figma");
+    await expect(page.getByRole("region", { name: "Where it comes from" })).toContainText("Duplicate charges");
+    await expect(page.getByRole("region", { name: "Top vendors" })).toContainText("Amazon Web Services");
+    await expect(page.getByRole("region", { name: "Progress" })).toContainText("will show here");
+
+    await expiring.locator('[data-expiring-id="2"]').click();
+    await expect(page).toHaveURL(/#\/claims\/2$/);
+    await expect(caseTitle(page)).toHaveText("Figma");
+    await page.goBack();
+    await expect(page.getByRole("region", { name: "Expiring soon" })).toBeVisible();
+    await page.getByRole("button", { name: /^Review \d+ claims$/ }).click();
+    await expect(page).toHaveURL(/#\/claims/);
+  });
+
+  await test.step("switch tabs, move with j/k", async () => {
     await expect(row(page, 2)).toBeVisible();
     for (const label of ["Waiting", "Done", "To do"]) {
       await tab(page, label).click();
@@ -63,6 +82,8 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await page.getByRole("button", { name: "Send request" }).click();
     const sheet = page.getByRole("dialog");
     await expect(sheet).toContainText("billing@figma.com");
+    // Let the sheet finish rising before measuring the slider for the drag.
+    await page.waitForTimeout(700);
 
     const sent = page.waitForRequest((r) => r.url().includes("/send") && r.method() === "POST");
     const thumb = page.getByRole("button", { name: /^Slide to send/ });
@@ -79,13 +100,16 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect.poll(() => tabCount(page, "Waiting")).toBe(1);
   });
 
-  await test.step("advance two weeks: notices, morphing chip, totals, sparklines", async () => {
+  await test.step("advance two weeks: notices, overview progress, morphing chip", async () => {
+    await page.getByRole("link", { name: "Overview" }).click();
     const totals = page.getByLabel("Totals");
     const before = await totals.innerText();
     await page.getByRole("button", { name: "Advance 2 weeks" }).click();
     await expect(page.locator("[aria-live=polite] li").filter({ hasText: /credit posted/i })).toBeVisible();
     await expect(totals.locator('svg[role="img"]')).toHaveCount(1);
     await expect.poll(() => totals.innerText()).not.toBe(before);
+    await expect(page.getByRole("region", { name: "Progress" })).toContainText("Figma");
+    await page.getByRole("link", { name: "Claims" }).click();
     await tab(page, "Done").click();
     await expect(row(page, 2)).toContainText("Recovered");
     await tab(page, "To do").click();
