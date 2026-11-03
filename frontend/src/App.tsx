@@ -2,7 +2,7 @@ import { MotionConfig, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, ApiError, type Finding, type Stage } from "./api";
 import { CaseView } from "./components/case/CaseView";
-import { Metrics } from "./components/Metrics";
+import { Overview } from "./components/Overview";
 import { Queue } from "./components/Queue";
 import { type Notice, Notifications } from "./components/Toast";
 import { TopBar } from "./components/TopBar";
@@ -10,6 +10,7 @@ import { formatDate, formatMoney } from "./format";
 import { useCase } from "./hooks/useCase";
 import { useCases } from "./hooks/useCases";
 import { useIsNarrow } from "./hooks/useIsNarrow";
+import { useHashRoute } from "./hooks/useHashRoute";
 import { useKeyboardNav } from "./hooks/useKeyboardNav";
 import { SPRING } from "./motion";
 import { orderStage } from "./queue";
@@ -69,6 +70,8 @@ export function App() {
   const nextNoticeId = useRef(1);
   const isNarrow = useIsNarrow();
   const { detail, error: caseError } = useCase(selectedId, version);
+  const { route, go, replace } = useHashRoute();
+  const isClaims = route.page === "claims";
 
   // The same order the queue shows: live cases by days left, then the closed-window group.
   const ids = useMemo(() => {
@@ -84,6 +87,28 @@ export function App() {
     [findings],
   );
 
+  // A hash like #/claims/12 opens that case in its tab (from a link, a refresh, or back/forward).
+  useEffect(() => {
+    if (!isClaims || route.caseId === null || isLoading) return;
+    const finding = findings.find((f) => f.id === route.caseId);
+    if (!finding) return;
+    setStage(finding.stage);
+    setSelectedId(finding.id);
+    setIsCaseOpen(true);
+    // Only when the hash changes or the data first arrives, not on every reload.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isClaims, route.caseId, isLoading]);
+
+  // On a phone the open case follows the address: #/claims alone is the list.
+  useEffect(() => {
+    if (isClaims && route.caseId === null) setIsCaseOpen(false);
+  }, [isClaims, route.caseId]);
+
+  // A new page starts at the top.
+  useEffect(() => {
+    window.scrollTo({ top: 0 });
+  }, [route.page]);
+
   // On wide screens keep a case open: the first one in the tab if nothing is selected.
   useEffect(() => {
     if (!isNarrow && selectedId === null && ids.length > 0) setSelectedId(ids[0]);
@@ -94,14 +119,18 @@ export function App() {
       if (isNarrow && !isCaseOpen) listScroll.current = window.scrollY;
       setSelectedId(id);
       setIsCaseOpen(true);
+      // Moving through the queue updates the address without piling up history.
+      replace({ page: "claims", caseId: id });
       if (isNarrow) window.scrollTo({ top: 0 });
     },
-    [isNarrow, isCaseOpen],
+    [isNarrow, isCaseOpen, replace],
   );
-  useKeyboardNav(ids, selectedId, select);
+  // j / k only move through the queue on the Claims page.
+  useKeyboardNav(isClaims ? ids : [], selectedId, select);
 
   const closeCase = () => {
     setIsCaseOpen(false);
+    replace({ page: "claims", caseId: null });
     // Back returns to the list where it was.
     requestAnimationFrame(() => window.scrollTo({ top: listScroll.current }));
   };
@@ -197,6 +226,7 @@ export function App() {
       <div className="relative min-h-dvh text-ink">
         <main className="mx-auto flex max-w-[1280px] flex-col gap-6 px-4 pb-24 pt-6 sm:px-6 lg:px-8">
           <TopBar
+            page={route.page}
             summary={summary}
             isRunning={busy === "run"}
             isAdvancing={busy === "advance"}
@@ -228,12 +258,23 @@ export function App() {
             </div>
           )}
 
-          {summary && showQueue && <Metrics summary={summary} findings={findings} />}
+          {!isClaims && summary && !isLoading && (
+            <Overview
+              summary={summary}
+              findings={findings}
+              onOpenCase={(id) => go({ page: "claims", caseId: id })}
+              onReview={() => {
+                changeStage("todo");
+                setIsCaseOpen(false);
+                go({ page: "claims", caseId: null });
+              }}
+            />
+          )}
 
           {isLoading ? (
             <p className="text-14 text-dim">Loading cases…</p>
           ) : (
-            <div className="grid grid-cols-1 items-start gap-6 min-[900px]:grid-cols-[minmax(320px,400px)_minmax(0,1fr)]">
+            isClaims && <div className="grid grid-cols-1 items-start gap-6 min-[900px]:grid-cols-[minmax(320px,400px)_minmax(0,1fr)]">
               {showQueue && (
                 <div className={isNarrow ? "min-w-0" : "sticky top-6 min-w-0"}>
                   <Queue

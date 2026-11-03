@@ -3,9 +3,12 @@ import { useEffect, useRef, useState } from "react";
 import type { Summary } from "../api";
 import { formatDate } from "../format";
 import { SPRING } from "../motion";
+import type { Page } from "../hooks/useHashRoute";
+import { cn } from "@/lib/utils";
 import { Button } from "./Button";
 
 interface Props {
+  page: Page;
   summary: Summary | null;
   isRunning: boolean;
   isAdvancing: boolean;
@@ -85,7 +88,35 @@ function MoreMenu({ actions }: { actions: { label: string; onSelect: () => void;
   );
 }
 
-export function TopBar({ summary, isRunning, isAdvancing, onRun, onAdvance }: Props) {
+/** Two pages, as a quiet pill: the same look as the queue's tabs. */
+function PageSwitch({ page }: { page: Page }) {
+  const items: { page: Page; label: string; href: string }[] = [
+    { page: "overview", label: "Overview", href: "#/overview" },
+    { page: "claims", label: "Claims", href: "#/claims" },
+  ];
+  return (
+    <nav aria-label="Pages" className="order-last w-full sm:order-none sm:w-auto">
+      <ul className="m-0 inline-flex rounded-full bg-tint p-1">
+        {items.map((item) => (
+          <li key={item.page} className="list-none">
+            <a
+              href={item.href}
+              aria-current={item.page === page ? "page" : undefined}
+              className={cn(
+                "inline-flex h-9 items-center rounded-full px-4 text-14 font-medium transition-[transform,background-color,color] duration-150 active:scale-[0.97]",
+                item.page === page ? "bg-accent-fill text-on-accent" : "text-dim hover:text-ink",
+              )}
+            >
+              {item.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  );
+}
+
+export function TopBar({ page, summary, isRunning, isAdvancing, onRun, onAdvance }: Props) {
   const actions = [
     { label: "Run detection", onSelect: onRun, isBusy: isRunning, title: "Read the ledger and inbox again for anything new" },
     ...(summary?.demo_mode
@@ -93,8 +124,8 @@ export function TopBar({ summary, isRunning, isAdvancing, onRun, onAdvance }: Pr
       : []),
   ];
   return (
-    <header className="flex items-center justify-between gap-4">
-      <div className="flex min-w-0 items-center gap-3">
+    <header className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex min-w-0 items-center gap-3 sm:flex-1">
         <Mark />
         <div className="min-w-0">
           <h1 className="text-20 font-semibold tracking-[-0.02em]">Recoup</h1>
@@ -105,7 +136,8 @@ export function TopBar({ summary, isRunning, isAdvancing, onRun, onAdvance }: Pr
           )}
         </div>
       </div>
-      <div className="hidden items-center gap-1 sm:flex">
+      <PageSwitch page={page} />
+      <div className="hidden items-center justify-end gap-1 sm:flex sm:flex-1">
         {actions.map((action) => (
           <Button key={action.label} variant="ghost" size="sm" onClick={action.onSelect} isBusy={action.isBusy} title={action.title}>
             {action.label}
