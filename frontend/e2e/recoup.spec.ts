@@ -21,7 +21,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
   await test.step("the overview is the landing page", async () => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "page");
-    await expect(page.getByLabel("Totals")).toContainText("$14,961.34");
+    await expect(page.getByLabel("Totals")).toContainText("$15,105.34");
     const expiring = page.getByRole("region", { name: "Expiring soon" });
     await expect(expiring.locator("[data-expiring-id]")).toHaveCount(5);
     await expect(expiring.locator("[data-expiring-id]").first()).toContainText("Figma");
@@ -106,7 +106,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     const before = await totals.innerText();
     await page.getByRole("button", { name: "Advance 2 weeks" }).click();
     await expect(page.locator("[aria-live=polite] li").filter({ hasText: /credit posted/i })).toBeVisible();
-    await expect(totals.locator('svg[role="img"]')).toHaveCount(1);
+    await expect.poll(() => totals.getByRole("img").getAttribute("aria-label")).not.toContain("$0.00 recovered");
     await expect.poll(() => totals.innerText()).not.toBe(before);
     await expect(page.getByRole("region", { name: "Progress" })).toContainText("Figma");
     await page.getByRole("link", { name: "Claims" }).click();

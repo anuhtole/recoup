@@ -26,14 +26,16 @@ const TYPE_LABEL: Record<LeakType, string> = {
   missing_refund: "Missed refunds",
   charged_after_cancellation: "Billed after cancelling",
   sla_credit: "Outage credits",
+  price_overcharge: "Price above contract",
 };
 
-// Four steps of the one primary blue, darkest for the largest share.
+// One step of the primary pine per leak type, darkest for the largest share.
 const SHADES = [
   "var(--primary)",
-  "color-mix(in srgb, var(--primary) 62%, var(--base))",
-  "color-mix(in srgb, var(--primary) 38%, var(--base))",
-  "color-mix(in srgb, var(--primary) 20%, var(--base))",
+  "color-mix(in srgb, var(--primary) 66%, var(--base))",
+  "color-mix(in srgb, var(--primary) 46%, var(--base))",
+  "color-mix(in srgb, var(--primary) 30%, var(--base))",
+  "color-mix(in srgb, var(--primary) 18%, var(--base))",
 ];
 
 /** Ready to claim, split by the kind of leak: one stacked bar and the same numbers as a list. */
