@@ -45,9 +45,23 @@ class Settings(BaseSettings):
     ramp_env: Literal["sandbox", "production"] = "sandbox"
     ramp_lookback_days: int = 180
 
+    # Gmail, read-only. `recoup connect gmail` fills in the refresh token.
+    gmail_client_id: str | None = None
+    gmail_client_secret: SecretStr | None = None
+    gmail_refresh_token: SecretStr | None = None
+    gmail_lookback_days: int = 180
+    gmail_max_messages: int = 500
+
+    # Background sync inside `recoup serve`, in minutes. 0 turns it off.
+    sync_interval_minutes: int = 0
+
     @property
     def ramp_configured(self) -> bool:
         return bool(self.ramp_client_id and self.ramp_client_secret)
+
+    @property
+    def gmail_configured(self) -> bool:
+        return bool(self.gmail_client_id and self.gmail_client_secret and self.gmail_refresh_token)
 
     @property
     def llm_enabled(self) -> bool:

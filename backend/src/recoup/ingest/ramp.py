@@ -19,6 +19,7 @@ from pydantic import BaseModel, ConfigDict, ValidationError
 
 from recoup.domain.money import MINOR_UNIT_EXPONENTS
 from recoup.domain.types import Transaction, transaction_key
+from recoup.ingest.http_retry import send_with_retry
 
 logger = logging.getLogger(__name__)
 
@@ -27,10 +28,8 @@ SOURCE = "ramp"
 SCOPE = "transactions:read"
 PAGE_SIZE = 100
 MAX_PAGES = 1_000
-MAX_ATTEMPTS = 4
 # Ramp may block for 60 seconds after a 429 when it sends no Retry-After.
 RATE_LIMIT_COOLDOWN_SECONDS = 60.0
-MAX_RETRY_WAIT_SECONDS = 90.0
 _POSTED_STATES = {"CLEARED", "COMPLETION"}
 
 
@@ -120,20 +119,13 @@ class RampClient:
         self._http.close()
 
     def _send(self, send: Callable[[], httpx.Response]) -> httpx.Response:
-        """Retry rate limits and server errors. Reads and token requests are safe to repeat."""
-        for attempt in range(MAX_ATTEMPTS):
-            try:
-                response = send()
-            except httpx.TransportError as exc:
-                if attempt == MAX_ATTEMPTS - 1:
-                    raise RampError("Could not reach Ramp. Try again shortly.") from exc
-                self._sleep(2.0**attempt)
-                continue
-            if response.status_code != 429 and response.status_code < 500:
-                return response
-            if attempt < MAX_ATTEMPTS - 1:
-                self._sleep(_retry_wait(response, attempt))
-        raise RampError(f"Ramp kept returning {response.status_code}. Try again shortly.")
+        return send_with_retry(
+            send,
+            service="Ramp",
+            fail=RampError,
+            sleep=self._sleep,
+            rate_limit_wait=RATE_LIMIT_COOLDOWN_SECONDS,
+        )
 
     def _authenticate(self) -> str:
         response = self._send(
@@ -210,10 +202,3 @@ class RampClient:
             logger.warning("unexpected Ramp response: %s", exc)
             raise RampError("Ramp returned a transaction Recoup could not read.") from exc
         return RampPull(tuple(transactions), skipped)
-
-
-def _retry_wait(response: httpx.Response, attempt: int) -> float:
-    header = response.headers.get("Retry-After", "")
-    if header.isdigit():
-        return min(float(header), MAX_RETRY_WAIT_SECONDS)
-    return RATE_LIMIT_COOLDOWN_SECONDS if response.status_code == 429 else 2.0**attempt

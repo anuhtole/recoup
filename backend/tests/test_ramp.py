@@ -15,8 +15,9 @@ from recoup.db.models import FindingRow, SyncRunRow, TransactionRow
 from recoup.db.session import session_scope
 from recoup.domain.sources import Vendor
 from recoup.domain.types import LeakType, Outcome
+from recoup.ingest.http_retry import MAX_ATTEMPTS
 from recoup.ingest.live import sync_ramp
-from recoup.ingest.ramp import MAX_ATTEMPTS, RampClient, RampError, RampTransaction, to_transaction
+from recoup.ingest.ramp import RampClient, RampError, RampTransaction, to_transaction
 from recoup.ingest.sources import load_sources
 from recoup.pipeline.run import run_pipeline
 from recoup.services import Services

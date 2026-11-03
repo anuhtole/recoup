@@ -1,24 +1,34 @@
-"""Command line entry point: `recoup generate | ingest | run | advance | sync | serve`."""
+"""Command line entry point.
+
+`recoup generate | ingest | run | advance | sync | connect | watch | serve`.
+"""
 
 import argparse
 import json
 import sys
-from collections.abc import Iterator
+import time
+from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from dataclasses import asdict
+from pathlib import Path
 
 import httpx
 from sqlalchemy.orm import Session
 
 from recoup.config import get_settings
+from recoup.connectors.registry import build_connectors
+from recoup.connectors.scheduler import BackgroundSync
 from recoup.db.session import make_engine, make_session_factory, session_scope
 from recoup.db.state import get_as_of
 from recoup.demo.simulator import advance
 from recoup.ingest.dataset import ingest_dataset
+from recoup.ingest.gmail import GmailError
+from recoup.ingest.google_oauth import connect_gmail
 from recoup.ingest.live import (
     demo_invoices,
     http_fetcher,
     snapshot_fetcher,
+    sync_gmail,
     sync_ramp,
     sync_status_feeds,
     uptime_report,
@@ -106,6 +116,77 @@ def _sync_ramp(_: argparse.Namespace) -> None:
     print(json.dumps({"ramp": asdict(sync), "run": run}, indent=2))
 
 
+def _sync_gmail(_: argparse.Namespace) -> None:
+    settings = get_settings()
+    try:
+        with _session() as session:
+            sync = sync_gmail(session, settings, load_sources(settings.data_dir).vendors)
+            run = _detect(session)
+    except GmailError as exc:
+        sys.exit(str(exc))
+    print(json.dumps({"gmail": asdict(sync), "run": run}, indent=2))
+
+
+def _background(interval_minutes: int) -> tuple[BackgroundSync, Callable[[], None]]:
+    settings = get_settings()
+    engine = make_engine(settings.database_url)
+    sources = load_sources(settings.data_dir)
+    sync = BackgroundSync(
+        make_session_factory(engine),
+        settings,
+        build_services(settings),
+        sources,
+        build_connectors(settings, sources),
+        interval_seconds=interval_minutes * 60,
+    )
+    return sync, engine.dispose
+
+
+def _sync_all(_: argparse.Namespace) -> None:
+    sync, dispose = _background(0)
+    try:
+        report = sync.run_once()
+    finally:
+        dispose()
+    print(json.dumps(asdict(report) if report else None, indent=2))
+
+
+def _watch(args: argparse.Namespace) -> None:
+    """Sync everything on a timer in the foreground; Ctrl-C stops it."""
+    if args.interval < 1:
+        sys.exit("--interval must be at least 1 minute.")
+    sync, dispose = _background(args.interval)
+    try:
+        while True:
+            report = sync.run_once()
+            if report is not None:
+                print(json.dumps({"finished_at": report.finished_at, "run": asdict(report.run)}))
+            time.sleep(sync.interval_seconds)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        dispose()
+
+
+def _connect_gmail(args: argparse.Namespace) -> None:
+    settings = get_settings()
+    if not settings.gmail_client_id or settings.gmail_client_secret is None:
+        sys.exit(
+            "Set RECOUP_GMAIL_CLIENT_ID and RECOUP_GMAIL_CLIENT_SECRET in backend/.env first "
+            "(a Google Cloud OAuth client of type Desktop app)."
+        )
+    print("Opening Google sign-in in your browser. Recoup asks for read-only Gmail access.")
+    try:
+        connect_gmail(
+            settings.gmail_client_id,
+            settings.gmail_client_secret.get_secret_value(),
+            args.env_file,
+        )
+    except GmailError as exc:
+        sys.exit(str(exc))
+    print(f"Gmail connected. The refresh token was saved to {args.env_file}.")
+
+
 def _serve(args: argparse.Namespace) -> None:
     import uvicorn
 
@@ -141,6 +222,22 @@ def main() -> None:
     targets.add_parser("ramp", help="Read transactions from the Ramp API").set_defaults(
         handler=_sync_ramp
     )
+    targets.add_parser("gmail", help="Read vendor mail from Gmail, read-only").set_defaults(
+        handler=_sync_gmail
+    )
+    targets.add_parser("all", help="Every connected source, then detection").set_defaults(
+        handler=_sync_all
+    )
+
+    connect = commands.add_parser("connect", help="Grant Recoup access to a data source")
+    providers = connect.add_subparsers(dest="provider", required=True)
+    gmail = providers.add_parser("gmail", help="Read-only Gmail consent in the browser")
+    gmail.add_argument("--env-file", type=Path, default=Path(".env"))
+    gmail.set_defaults(handler=_connect_gmail)
+
+    watch = commands.add_parser("watch", help="Sync every source on a timer until stopped")
+    watch.add_argument("--interval", type=int, default=15, help="Minutes between syncs")
+    watch.set_defaults(handler=_watch)
 
     serve = commands.add_parser("serve", help="Start the API server")
     serve.add_argument("--port", type=int, default=8000)

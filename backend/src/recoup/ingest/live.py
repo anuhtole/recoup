@@ -1,4 +1,4 @@
-"""Sync real data from outside: vendor status pages and the Ramp ledger.
+"""Sync real data from outside: vendor status pages, the Ramp ledger, and Gmail.
 
 Each pull is recorded whether or not it works. A failed feed keeps its last good
 data and never stops the others. Once a vendor's status feed has synced, its real
@@ -19,14 +19,17 @@ from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
 from recoup.config import Settings
-from recoup.db.models import IncidentRow, SyncRunRow
+from recoup.db.models import IncidentRow, StateRow, SyncRunRow
 from recoup.detectors.outages import PeriodAssessment, assess_periods
 from recoup.domain.sources import Incident
 from recoup.domain.types import Transaction, transaction_key
+from recoup.domain.vendors import VendorDirectory
+from recoup.ingest.gmail import SOURCE as GMAIL_SOURCE
+from recoup.ingest.gmail import GmailClient, GmailError, vendor_query
 from recoup.ingest.loader import ingest_transactions
 from recoup.ingest.ramp import SOURCE as RAMP_SOURCE
 from recoup.ingest.ramp import RampClient, RampError
-from recoup.ingest.sources import Sources
+from recoup.ingest.sources import Sources, ingest_emails
 from recoup.ingest.status_feeds import FEEDS, StatusFeed
 from recoup.ingest.statuspage import ParsedFeed, parse_feed
 
@@ -254,6 +257,79 @@ def sync_ramp(session: Session, settings: Settings, client: RampClient | None = 
     result = ingest_transactions(session, pull.transactions)
     sync = RampSync(settings.ramp_env, len(pull.transactions), result.inserted, pull.skipped)
     session.add(SyncRunRow(source=RAMP_SOURCE, ok=True, origin="live", detail=asdict(sync)))
+    session.flush()
+    return sync
+
+
+GMAIL_CURSOR = "gmail:synced_through"
+# Gmail's after: filter has whole-second precision and mail can arrive late.
+_GMAIL_OVERLAP = timedelta(days=1)
+
+
+@dataclass(frozen=True, slots=True)
+class GmailSync:
+    query_from: str
+    fetched: int
+    inserted: int
+    skipped: dict[str, int]
+    is_truncated: bool
+
+
+def _gmail_since(session: Session, settings: Settings, now: datetime) -> datetime:
+    row = session.get(StateRow, GMAIL_CURSOR)
+    if row is None:
+        return now - timedelta(days=settings.gmail_lookback_days)
+    return datetime.fromisoformat(row.value) - _GMAIL_OVERLAP
+
+
+def _set_gmail_cursor(session: Session, value: datetime) -> None:
+    row = session.get(StateRow, GMAIL_CURSOR)
+    if row is None:
+        session.add(StateRow(key=GMAIL_CURSOR, value=value.isoformat()))
+    else:
+        row.value = value.isoformat()
+
+
+def sync_gmail(
+    session: Session,
+    settings: Settings,
+    vendors: VendorDirectory,
+    client: GmailClient | None = None,
+) -> GmailSync:
+    """Read new vendor mail into the inbox. Raises GmailError after recording the failure."""
+    if (
+        not settings.gmail_client_id
+        or settings.gmail_client_secret is None
+        or settings.gmail_refresh_token is None
+    ):
+        raise GmailError("Gmail is not connected. Run `recoup connect gmail` first.")
+    owned = client is None
+    active = client or GmailClient(
+        settings.gmail_client_id,
+        settings.gmail_client_secret.get_secret_value(),
+        settings.gmail_refresh_token.get_secret_value(),
+    )
+    now = datetime.now(UTC)
+    since = _gmail_since(session, settings, now)
+    try:
+        pull = active.pull(vendor_query(vendors, since), settings.gmail_max_messages, vendors)
+    except GmailError as exc:
+        session.add(
+            SyncRunRow(source=GMAIL_SOURCE, ok=False, origin="live", detail={"error": str(exc)})
+        )
+        session.flush()
+        raise
+    finally:
+        if owned:
+            active.close()
+    result = ingest_emails(session, pull.emails)
+    # A truncated pull missed older mail, so the next one starts from the same place.
+    if not pull.is_truncated:
+        _set_gmail_cursor(session, now)
+    sync = GmailSync(
+        since.isoformat(), pull.fetched, result.inserted, pull.skipped, pull.is_truncated
+    )
+    session.add(SyncRunRow(source=GMAIL_SOURCE, ok=True, origin="live", detail=asdict(sync)))
     session.flush()
     return sync
 

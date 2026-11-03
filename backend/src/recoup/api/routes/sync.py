@@ -1,7 +1,7 @@
 """Pull real data on demand, and show where each source stands.
 
-Status pages are public and need no credentials. Ramp credentials stay on the server;
-nothing here returns them.
+Status pages are public and need no credentials. Ramp and Gmail credentials stay on
+the server; nothing here returns them.
 """
 
 from dataclasses import asdict
@@ -14,7 +14,14 @@ from sqlalchemy import select
 from recoup.api.deps import ContextDep, SessionDep
 from recoup.db.models import SyncRunRow
 from recoup.db.state import get_as_of
-from recoup.ingest.live import http_fetcher, sync_ramp, sync_status_feeds, uptime_report
+from recoup.ingest.gmail import SOURCE as GMAIL_SOURCE
+from recoup.ingest.live import (
+    STATUS_PREFIX,
+    http_fetcher,
+    sync_ramp,
+    sync_status_feeds,
+    uptime_report,
+)
 from recoup.ingest.ramp import SOURCE as RAMP_SOURCE
 from recoup.ingest.ramp import RampError
 from recoup.ingest.status_feeds import FEEDS
@@ -23,10 +30,11 @@ from recoup.pipeline.run import run_pipeline
 router = APIRouter(prefix="/api")
 
 
-def _last_run(session: SessionDep, source: str) -> dict[str, Any] | None:
+def _last_run(session: SessionDep, source: str, prefix: bool = False) -> dict[str, Any] | None:
+    match = SyncRunRow.source.startswith(source) if prefix else SyncRunRow.source == source
     row = session.scalar(
         select(SyncRunRow)
-        .where(SyncRunRow.source == source)
+        .where(match)
         .order_by(SyncRunRow.finished_at.desc(), SyncRunRow.id.desc())
     )
     if row is None:
@@ -42,11 +50,34 @@ def _last_run(session: SessionDep, source: str) -> dict[str, Any] | None:
 @router.get("/sources")
 def sources(session: SessionDep, context: ContextDep) -> dict[str, Any]:
     settings = context.settings
+    report = context.sync.last_report
     return {
         "ramp": {
             "connected": settings.ramp_configured,
             "environment": settings.ramp_env,
             "last_sync": _last_run(session, RAMP_SOURCE),
+        },
+        "gmail": {
+            "connected": settings.gmail_configured,
+            "last_sync": _last_run(session, GMAIL_SOURCE),
+        },
+        "connectors": [
+            {
+                "key": c.key,
+                "kind": c.kind,
+                "configured": c.is_configured,
+                # Status pages record one run per feed; show the newest.
+                "last_sync": _last_run(session, STATUS_PREFIX, prefix=True)
+                if c.kind == "status"
+                else _last_run(session, c.key),
+            }
+            for c in context.sync.connectors
+        ],
+        "background_sync": {
+            "interval_minutes": settings.sync_interval_minutes,
+            "running": context.sync.is_running,
+            "last_finished_at": report.finished_at if report else None,
+            "last_error": context.sync.last_error,
         },
         "status_feeds": [
             {
@@ -59,6 +90,15 @@ def sources(session: SessionDep, context: ContextDep) -> dict[str, Any]:
         ],
         "uptime_checks": [asdict(c) for c in uptime_report(session, get_as_of(session, settings))],
     }
+
+
+@router.post("/sync")
+def sync_everything(context: ContextDep) -> dict[str, Any]:
+    """Every connected source, then detection, as one unit of work."""
+    report = context.sync.run_once()
+    if report is None:
+        raise HTTPException(status_code=409, detail="A sync is already running.")
+    return asdict(report)
 
 
 @router.post("/sync/status")

@@ -27,7 +27,7 @@ The data is synthetic and every send goes to a local outbox. Nothing leaves your
 
 ## Real data
 
-Two connectors replace synthetic inputs with real ones. Both are read-only.
+Three connectors replace synthetic inputs with real ones. All are read-only, and all share one interface, so adding a ledger or mailbox means adding one connector ([ADR 0009](docs/adr/0009-connector-interface.md)).
 
 **Vendor status pages (no credentials).** `recoup sync status` reads the public feeds for Jira, Confluence, and GitHub, works out uptime per covered component from each incident's timeline, and checks it against the vendor's published SLA.
 
@@ -58,7 +58,19 @@ The outages and SLA terms are real; the invoices are not. A status page can't pr
 
 The connector is tested against the response shapes in Ramp's published API spec. **It has not yet run against a real sandbox.**
 
-`GET /api/sources` shows each connection, its last sync, and every uptime check, and `POST /api/sync/status` and `POST /api/sync/ramp` trigger a sync, for the UI to wire up.
+**Gmail (vendor replies).** `recoup sync gmail` reads mail from vendor directory domains only, with the `gmail.readonly` scope. A message is kept only if Gmail's own check shows DMARC or DKIM passing for the sender's domain, so a forged From line is skipped. Attachments are never read, and sending still goes only to the local outbox after approval.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create a project and enable the Gmail API.
+2. Configure the OAuth consent screen as External, and add your own address as a test user.
+3. Create an OAuth client of type **Desktop app**. Put its id and secret in `backend/.env` as `RECOUP_GMAIL_CLIENT_ID` and `RECOUP_GMAIL_CLIENT_SECRET`.
+4. Run `recoup connect gmail` in `backend/`. It opens Google's consent page and saves the refresh token to `backend/.env`. It never prints it.
+5. Run `recoup sync gmail`, or `recoup sync all` for every connected source.
+
+This connector is tested against the Gmail API's documented response shapes. **It has not yet run against a real mailbox.**
+
+**Keeping it fresh.** `recoup watch --interval 15` syncs every connected source and re-runs detection every 15 minutes. Set `RECOUP_SYNC_INTERVAL_MINUTES` to do the same inside the API. Only one sync runs at a time.
+
+`GET /api/sources` shows each connector, its last sync, the background sync, and every uptime check. `POST /api/sync` runs every connector and then detection (409 if a sync is already running), and `POST /api/sync/status` and `POST /api/sync/ramp` sync one source, for the UI to wire up.
 
 ## What it finds
 
@@ -200,7 +212,7 @@ docs/adr/      architecture decision records
 ## Roadmap
 
 1. **Read Ramp disputes,** so a charge already being disputed isn't flagged again.
-1. **Gmail connector.** Read-only ingest and send-only drafts behind the approval gate, with DKIM/SPF-verified senders.
+1. **Send through Gmail.** Send approved drafts from the connected mailbox, still behind the approval gate.
 2. **Contract reader.** Claude reads order-form PDFs into the `Contract` schema, so outage credits and price-cap breaches need no manual setup.
 3. **Partial credits and price creep.** Match partial refunds, and flag renewals above a contracted cap.
 
