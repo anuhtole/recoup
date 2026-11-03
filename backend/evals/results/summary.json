@@ -5,7 +5,7 @@
       "reports": [
         {
           "seed": 20261028,
-          "transactions": 453,
+          "transactions": 455,
           "positives": 12,
           "hard_negatives": 13,
           "true_positives": 12,
@@ -21,7 +21,7 @@
         },
         {
           "seed": 20261029,
-          "transactions": 440,
+          "transactions": 441,
           "positives": 12,
           "hard_negatives": 13,
           "true_positives": 12,
@@ -37,7 +37,7 @@
         },
         {
           "seed": 20261030,
-          "transactions": 443,
+          "transactions": 444,
           "positives": 12,
           "hard_negatives": 13,
           "true_positives": 12,
@@ -69,7 +69,7 @@
         },
         {
           "seed": 20261032,
-          "transactions": 454,
+          "transactions": 459,
           "positives": 12,
           "hard_negatives": 13,
           "true_positives": 12,
@@ -90,7 +90,7 @@
       "reports": [
         {
           "seed": 20261028,
-          "transactions": 453,
+          "transactions": 455,
           "positives": 5,
           "hard_negatives": 4,
           "true_positives": 5,
@@ -106,7 +106,7 @@
         },
         {
           "seed": 20261029,
-          "transactions": 440,
+          "transactions": 441,
           "positives": 5,
           "hard_negatives": 4,
           "true_positives": 5,
@@ -122,7 +122,7 @@
         },
         {
           "seed": 20261030,
-          "transactions": 443,
+          "transactions": 444,
           "positives": 5,
           "hard_negatives": 4,
           "true_positives": 5,
@@ -154,7 +154,7 @@
         },
         {
           "seed": 20261032,
-          "transactions": 454,
+          "transactions": 459,
           "positives": 5,
           "hard_negatives": 4,
           "true_positives": 5,
@@ -175,7 +175,7 @@
       "reports": [
         {
           "seed": 20261028,
-          "transactions": 453,
+          "transactions": 455,
           "positives": 1,
           "hard_negatives": 1,
           "true_positives": 1,
@@ -191,7 +191,7 @@
         },
         {
           "seed": 20261029,
-          "transactions": 440,
+          "transactions": 441,
           "positives": 1,
           "hard_negatives": 1,
           "true_positives": 1,
@@ -207,7 +207,7 @@
         },
         {
           "seed": 20261030,
-          "transactions": 443,
+          "transactions": 444,
           "positives": 1,
           "hard_negatives": 1,
           "true_positives": 1,
@@ -239,7 +239,7 @@
         },
         {
           "seed": 20261032,
-          "transactions": 454,
+          "transactions": 459,
           "positives": 1,
           "hard_negatives": 1,
           "true_positives": 1,
@@ -260,7 +260,7 @@
       "reports": [
         {
           "seed": 20261028,
-          "transactions": 453,
+          "transactions": 455,
           "positives": 3,
           "hard_negatives": 2,
           "true_positives": 3,
@@ -276,7 +276,7 @@
         },
         {
           "seed": 20261029,
-          "transactions": 440,
+          "transactions": 441,
           "positives": 3,
           "hard_negatives": 2,
           "true_positives": 3,
@@ -292,7 +292,7 @@
         },
         {
           "seed": 20261030,
-          "transactions": 443,
+          "transactions": 444,
           "positives": 3,
           "hard_negatives": 2,
           "true_positives": 3,
@@ -324,7 +324,7 @@
         },
         {
           "seed": 20261032,
-          "transactions": 454,
+          "transactions": 459,
           "positives": 3,
           "hard_negatives": 2,
           "true_positives": 3,
@@ -334,6 +334,91 @@
           "hard_negatives_triggered": 0,
           "planted_minor": 53611,
           "found_minor": 53611,
+          "false_positive_keys": [],
+          "missed_case_ids": [],
+          "wrong_outcome_case_ids": []
+        }
+      ]
+    },
+    {
+      "leak_type": "price_overcharge",
+      "reports": [
+        {
+          "seed": 20261028,
+          "transactions": 455,
+          "positives": 1,
+          "hard_negatives": 2,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "outcome_correct": 1,
+          "hard_negatives_triggered": 0,
+          "planted_minor": 14400,
+          "found_minor": 14400,
+          "false_positive_keys": [],
+          "missed_case_ids": [],
+          "wrong_outcome_case_ids": []
+        },
+        {
+          "seed": 20261029,
+          "transactions": 441,
+          "positives": 1,
+          "hard_negatives": 2,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "outcome_correct": 1,
+          "hard_negatives_triggered": 0,
+          "planted_minor": 14400,
+          "found_minor": 14400,
+          "false_positive_keys": [],
+          "missed_case_ids": [],
+          "wrong_outcome_case_ids": []
+        },
+        {
+          "seed": 20261030,
+          "transactions": 444,
+          "positives": 1,
+          "hard_negatives": 2,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "outcome_correct": 1,
+          "hard_negatives_triggered": 0,
+          "planted_minor": 14400,
+          "found_minor": 14400,
+          "false_positive_keys": [],
+          "missed_case_ids": [],
+          "wrong_outcome_case_ids": []
+        },
+        {
+          "seed": 20261031,
+          "transactions": 462,
+          "positives": 1,
+          "hard_negatives": 2,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "outcome_correct": 1,
+          "hard_negatives_triggered": 0,
+          "planted_minor": 14400,
+          "found_minor": 14400,
+          "false_positive_keys": [],
+          "missed_case_ids": [],
+          "wrong_outcome_case_ids": []
+        },
+        {
+          "seed": 20261032,
+          "transactions": 459,
+          "positives": 1,
+          "hard_negatives": 2,
+          "true_positives": 1,
+          "false_positives": 0,
+          "false_negatives": 0,
+          "outcome_correct": 1,
+          "hard_negatives_triggered": 0,
+          "planted_minor": 14400,
+          "found_minor": 14400,
           "false_positive_keys": [],
           "missed_case_ids": [],
           "wrong_outcome_case_ids": []

@@ -1,6 +1,6 @@
 # Recoup
 
-**Companies are owed money they never collect.** A vendor double-charges. A refund is promised by email and never posts. A cancelled subscription keeps billing. An outage triggers a contractual credit nobody claims. Finding these today means someone cross-checking a card export against an inbox and a drawer of contracts, then writing to vendors one at a time. Most of it never happens, and every dispute window quietly closes.
+**Companies are owed money they never collect.** A vendor double-charges. A refund is promised by email and never posts. A cancelled subscription keeps billing. An outage triggers a contractual credit nobody claims. A price the order form locked creeps up anyway. Finding these today means someone cross-checking a card export against an inbox and a drawer of contracts, then writing to vendors one at a time. Most of it never happens, and every dispute window quietly closes.
 
 Recoup reads the three places this money hides (the ledger, vendor email, and the contracts plus public status pages), finds what's owed, shows the receipts, and drafts the recovery. A person approves every message. A case only counts as recovered when the credit shows up in the ledger.
 
@@ -80,6 +80,7 @@ This connector is tested against the Gmail API's documented response shapes. **I
 | Refunds promised, never posted | Vendor email + ledger | Claude reads the email; code verifies it and checks the ledger |
 | Billed after cancelling | Vendor email + ledger | Claude reads the email; code checks the ledger |
 | Outage credits owed | Contract SLA + public status page + ledger | Code |
+| Billed above contract price | Order-form price, lock and increase cap + ledger ([ADR 0010](docs/adr/0010-price-overcharges.md)) | Code |
 
 Every case has one of three discrete outcomes: **Recoverable**, **Needs review**, or **Not recoverable**. There are no confidence scores. *Needs review* is a normal state that says which fact is missing, for example a refund promised with no amount.
 
@@ -117,7 +118,7 @@ The detection rules are graded like a model. `recoup generate` builds a seeded s
 - a ledger of about 450 transactions,
 - 15 vendor emails, 2 of them prompt injections,
 - contracts and status-page incidents,
-- an answer key of **21 planted leaks** and **20 hard negatives**: look-alikes that must *not* be flagged, such as separate orders, refunds that did post, a promise not yet due, a refusal, a cancellation that really stopped billing, an outage inside the commitment, and an outage on a plan with no SLA.
+- an answer key of **22 planted leaks** and **22 hard negatives**: look-alikes that must *not* be flagged, such as separate orders, refunds that did post, a promise not yet due, a refusal, a cancellation that really stopped billing, an outage inside the commitment, an outage on a plan with no SLA, a price rise inside the contract's cap, and an overcharge the vendor already credited back.
 
 `make eval`:
 
@@ -130,6 +131,7 @@ The detection rules are graded like a model. `recoup generate` builds a seeded s
 | Refunds promised, never posted | 25/25 | 0 | 0/20 | 1.00 | $1,114.92 avg |
 | Billed after cancellation | 5/5 | 0 | 0/5 | 1.00 | $450.00 avg |
 | Outage credits owed | 15/15 | 0 | 0/10 | 1.00 | $523.96 avg |
+| Billed above contract price | 5/5 | 0 | 0/10 | 1.00 | $144.00 avg |
 
 ### Promise extraction (15 vendor emails, 2 of them injections)
 
@@ -213,8 +215,8 @@ docs/adr/      architecture decision records
 
 1. **Read Ramp disputes,** so a charge already being disputed isn't flagged again.
 1. **Send through Gmail.** Send approved drafts from the connected mailbox, still behind the approval gate.
-2. **Contract reader.** Claude reads order-form PDFs into the `Contract` schema, so outage credits and price-cap breaches need no manual setup.
-3. **Partial credits and price creep.** Match partial refunds, and flag renewals above a contracted cap.
+2. **Contract reader.** Claude reads order-form PDFs into the `Contract` schema, so outage credits and price checks need no manual setup.
+3. **Partial credits and seat counts.** Match partial refunds, and price per-seat plans against the seats actually contracted.
 
 ## Team
 

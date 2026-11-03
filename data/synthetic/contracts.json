@@ -7,6 +7,11 @@
     "needs_customer_confirmation": false,
     "period": "month",
     "plan": "Enterprise Agreement",
+    "price_clause": "",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": null,
+    "price_minor": null,
     "sla_target_bp": 9990,
     "tiers": [
       {
@@ -32,6 +37,11 @@
     "needs_customer_confirmation": false,
     "period": "month",
     "plan": "Business+",
+    "price_clause": "",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": null,
+    "price_minor": null,
     "sla_target_bp": 9990,
     "tiers": [
       {
@@ -57,6 +67,11 @@
     "needs_customer_confirmation": false,
     "period": "month",
     "plan": "Business",
+    "price_clause": "",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": null,
+    "price_minor": null,
     "sla_target_bp": 9990,
     "tiers": [
       {
@@ -78,6 +93,11 @@
     "needs_customer_confirmation": false,
     "period": "month",
     "plan": "Enterprise Cloud",
+    "price_clause": "Order form: Enterprise Cloud at $210.00 per month for the 12-month term.",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": null,
+    "price_minor": 21000,
     "sla_target_bp": 9990,
     "tiers": [
       {
@@ -99,8 +119,47 @@
     "needs_customer_confirmation": false,
     "period": "month",
     "plan": "Plus",
+    "price_clause": "",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": null,
+    "price_minor": null,
     "sla_target_bp": null,
     "tiers": [],
     "vendor_key": "NOTION LABS"
+  },
+  {
+    "claim_window_days": 30,
+    "clause": "",
+    "covered_components": [],
+    "document": "figma-organization-order-form.pdf",
+    "needs_customer_confirmation": false,
+    "period": "month",
+    "plan": "Organization",
+    "price_clause": "\u00a73.1 Fees: $480.00 per month for 8 Organization seats. Fees are fixed through December 31, 2026 and may not be increased during that period.",
+    "price_currency": "USD",
+    "price_increase_cap_bp": null,
+    "price_locked_until": "2026-12-31",
+    "price_minor": 48000,
+    "sla_target_bp": null,
+    "tiers": [],
+    "vendor_key": "FIGMA"
+  },
+  {
+    "claim_window_days": 30,
+    "clause": "",
+    "covered_components": [],
+    "document": "linear-business-order-form.pdf",
+    "needs_customer_confirmation": false,
+    "period": "month",
+    "plan": "Business",
+    "price_clause": "Pricing: $160.00 per month through June 30, 2026. After that, Linear may raise fees by no more than 7% per renewal year.",
+    "price_currency": "USD",
+    "price_increase_cap_bp": 700,
+    "price_locked_until": "2026-06-30",
+    "price_minor": 16000,
+    "sla_target_bp": null,
+    "tiers": [],
+    "vendor_key": "LINEAR APP"
   }
 ]

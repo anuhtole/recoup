@@ -4,7 +4,7 @@ The output is everything Recoup reads, plus an answer key:
 
 - transactions.json: what a card feed would give us.
 - emails.json: vendor email (refund promises, refusals, cancellations, injections).
-- vendors.json, contracts.json: the vendor directory and SLA terms.
+- vendors.json, contracts.json: the vendor directory, SLA terms, and contracted prices.
 - incidents.json: public status-page incidents.
 - labels.json: the answer key. Every planted leak is a `positive` case; every
   tricky look-alike that must NOT be flagged is a `hard_negative` case.
@@ -28,6 +28,7 @@ from recoup.domain.types import Outcome, Transaction
 from recoup.synth.builder import LedgerBuilder
 from recoup.synth.inbox import plant_inbox
 from recoup.synth.outages import plant_outages
+from recoup.synth.pricing import PRICE_CHANGES, plant_pricing
 from recoup.synth.vendors import CONTRACTS, VENDORS
 
 DEFAULT_SEED = 20261028
@@ -59,7 +60,8 @@ def _subscriptions(b: LedgerBuilder) -> dict[tuple[str, date], Transaction]:
     for month in _months():
         for merchant, amount, day_of_month, prefix in _SUBSCRIPTIONS:
             day = month.replace(day=day_of_month)
-            charges[(merchant, month)] = b.add(day, merchant, amount, f"{prefix}-{month:%Y%m}")
+            charged = PRICE_CHANGES.get((merchant, month), amount)
+            charges[(merchant, month)] = b.add(day, merchant, charged, f"{prefix}-{month:%Y%m}")
         aws_amount = b.rng.randint(320_000, 410_000)
         charges[("AWS", month)] = b.add(
             month.replace(day=2), "AMAZON WEB SERVICES", aws_amount, f"AWS-{month:%Y%m}"
@@ -366,6 +368,7 @@ def generate_world(seed: int = DEFAULT_SEED) -> World:
     _plant_hard_negatives(b, subscriptions)
     inbox = plant_inbox(b, subscriptions, seed)
     incidents = plant_outages(b, subscriptions)
+    plant_pricing(b, subscriptions)
     _background(b)
 
     transactions = sorted(b.transactions, key=lambda t: (t.posted_at, t.external_id))

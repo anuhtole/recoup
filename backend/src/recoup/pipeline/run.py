@@ -23,6 +23,7 @@ from recoup.db.models import AuditEventRow, FindingRow, TransactionRow
 from recoup.db.state import get_as_of
 from recoup.detectors.duplicates import DuplicateConfig, detect_duplicates
 from recoup.detectors.outages import OutageConfig, detect_sla_credits
+from recoup.detectors.pricing import PricingConfig, detect_price_overcharges
 from recoup.detectors.promises import PromiseConfig, detect_broken_promises
 from recoup.domain.merchants import normalize_merchant
 from recoup.domain.sources import Promise
@@ -77,6 +78,10 @@ def detectors_from_settings(settings: Settings) -> list[Detector]:
         dispute_window_days=settings.dispute_window_days,
     )
     outages = OutageConfig(min_amount_minor=settings.min_recoverable_minor)
+    pricing = PricingConfig(
+        min_amount_minor=settings.min_recoverable_minor,
+        dispute_window_days=settings.dispute_window_days,
+    )
     return [
         lambda d: detect_duplicates(d.transactions, duplicates),
         lambda d: detect_broken_promises(
@@ -89,6 +94,9 @@ def detectors_from_settings(settings: Settings) -> list[Detector]:
             d.sources.vendors,
             d.as_of,
             outages,
+        ),
+        lambda d: detect_price_overcharges(
+            d.transactions, d.sources.contracts, d.sources.vendors, d.as_of, pricing
         ),
     ]
 

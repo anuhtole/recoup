@@ -4,6 +4,8 @@ All of this is synthetic. Contract terms and SLA tiers are illustrative and are
 not any real vendor's published terms.
 """
 
+from datetime import date
+
 from recoup.domain.merchants import normalize_merchant
 from recoup.domain.sources import Contract, SlaTier, Vendor
 
@@ -119,11 +121,36 @@ CONTRACTS: tuple[Contract, ...] = (
             "Uptime commitment 99.9% per quarter-month. Below commitment: 10% service credit; "
             "below 99.0%: 25%. Claims within 30 days of month end."
         ),
+        price_minor=21_000,
+        price_clause="Order form: Enterprise Cloud at $210.00 per month for the 12-month term.",
     ),
     Contract(
         vendor_key=normalize_merchant("NOTION LABS"),
         plan="Plus",
         document="notion-plus-terms.pdf",
         clause="The Plus plan carries no uptime commitment or service credits.",
+    ),
+    Contract(
+        vendor_key=normalize_merchant("FIGMA"),
+        plan="Organization",
+        document="figma-organization-order-form.pdf",
+        price_minor=48_000,
+        price_locked_until=date(2026, 12, 31),
+        price_clause=(
+            "§3.1 Fees: $480.00 per month for 8 Organization seats. Fees are fixed through "
+            "December 31, 2026 and may not be increased during that period."
+        ),
+    ),
+    Contract(
+        vendor_key=normalize_merchant("LINEAR APP"),
+        plan="Business",
+        document="linear-business-order-form.pdf",
+        price_minor=16_000,
+        price_locked_until=date(2026, 6, 30),
+        price_increase_cap_bp=700,
+        price_clause=(
+            "Pricing: $160.00 per month through June 30, 2026. After that, Linear may raise "
+            "fees by no more than 7% per renewal year."
+        ),
     ),
 )

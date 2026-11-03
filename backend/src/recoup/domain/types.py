@@ -15,6 +15,7 @@ class LeakType(StrEnum):
     MISSING_REFUND = "missing_refund"
     CHARGED_AFTER_CANCELLATION = "charged_after_cancellation"
     SLA_CREDIT = "sla_credit"
+    PRICE_OVERCHARGE = "price_overcharge"
 
 
 class Outcome(StrEnum):

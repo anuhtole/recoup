@@ -90,6 +90,19 @@ def _sla_credit(facts: CaseFacts) -> tuple[str, str]:
     )
 
 
+def _price_overcharge(facts: CaseFacts) -> tuple[str, str]:
+    contract = facts.evidence_of("contract")
+    clause = (
+        f"Our agreement ({contract[0].ref}) states:\n{contract[0].detail}\n\n" if contract else ""
+    )
+    return (
+        "Charges above our contracted price",
+        f"{clause}These charges came in above that price:\n\n{_lines(facts)}\n\n"
+        f"The difference is {facts.amount} in total. Please credit it to our card"
+        f"{_card(facts)} and bill the contracted price going forward.",
+    )
+
+
 def _dispute(facts: CaseFacts) -> tuple[str, str]:
     first = facts.transactions[0] if facts.transactions else None
     when = f" on {human_date(first.posted_at)}" if first else ""
@@ -107,6 +120,7 @@ _TEMPLATES = {
     LeakType.MISSING_REFUND: _missing_refund,
     LeakType.CHARGED_AFTER_CANCELLATION: _after_cancellation,
     LeakType.SLA_CREDIT: _sla_credit,
+    LeakType.PRICE_OVERCHARGE: _price_overcharge,
 }
 
 

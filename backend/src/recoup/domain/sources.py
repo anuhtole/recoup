@@ -86,6 +86,14 @@ class Contract(BaseModel):
     covered_components: tuple[str, ...] = ()
     # Public status data can't prove this customer was hit (a regional outage, say).
     needs_customer_confirmation: bool = False
+    # The recurring price the order form commits to, per charge, in minor units.
+    price_minor: int | None = None
+    price_currency: str = "USD"
+    # Unset means the price holds for the whole term.
+    price_locked_until: date | None = None
+    # After the lock, the most the price may rise, in basis points. Unset means no limit.
+    price_increase_cap_bp: int | None = None
+    price_clause: str = ""
 
 
 class Incident(BaseModel):

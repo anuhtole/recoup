@@ -5,7 +5,8 @@ export type LeakType =
   | "duplicate_charge"
   | "missing_refund"
   | "charged_after_cancellation"
-  | "sla_credit";
+  | "sla_credit"
+  | "price_overcharge";
 export type Status =
   | "open"
   | "drafted"

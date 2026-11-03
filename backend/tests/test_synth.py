@@ -36,6 +36,8 @@ def test_answer_key_shape() -> None:
         ("charged_after_cancellation", "hard_negative"): 1,
         ("sla_credit", "positive"): 3,
         ("sla_credit", "hard_negative"): 2,
+        ("price_overcharge", "positive"): 1,
+        ("price_overcharge", "hard_negative"): 2,
     }
     case_ids = [case["case_id"] for case in labels["cases"]]
     assert len(case_ids) == len(set(case_ids))

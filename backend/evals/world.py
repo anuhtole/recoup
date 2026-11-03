@@ -10,6 +10,7 @@ from datetime import date
 
 from recoup.detectors.duplicates import detect_duplicates
 from recoup.detectors.outages import detect_sla_credits
+from recoup.detectors.pricing import detect_price_overcharges
 from recoup.detectors.promises import detect_broken_promises
 from recoup.domain.sources import Email, Promise
 from recoup.domain.types import FindingCandidate
@@ -53,5 +54,6 @@ def run_world(world: World, extractor: PromiseExtractor) -> WorldRun:
         *detect_duplicates(world.transactions),
         *detect_broken_promises(world.transactions, promises, vendors, as_of),
         *detect_sla_credits(world.transactions, world.contracts, world.incidents, vendors, as_of),
+        *detect_price_overcharges(world.transactions, world.contracts, vendors, as_of),
     ]
     return WorldRun(extractions, promises, rejected, findings)
