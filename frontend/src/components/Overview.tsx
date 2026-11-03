@@ -5,7 +5,7 @@ import { orderStage } from "../queue";
 import { LEAK_LABEL } from "../theme";
 import { Button } from "./Button";
 import { Deadline } from "./Chip";
-import { ByType, MoneyHero } from "./Metrics";
+import { ByType, HeadlineHero } from "./Metrics";
 
 interface Props {
   summary: Summary;
@@ -113,7 +113,7 @@ export function Overview({ summary, findings, onOpenCase, onReview }: Props) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-        <MoneyHero summary={summary} />
+        <HeadlineHero summary={summary} live={live} />
         {live.length > 0 && (
           <Button variant="primary" onClick={onReview} className="self-start sm:self-auto">
             Review {live.length} {live.length === 1 ? "claim" : "claims"}

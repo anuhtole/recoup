@@ -2,8 +2,6 @@ import { motion, useReducedMotion, useSpring, useTransform } from "motion/react"
 import { useEffect } from "react";
 import type { Finding, LeakType, Summary } from "../api";
 import { formatMoney } from "../format";
-import { type Snapshot, useSummaryHistory } from "../hooks/useSummaryHistory";
-import { LineSparkline } from "./charts/sparkline";
 import { cn } from "@/lib/utils";
 
 
@@ -74,58 +72,53 @@ export function ByType({ findings, total, currency }: { findings: Finding[]; tot
   );
 }
 
-/** The money owed, large, with what is in flight, recovered and missed beside it. */
-export function MoneyHero({ summary }: { summary: Summary }) {
-  const history = useSummaryHistory(summary);
-  const strip: { key: keyof Omit<Snapshot, "as_of">; label: string; value: number; className?: string }[] = [
-    { key: "in_flight", label: "In flight", value: summary.in_flight_minor },
-    {
-      key: "recovered",
-      label: "Recovered",
-      value: summary.recovered_minor,
-      className: summary.recovered_minor > 0 ? "text-money-ink" : undefined,
-    },
-    { key: "expired", label: "Missed", value: summary.expired_minor, className: "text-dim" },
-  ];
+/** The second line of the headline: the most urgent thing, in plain words. */
+function urgency(live: Finding[]): string {
+  const days = live.map((f) => f.days_left).filter((d): d is number => d !== null && d >= 0);
+  if (days.length === 0) return live.length > 0 ? "No claim has a deadline coming up." : "Nothing is waiting on you.";
+  const today = days.filter((d) => d === 0).length;
+  if (today) return today === 1 ? "One claim expires today." : `${today} claims expire today.`;
+  const tomorrow = days.filter((d) => d === 1).length;
+  if (tomorrow) return tomorrow === 1 ? "One claim expires tomorrow." : `${tomorrow} claims expire tomorrow.`;
+  const week = days.filter((d) => d <= 7).length;
+  if (week) return week === 1 ? "One claim expires this week." : `${week} claims expire this week.`;
+  const next = Math.min(...days);
+  return `The next deadline is in ${next} days.`;
+}
+
+/** Overview headline: what vendors owe as a sentence, then how much of everything found has come back. */
+export function HeadlineHero({ summary, live }: { summary: Summary; live: Finding[] }) {
+  const { claimable_minor: ready, in_flight_minor: inFlight, recovered_minor: recovered, expired_minor: missed, currency } = summary;
+  const total = ready + inFlight + recovered + missed;
+  const pct = (v: number) => (total > 0 ? (v / total) * 100 : 0);
   return (
-    <section aria-label="Totals" className="flex flex-col gap-4">
-      <div className="min-w-0">
-        <p className="text-14 text-dim">Ready to claim</p>
-        <div className="flex items-end gap-4">
-          <RollingMoney
-            minor={summary.claimable_minor}
-            currency={summary.currency}
-            className="figure text-26 font-semibold tracking-[-0.02em] sm:text-40 sm:tracking-[-0.03em]"
+    <section aria-label="Totals" className="flex min-w-0 flex-col gap-4">
+      <h1 className="m-0 text-26 font-semibold tracking-[-0.02em] sm:text-40 sm:tracking-[-0.03em]">
+        Vendors owe you <RollingMoney minor={ready} currency={currency} className="figure text-primary" />.
+        <span className="block text-dim">{urgency(live)}</span>
+      </h1>
+      <div className="flex max-w-xl flex-col gap-2">
+        <div
+          role="img"
+          aria-label={`${formatMoney(recovered, currency)} recovered and ${formatMoney(inFlight, currency)} in flight out of ${formatMoney(total, currency)} found`}
+          className="flex h-2 overflow-hidden rounded-full bg-line"
+        >
+          <span className="h-full bg-money transition-[width] duration-700" style={{ width: `${pct(recovered)}%` }} />
+          <span
+            className="h-full transition-[width] duration-700"
+            style={{ width: `${pct(inFlight)}%`, background: "color-mix(in srgb, var(--primary) 45%, var(--base))" }}
           />
-          {/* One snapshot per demo advance; a single point draws no line. */}
-          {history.length > 1 && (
-            <div className="mb-2 w-24 flex-none sm:w-28">
-              <LineSparkline
-                data={history}
-                dataKey="claimable"
-                height={28}
-                strokeWidth={1.5}
-                color="var(--dim)"
-                endDot
-                crosshair={false}
-                aria-label={`Ready to claim after each two-week step: ${history
-                  .map((h) => formatMoney(h.claimable, summary.currency))
-                  .join(", ")}`}
-              />
-            </div>
-          )}
+        </div>
+        <div className="flex flex-wrap justify-between gap-x-6 gap-y-1 text-14 text-dim">
+          <span>
+            <RollingMoney minor={recovered} currency={currency} className={cn("figure font-medium", recovered > 0 ? "text-money-ink" : "text-ink")} />{" "}
+            recovered · <RollingMoney minor={inFlight} currency={currency} className="figure font-medium text-ink" /> in flight
+          </span>
+          <span>
+            <RollingMoney minor={missed} currency={currency} className="figure" /> missed
+          </span>
         </div>
       </div>
-      <dl className="m-0 grid grid-cols-3 gap-4 sm:flex sm:gap-8">
-        {strip.map((item) => (
-          <div key={item.key} className="min-w-0">
-            <dt className="truncate text-12 text-dim sm:text-14">{item.label}</dt>
-            <dd className="m-0">
-              <RollingMoney minor={item.value} currency={summary.currency} className={cn("figure text-16 font-semibold sm:text-20", item.className)} />
-            </dd>
-          </div>
-        ))}
-      </dl>
     </section>
   );
 }
