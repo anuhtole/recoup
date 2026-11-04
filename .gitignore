@@ -24,3 +24,8 @@ frontend/dist/
 /recoup-*.md
 
 .DS_Store
+
+# Design tooling screenshots
+.taste-skill/
+frontend/test-results/
+frontend/playwright-report/

@@ -118,6 +118,7 @@ class SummaryOut(BaseModel):
     as_of: date
     mode: str
     demo_mode: bool
+    data_mode: Literal["demo", "live"]
     claimable_minor: int
     in_flight_minor: int
     recovered_minor: int

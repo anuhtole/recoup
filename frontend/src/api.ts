@@ -127,11 +127,38 @@ export interface Summary {
   as_of: string;
   mode: string;
   demo_mode: boolean;
+  /** "demo" for the generated world, "live" for data that arrived by sync. Older APIs omit it. */
+  data_mode?: "demo" | "live";
   claimable_minor: number;
   in_flight_minor: number;
   recovered_minor: number;
   expired_minor: number;
   stages: { stage: Stage; count: number }[];
+}
+
+// GET /api/sources: where each source stands. Credentials never appear here.
+export interface SyncRun {
+  ok: boolean;
+  origin: string;
+  finished_at: string;
+  detail: Record<string, unknown> | null;
+}
+
+export type ConnectorKind = "ledger" | "email" | "status";
+
+export interface Sources {
+  ramp: { connected: boolean; environment: string; last_sync: SyncRun | null };
+  gmail: { connected: boolean; last_sync: SyncRun | null };
+  connectors: { key: string; kind: ConnectorKind; configured: boolean; last_sync: SyncRun | null }[];
+  background_sync: { interval_minutes: number; running: boolean; last_finished_at: string | null; last_error: string | null };
+  status_feeds: { key: string; page_url: string; sla: string; last_sync: SyncRun | null }[];
+}
+
+// POST /api/sync: every connected source, then detection.
+export interface SyncReport {
+  finished_at: string;
+  outcomes: { connector: string; kind: ConnectorKind; ok: boolean; detail: Record<string, unknown> | null; error: string | null }[];
+  run: RunSummary;
 }
 
 export interface RunSummary {
@@ -199,4 +226,6 @@ export const api = {
   send: (id: number) => post<Draft>(`/api/drafts/${id}/send`, { confirm: true }),
   runPipeline: () => post<RunSummary>("/api/pipeline/run"),
   advance: (days: number) => post<AdvanceResult>("/api/demo/advance", { days }),
+  sources: () => request<Sources>("/api/sources"),
+  sync: () => post<SyncReport>("/api/sync"),
 };
