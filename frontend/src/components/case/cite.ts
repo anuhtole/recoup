@@ -134,3 +134,45 @@ export function splitIncident(detail: string): { text: string; url: string | nul
   const match = /^(.*?)\s*(https?:\/\/\S+)\s*$/.exec(detail);
   return match ? { text: match[1].replace(/\.$/, ""), url: match[2] } : { text: detail, url: null };
 }
+
+/** "$1,234.56" → 123456 (minor units); null if it isn't a dollar amount. */
+export function parseMoney(text: string): number | null {
+  const match = /\$([\d,]+)\.(\d{2})/.exec(text);
+  return match ? Number(match[1].replace(/,/g, "")) * 100 + Number(match[2]) : null;
+}
+
+export interface PriceComparison {
+  contractMinor: number;
+  lockedUntil: string | null;
+  charges: { day: string; chargedMinor: number; allowedMinor: number; reference: string | null }[];
+}
+
+/**
+ * A price-above-contract case, read from its evidence: each transaction row says
+ * "2026-08-03 charged $528.00, contract allows $480.00 (FIG-202608)" and the rule names the
+ * contracted price ("($480.00 through Dec 31, 2026)"). Null when anything doesn't parse, so the
+ * caller falls back to the plain evidence rows.
+ */
+export function parsePriceComparison(evidence: Evidence[]): PriceComparison | null {
+  const charges: PriceComparison["charges"] = [];
+  for (const item of evidence.filter((e) => e.kind === "transaction")) {
+    const match = /^(\d{4}-\d{2}-\d{2}) charged (\$[\d,]+\.\d{2}), contract allows (\$[\d,]+\.\d{2})(?: \(([^)]*)\))?/.exec(item.detail);
+    if (!match) return null;
+    const charged = parseMoney(match[2]);
+    const allowed = parseMoney(match[3]);
+    if (charged === null || allowed === null) return null;
+    charges.push({ day: match[1], chargedMinor: charged, allowedMinor: allowed, reference: match[4] && match[4] !== "no reference" ? match[4] : null });
+  }
+  if (charges.length === 0) return null;
+  const rule = evidence.find((e) => e.kind === "rule")?.detail ?? "";
+  const lockedUntil = /through ([A-Z][a-z]{2} \d{1,2}, \d{4})/.exec(rule)?.[1] ?? null;
+  return { contractMinor: charges[0].allowedMinor, lockedUntil, charges };
+}
+
+/**
+ * Outage cases built from a public status page, which can't prove the customer was affected:
+ * the detector words their reason around the vendor's published terms.
+ */
+export function needsCustomerConfirmation(leakType: string, reason: string): boolean {
+  return leakType === "sla_credit" && /status page showed|published (commitment|terms)|If your site was affected/.test(reason);
+}

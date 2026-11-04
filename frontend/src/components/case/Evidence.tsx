@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { Email, Evidence as EvidenceItem, Transaction } from "../../api";
 import { formatDate, formatMoney } from "../../format";
 import { titleCase } from "../../queue";
-import { type VendorQuote, parseQuote, splitIncident } from "./cite";
+import { type PriceComparison, type VendorQuote, parsePriceComparison, parseQuote, splitIncident } from "./cite";
 
 interface Props {
   evidence: EvidenceItem[];
@@ -11,6 +11,51 @@ interface Props {
   /** Footnote number per evidence ref or transaction id, from the reason sentence. */
   numberOf: Map<string, number>;
   onOpenEmail: (email: Email, quote: VendorQuote) => void;
+  /** Price above contract: lead with the contract-vs-charged comparison. */
+  isPriceCase?: boolean;
+  /** Incidents come from a public status page: link each one to the page. */
+  isPublicStatus?: boolean;
+}
+
+function Step({ label, value, note }: { label: string; value: string; note?: string }) {
+  return (
+    <div className="flex min-w-0 flex-col">
+      <span className="text-12 text-dim">{label}</span>
+      <span className="figure text-20 font-semibold">{value}</span>
+      {note && <span className="text-12 text-dim">{note}</span>}
+    </div>
+  );
+}
+
+function Arrow() {
+  return (
+    <span aria-hidden className="hidden self-center text-20 text-dim sm:block">
+      →
+    </span>
+  );
+}
+
+/** Contract price → charged → over by, for a price-above-contract case. */
+function Comparison({ comparison, currency }: { comparison: PriceComparison; currency: string }) {
+  const money = (minor: number) => formatMoney(minor, currency);
+  const { charges, contractMinor, lockedUntil } = comparison;
+  const overs = charges.map((c) => c.chargedMinor - c.allowedMinor);
+  const total = overs.reduce((sum, o) => sum + o, 0);
+  const sameEach = charges.every((c) => c.chargedMinor === charges[0].chargedMinor && c.allowedMinor === contractMinor);
+  const months = charges.length === 1 ? "1 month" : `${charges.length} months`;
+  return (
+    <div aria-label="Contract price compared with what was charged" className="flex flex-col gap-4 rounded-row bg-selected p-4 sm:flex-row sm:items-start sm:gap-6">
+      <Step label="Contract price" value={`${money(contractMinor)}/month`} note={lockedUntil ? `Locked through ${lockedUntil}` : undefined} />
+      <Arrow />
+      <Step label="Charged" value={sameEach ? money(charges[0].chargedMinor) : `${charges.length} charges`} note={sameEach ? "each month" : undefined} />
+      <Arrow />
+      <Step
+        label="Over by"
+        value={money(total)}
+        note={sameEach ? `${money(overs[0])} × ${months}` : `across ${months}`}
+      />
+    </div>
+  );
 }
 
 function Ref({ n }: { n: number | undefined }) {
@@ -57,11 +102,14 @@ function Ledger({ transactions, numberOf }: { transactions: Transaction[]; numbe
   );
 }
 
-export function Evidence({ evidence, transactions, emails, numberOf, onOpenEmail }: Props) {
+export function Evidence({ evidence, transactions, emails, numberOf, onOpenEmail, isPriceCase = false, isPublicStatus = false }: Props) {
   const of = (kind: EvidenceItem["kind"]) => evidence.filter((e) => e.kind === kind);
   const incidents = of("incident");
+  // Falls back to the plain rows below if the evidence doesn't read as expected.
+  const comparison = isPriceCase ? parsePriceComparison(evidence) : null;
   return (
     <div className="flex flex-col gap-6">
+      {comparison && <Comparison comparison={comparison} currency={transactions[0]?.currency ?? "USD"} />}
       {of("email").map((item) => {
         const quote = parseQuote(item.detail);
         const email = emails.find((e) => e.id === item.ref || item.ref.endsWith(e.id));
@@ -102,13 +150,27 @@ export function Evidence({ evidence, transactions, emails, numberOf, onOpenEmail
       ))}
 
       {incidents.length > 0 && (
-        <Item label="Vendor status page" n={numberOf.get(incidents[0].ref)}>
+        <Item label={isPublicStatus ? "Public status page" : "Vendor status page"} n={numberOf.get(incidents[0].ref)}>
           <ul className="m-0 flex flex-col gap-2 p-0">
-            {incidents.map((item) => (
-              <li key={item.ref} className="list-none text-14">
-                {splitIncident(item.detail).text}
-              </li>
-            ))}
+            {incidents.map((item) => {
+              const { text, url } = splitIncident(item.detail);
+              return (
+                <li key={item.ref} className="list-none text-14">
+                  {isPublicStatus && url ? (
+                    <a
+                      href={url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline decoration-line-strong underline-offset-4 hover:decoration-current"
+                    >
+                      {text}
+                    </a>
+                  ) : (
+                    text
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </Item>
       )}

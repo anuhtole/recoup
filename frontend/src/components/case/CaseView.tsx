@@ -7,7 +7,7 @@ import { LEAK_LABEL } from "../../theme";
 import { Deadline, OutcomeChip, StatusChip } from "../Chip";
 import { ActionPanel } from "./ActionPanel";
 import { Reason } from "./Citations";
-import { citeReason, type VendorQuote } from "./cite";
+import { citeReason, needsCustomerConfirmation, type VendorQuote } from "./cite";
 import { ConfirmSheet } from "./ConfirmSheet";
 import { Correspondence } from "./Correspondence";
 import { DraftEditor } from "./DraftEditor";
@@ -31,6 +31,7 @@ interface Props extends CaseActions {
 
 function Header({ detail }: { detail: FindingDetail }) {
   const isRecovered = detail.status === "recovered" && detail.recovered_minor !== null;
+  const publicStatus = needsCustomerConfirmation(detail.leak_type, detail.reason);
   const deadline = daysLeftLabel(detail.days_left);
   const isClosed = detail.days_left !== null && detail.days_left < 0;
   // The shared reference tells look-alike cases apart (two United Airlines rows, for example).
@@ -40,6 +41,9 @@ function Header({ detail }: { detail: FindingDetail }) {
       <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
         <p className="text-14 text-dim">{LEAK_LABEL[detail.leak_type]}</p>
         <div className="flex flex-wrap gap-2">
+          {publicStatus && (
+            <span className="inline-flex h-6 items-center rounded-full bg-tint px-3 text-12 font-medium text-dim">Public status page</span>
+          )}
           {detail.status !== "recovered" && <OutcomeChip outcome={detail.outcome} />}
           {detail.status !== "open" && <StatusChip status={detail.status} />}
         </div>
@@ -86,6 +90,7 @@ export function CaseView({ detail, isBusy, onBack, onDraft, onDismiss, onSave, o
   const [confirming, setConfirming] = useState<{ draft: Draft; subject: string; body: string } | null>(null);
   // Card descriptors arrive in capitals ("FIGMA charged…"); show them in title case.
   const cited = useMemo(() => citeReason({ ...detail, reason: displayReason(detail.reason) }), [detail]);
+  const publicStatus = needsCustomerConfirmation(detail.leak_type, detail.reason);
   const openDraft = detail.drafts.find((d) => d.status === "draft");
 
   return (
@@ -131,6 +136,8 @@ export function CaseView({ detail, isBusy, onBack, onDraft, onDismiss, onSave, o
           emails={detail.emails}
           numberOf={cited.numberOf}
           onOpenEmail={(email, quote) => setOpenEmail({ email, quote })}
+          isPriceCase={detail.leak_type === "price_overcharge"}
+          isPublicStatus={publicStatus}
         />
       </Section>
 

@@ -3,6 +3,7 @@ import { useState } from "react";
 import type { FindingDetail } from "../../api";
 import { SPRING } from "../../motion";
 import { Button } from "../Button";
+import { needsCustomerConfirmation } from "./cite";
 
 interface Props {
   detail: FindingDetail;
@@ -30,7 +31,10 @@ const HINT: Record<string, string> = {
 export function ActionPanel({ detail, isBusy, onDraft, onDismiss }: Props) {
   const [isDismissing, setIsDismissing] = useState(false);
   const [reason, setReason] = useState("");
-  const { kind, label } = detail.next_action;
+  const { kind } = detail.next_action;
+  // A public status page can't show the customer was affected: ask them first (no new workflow).
+  const confirmFirst = kind === "draft" && needsCustomerConfirmation(detail.leak_type, detail.reason);
+  const label = confirmFirst ? "Confirm you were affected, then draft a request" : detail.next_action.label;
   const canDraft = kind in DRAFT_LABEL;
   const canDismiss = !["recovered", "dismissed", "expired"].includes(detail.status);
 
@@ -47,7 +51,13 @@ export function ActionPanel({ detail, isBusy, onDraft, onDismiss }: Props) {
     <div className="rounded-card bg-selected p-5">
       <p className="text-14 text-dim">Next step</p>
       <p className="mt-1 text-16 font-medium tracking-[-0.01em]">{label}</p>
-      {HINT[kind] && <p className="mt-1 max-w-[60ch] text-14 text-dim">{HINT[kind]}</p>}
+      {(confirmFirst || HINT[kind]) && (
+        <p className="mt-1 max-w-[60ch] text-14 text-dim">
+          {confirmFirst
+            ? "The outage is on the vendor's public status page. Check it hit you, and that your order form has these terms, before you ask."
+            : HINT[kind]}
+        </p>
+      )}
 
       {(canDraft || canDismiss) && !isDismissing && (
         <div className="mt-4 flex flex-wrap items-center gap-2">
