@@ -1,4 +1,4 @@
-import { MotionConfig, motion } from "motion/react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, ApiError, type Finding, type Stage } from "./api";
 import { CaseView } from "./components/case/CaseView";
@@ -11,6 +11,8 @@ import { useCase } from "./hooks/useCase";
 import { useCases } from "./hooks/useCases";
 import { useIsNarrow } from "./hooks/useIsNarrow";
 import { useHashRoute } from "./hooks/useHashRoute";
+import { useSources } from "./hooks/useSources";
+import { SourcesSheet, syncNotice } from "./components/Sources";
 import { useKeyboardNav } from "./hooks/useKeyboardNav";
 import { SPRING } from "./motion";
 import { orderStage } from "./queue";
@@ -63,7 +65,7 @@ export function App() {
   const [stage, setStage] = useState<Stage>("todo");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [version, setVersion] = useState(0);
-  const [busy, setBusy] = useState<"case" | "run" | "advance" | null>(null);
+  const [busy, setBusy] = useState<"case" | "run" | "advance" | "sync" | null>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
   const [isCaseOpen, setIsCaseOpen] = useState(false);
   const listScroll = useRef(0);
@@ -71,6 +73,8 @@ export function App() {
   const isNarrow = useIsNarrow();
   const { detail, error: caseError } = useCase(selectedId, version);
   const { route, go, replace } = useHashRoute();
+  const { sources, isAvailable: sourcesAvailable, reload: reloadSources } = useSources();
+  const [isSourcesOpen, setIsSourcesOpen] = useState(false);
   const isClaims = route.page === "claims";
 
   // The same order the queue shows: live cases by days left, then the closed-window group.
@@ -111,8 +115,9 @@ export function App() {
 
   // On wide screens keep a case open: the first one in the tab if nothing is selected.
   useEffect(() => {
-    if (!isNarrow && selectedId === null && ids.length > 0) setSelectedId(ids[0]);
-  }, [ids, isNarrow, selectedId]);
+    // A case named in the address wins over the default first row.
+    if (!isNarrow && selectedId === null && ids.length > 0 && route.caseId === null) setSelectedId(ids[0]);
+  }, [ids, isNarrow, selectedId, route.caseId]);
 
   const select = useCallback(
     (id: number) => {
@@ -151,7 +156,7 @@ export function App() {
   }, [reload]);
 
   const act = async (
-    kind: "case" | "run" | "advance",
+    kind: "case" | "run" | "advance" | "sync",
     work: () => Promise<string | NoticeInput[] | void>,
   ): Promise<boolean> => {
     setBusy(kind);
@@ -162,7 +167,7 @@ export function App() {
       else if (message) notify(message);
       return true;
     } catch (err) {
-      notify([{ tone: "error", title: "That did not go through", body: errorText(err) }]);
+      notify([{ tone: "error", title: kind === "sync" ? "Sync didn't finish" : "That did not go through", body: errorText(err) }]);
       return false;
     } finally {
       setBusy(null);
@@ -228,6 +233,11 @@ export function App() {
           <TopBar
             page={route.page}
             summary={summary}
+            sources={sources}
+            onOpenSources={() => {
+              setIsSourcesOpen(true);
+              void reloadSources();
+            }}
             isRunning={busy === "run"}
             isAdvancing={busy === "advance"}
             onRun={() =>
@@ -324,6 +334,27 @@ export function App() {
             </div>
           )}
         </main>
+        <AnimatePresence>
+          {isSourcesOpen && (
+            <SourcesSheet
+              key="sources"
+              sources={sources}
+              isAvailable={sourcesAvailable}
+              isSyncing={busy === "sync"}
+              onClose={() => setIsSourcesOpen(false)}
+              onSync={() =>
+                void act("sync", async () => {
+                  try {
+                    const notice = syncNotice(await api.sync());
+                    return [{ tone: notice.ok ? "info" : "error", title: notice.title, body: notice.body }];
+                  } finally {
+                    await reloadSources();
+                  }
+                })
+              }
+            />
+          )}
+        </AnimatePresence>
         <Notifications notices={notices} onDismiss={dismissNotice} />
       </div>
     </MotionConfig>

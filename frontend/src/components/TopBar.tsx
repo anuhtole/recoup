@@ -1,15 +1,18 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import type { Summary } from "../api";
+import type { Sources, Summary } from "../api";
 import { formatDate } from "../format";
 import { SPRING } from "../motion";
 import type { Page } from "../hooks/useHashRoute";
 import { cn } from "@/lib/utils";
 import { Button } from "./Button";
+import { SourcesButton, sourcesLabel } from "./Sources";
 
 interface Props {
   page: Page;
   summary: Summary | null;
+  sources: Sources | null;
+  onOpenSources: () => void;
   isRunning: boolean;
   isAdvancing: boolean;
   onRun: () => void;
@@ -104,7 +107,7 @@ function PageSwitch({ page }: { page: Page }) {
   );
 }
 
-export function TopBar({ page, summary, isRunning, isAdvancing, onRun, onAdvance }: Props) {
+export function TopBar({ page, summary, sources, onOpenSources, isRunning, isAdvancing, onRun, onAdvance }: Props) {
   const actions = [
     { label: "Run detection", onSelect: onRun, isBusy: isRunning, title: "Read the ledger and inbox again for anything new" },
     ...(summary?.demo_mode
@@ -117,21 +120,29 @@ export function TopBar({ page, summary, isRunning, isAdvancing, onRun, onAdvance
         <div className="flex min-w-0 flex-col gap-1">
           <img src="/brand/recoup-wordmark.png" alt="Recoup" width={994} height={265} className="h-7 w-auto self-start" />
           {summary && (
-            <p className="truncate text-12 text-dim sm:text-14">
-              <span className="hidden sm:inline">Money vendors owe you · </span>As of <span className="figure">{formatDate(summary.as_of)}</span>
+            <p className="flex min-w-0 items-center gap-2 text-12 text-dim sm:text-14">
+              <span className="truncate">
+                <span className="hidden sm:inline">Money vendors owe you · </span>As of <span className="figure">{formatDate(summary.as_of)}</span>
+              </span>
+              {summary.data_mode && (
+                <span className="flex-none rounded-full bg-tint px-2 py-1 text-12 text-dim">
+                  {summary.data_mode === "live" ? "Live data" : "Demo data"}
+                </span>
+              )}
             </p>
           )}
         </div>
       </div>
       <PageSwitch page={page} />
       <div className="hidden items-center justify-end gap-1 sm:flex sm:flex-1">
+        <SourcesButton sources={sources} onOpen={onOpenSources} />
         {actions.map((action) => (
           <Button key={action.label} variant="ghost" size="sm" onClick={action.onSelect} isBusy={action.isBusy} title={action.title}>
             {action.label}
           </Button>
         ))}
       </div>
-      <MoreMenu actions={actions} />
+      <MoreMenu actions={[{ label: sourcesLabel(sources), onSelect: onOpenSources, isBusy: false }, ...actions]} />
     </header>
   );
 }
