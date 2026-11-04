@@ -1,6 +1,6 @@
 """Command line entry point.
 
-`recoup generate | ingest | run | advance | sync | connect | watch | serve`.
+`recoup generate | ingest | run | advance | sync | connect | contracts | watch | serve`.
 """
 
 import argparse
@@ -13,6 +13,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 import httpx
+from anthropic import Anthropic, APIError
 from sqlalchemy.orm import Session
 
 from recoup.config import get_settings
@@ -21,6 +22,13 @@ from recoup.connectors.scheduler import BackgroundSync
 from recoup.db.session import make_engine, make_session_factory, session_scope
 from recoup.db.state import get_as_of
 from recoup.demo.simulator import advance
+from recoup.extract.claude import ClaudeStructured, LlmError
+from recoup.extract.contract_reader import (
+    ClaudeContractReader,
+    ContractReadError,
+    read_contract,
+    save_contract,
+)
 from recoup.ingest.dataset import ingest_dataset
 from recoup.ingest.gmail import GmailError
 from recoup.ingest.google_oauth import connect_gmail
@@ -187,6 +195,30 @@ def _connect_gmail(args: argparse.Namespace) -> None:
     print(f"Gmail connected. The refresh token was saved to {args.env_file}.")
 
 
+def _contracts_read(args: argparse.Namespace) -> None:
+    settings = get_settings()
+    if settings.anthropic_api_key is None:
+        sys.exit("Reading a contract needs ANTHROPIC_API_KEY in backend/.env.")
+    client = Anthropic(api_key=settings.anthropic_api_key.get_secret_value(), max_retries=3)
+    llm = ClaudeStructured(client=client, model=settings.llm_model, effort=settings.llm_effort)
+    vendors = load_sources(settings.data_dir).vendors
+    try:
+        verdict = read_contract(ClaudeContractReader(llm), args.path, vendors)
+    except (ContractReadError, LlmError) as exc:
+        sys.exit(str(exc))
+    except APIError as exc:
+        sys.exit(f"Claude request failed ({type(exc).__name__}). Try again shortly.")
+    for problem in verdict.problems:
+        print(f"note: {problem}", file=sys.stderr)
+    if verdict.contract is None:
+        sys.exit("Rejected: nothing in this document could be verified.")
+    print(verdict.contract.model_dump_json(indent=2))
+    if args.save:
+        contracts_file = settings.data_dir / "contracts.json"
+        replaced = save_contract(contracts_file, verdict.contract)
+        print(f"{'Replaced' if replaced else 'Added'} it in {contracts_file}", file=sys.stderr)
+
+
 def _serve(args: argparse.Namespace) -> None:
     import uvicorn
 
@@ -234,6 +266,13 @@ def main() -> None:
     gmail = providers.add_parser("gmail", help="Read-only Gmail consent in the browser")
     gmail.add_argument("--env-file", type=Path, default=Path(".env"))
     gmail.set_defaults(handler=_connect_gmail)
+
+    contracts = commands.add_parser("contracts", help="Read vendor contracts with Claude")
+    actions = contracts.add_subparsers(dest="action", required=True)
+    read = actions.add_parser("read", help="Read an order form's SLA and price terms")
+    read.add_argument("path", type=Path, help="A .pdf, .txt, or .md order form")
+    read.add_argument("--save", action="store_true", help="Add the verified contract to the data")
+    read.set_defaults(handler=_contracts_read)
 
     watch = commands.add_parser("watch", help="Sync every source on a timer until stopped")
     watch.add_argument("--interval", type=int, default=15, help="Minutes between syncs")

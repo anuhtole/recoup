@@ -158,15 +158,22 @@ Recoup holds private financial data, reads untrusted email, and can send mail: t
 
 ## Claude
 
-With `ANTHROPIC_API_KEY` set, Recoup uses the Anthropic Python SDK for three calls:
+With `ANTHROPIC_API_KEY` set, Recoup uses the Anthropic Python SDK for four calls:
 
 | Call | Prompt version | Output |
 |---|---|---|
 | Promise extraction | `promises/1` | `EmailExtraction` |
 | Reply classification | `replies/1` | `ReplyAssessment` |
+| Contract reading | `contracts/1` | `ContractReading`, then a gate that checks each clause, number and date against the PDF text ([ADR 0011](docs/adr/0011-contract-reader.md)) |
 | Draft polishing | `drafts/1` | Checked in code: it must keep the amount and every reference and add no address or link, or the template is used instead |
 
-All three are structured outputs on `claude-opus-5-5` at medium effort, configurable with `RECOUP_LLM_MODEL` and `RECOUP_LLM_EFFORT`. Results are cached per (email, model, prompt version), so re-running detection is free. A failed call falls back to the keyword rules for that email and is retried next run. Requests opt into server-side fallbacks, so a declined request is retried on Anthropic's recommended fallback model.
+All four are structured outputs on `claude-opus-5-5` at medium effort, configurable with `RECOUP_LLM_MODEL` and `RECOUP_LLM_EFFORT`. Results are cached per (email, model, prompt version), so re-running detection is free. A failed call falls back to the keyword rules for that email and is retried next run. Requests opt into server-side fallbacks, so a declined request is retried on Anthropic's recommended fallback model.
+
+Try the contract reader on the sample order form. It prints the verified terms and changes nothing unless you add `--save`:
+
+```bash
+cd backend && uv run recoup contracts read ../data/samples/linear-business-order-form.pdf
+```
 
 Without a key, everything still works on the keyword rules ([ADR 0007](docs/adr/0007-offline-baseline-and-caching.md)), and the UI shows *Offline rules*.
 
@@ -215,7 +222,7 @@ docs/adr/      architecture decision records
 
 1. **Read Ramp disputes,** so a charge already being disputed isn't flagged again.
 1. **Send through Gmail.** Send approved drafts from the connected mailbox, still behind the approval gate.
-2. **Contract reader.** Claude reads order-form PDFs into the `Contract` schema, so outage credits and price checks need no manual setup.
+2. **Contracts from the inbox.** Feed order-form attachments from Gmail to the contract reader, so outage credits and price checks need no setup.
 3. **Partial credits and seat counts.** Match partial refunds, and price per-seat plans against the seats actually contracted.
 
 ## Team
