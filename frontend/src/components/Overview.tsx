@@ -112,14 +112,17 @@ export function Overview({ summary, findings, onOpenCase, onReview }: Props) {
   const expiring = live.filter((f) => f.days_left !== null).slice(0, 5);
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
-        <HeadlineHero summary={summary} live={live} />
-        {live.length > 0 && (
-          <Button variant="primary" onClick={onReview} className="self-start sm:self-auto">
-            Review {live.length} {live.length === 1 ? "claim" : "claims"}
-          </Button>
-        )}
-      </div>
+      <HeadlineHero
+        summary={summary}
+        live={live}
+        action={
+          live.length > 0 && (
+            <Button variant="primary" onClick={onReview}>
+              Review {live.length} {live.length === 1 ? "claim" : "claims"}
+            </Button>
+          )
+        }
+      />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <Panel title="Expiring soon" aside="Fewest days left">

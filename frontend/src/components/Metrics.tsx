@@ -1,5 +1,5 @@
 import { motion, useReducedMotion, useSpring, useTransform } from "motion/react";
-import { useEffect } from "react";
+import { type ReactNode, useEffect } from "react";
 import type { Finding, LeakType, Summary } from "../api";
 import { formatMoney } from "../format";
 import { cn } from "@/lib/utils";
@@ -89,17 +89,21 @@ function urgency(live: Finding[]): string {
 }
 
 /** Overview headline: what vendors owe as a sentence, then how much of everything found has come back. */
-export function HeadlineHero({ summary, live }: { summary: Summary; live: Finding[] }) {
+export function HeadlineHero({ summary, live, action }: { summary: Summary; live: Finding[]; action?: ReactNode }) {
   const { claimable_minor: ready, in_flight_minor: inFlight, recovered_minor: recovered, expired_minor: missed, currency } = summary;
   const total = ready + inFlight + recovered + missed;
   const pct = (v: number) => (total > 0 ? (v / total) * 100 : 0);
   return (
     <section aria-label="Totals" className="flex min-w-0 flex-col gap-4">
-      <h1 className="m-0 text-26 font-semibold tracking-[-0.02em] sm:text-40 sm:tracking-[-0.03em]">
-        Vendors owe you <RollingMoney minor={ready} currency={currency} className="figure text-primary" />.
-        <span className="block text-dim">{urgency(live)}</span>
-      </h1>
-      <div className="flex max-w-xl flex-col gap-2">
+      {/* The headline and the one action share a row; the bar below spans the full width, edge to edge with the panels. */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <h1 className="m-0 min-w-0 text-26 font-semibold tracking-[-0.02em] sm:text-40 sm:tracking-[-0.03em]">
+          Vendors owe you <RollingMoney minor={ready} currency={currency} className="figure text-primary" />.
+          <span className="block text-dim">{urgency(live)}</span>
+        </h1>
+        {action && <div className="flex-none sm:mb-1">{action}</div>}
+      </div>
+      <div className="flex flex-col gap-2">
         <div
           role="img"
           aria-label={`${formatMoney(recovered, currency)} recovered and ${formatMoney(inFlight, currency)} in flight out of ${formatMoney(total, currency)} found`}
