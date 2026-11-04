@@ -124,5 +124,28 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect.poll(() => tabCount(page, "Done")).toBe(done + 1);
   });
 
+  await test.step("price above contract: the comparison leads the evidence", async () => {
+    const findings: { id: number; leak_type: string }[] = await (await request.get("/api/findings")).json();
+    const price = findings.find((f) => f.leak_type === "price_overcharge");
+    expect(price, "the demo data has a price-above-contract case").toBeTruthy();
+    await page.goto(`/#/claims/${price!.id}`);
+    const comparison = page.getByLabel("Contract price compared with what was charged");
+    await expect(comparison).toContainText("Contract price");
+    await expect(comparison).toContainText("Over by");
+  });
+
+  await test.step("data sources: tag, button, sheet", async () => {
+    await page.goto("/#/overview");
+    await expect(page.getByText("Demo data", { exact: true })).toBeVisible();
+    await page.getByRole("button", { name: /of 3 sources/ }).click();
+    const sheet = page.getByRole("dialog", { name: "Data sources" });
+    await expect(sheet).toContainText("Ramp transactions");
+    await expect(sheet).toContainText("Gmail vendor email");
+    await expect(sheet).toContainText("No credentials needed");
+    await expect(sheet.getByRole("button", { name: "Sync now" })).toBeEnabled();
+    await page.keyboard.press("Escape");
+    await expect(sheet).toHaveCount(0);
+  });
+
   expect(errors, "console errors").toEqual([]);
 });
