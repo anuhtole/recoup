@@ -16,18 +16,6 @@ interface Props {
   onAdvance: () => void;
 }
 
-// The mark: a coin with an arrow coming back to it.
-function Mark() {
-  return (
-    <span aria-hidden className="grid size-9 flex-none place-items-center rounded-row bg-tint">
-      <svg viewBox="0 0 24 24" className="size-5 text-ink" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M20 12a8 8 0 1 1-2.34-5.66" />
-        <path d="M20 4v4h-4" />
-        <path d="M12 8.5v7M10 10.25c0-.97.9-1.75 2-1.75s2 .78 2 1.75-.9 1.5-2 1.75-2 .78-2 1.75.9 1.75 2 1.75 2-.78 2-1.75" strokeWidth="1.4" />
-      </svg>
-    </span>
-  );
-}
 
 /** On phones the two demo controls fold into one quiet "More" menu. */
 function MoreMenu({ actions }: { actions: { label: string; onSelect: () => void; isBusy: boolean }[] }) {
@@ -126,9 +114,8 @@ export function TopBar({ page, summary, isRunning, isAdvancing, onRun, onAdvance
   return (
     <header className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex min-w-0 items-center gap-3 sm:flex-1">
-        <Mark />
-        <div className="min-w-0">
-          <h1 className="text-20 font-semibold tracking-[-0.02em]">Recoup</h1>
+        <div className="flex min-w-0 flex-col gap-1">
+          <img src="/brand/recoup-wordmark.png" alt="Recoup" width={994} height={265} className="h-7 w-auto self-start" />
           {summary && (
             <p className="truncate text-12 text-dim sm:text-14">
               <span className="hidden sm:inline">Money vendors owe you · </span>As of <span className="figure">{formatDate(summary.as_of)}</span>
