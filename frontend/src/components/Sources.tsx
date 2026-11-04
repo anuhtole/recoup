@@ -104,7 +104,7 @@ function Copyable({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   return (
     <span className="inline-flex flex-wrap items-center gap-2">
-      <code className="rounded-row bg-tint px-2 py-1 text-12 text-ink">{text}</code>
+      <code className="whitespace-pre-wrap rounded-row bg-glass px-2 py-1 text-12 text-ink">{text}</code>
       <button
         type="button"
         onClick={() => {
@@ -161,7 +161,7 @@ function Row({
       {connected && (
         <p className="flex flex-wrap gap-x-2 text-14 text-dim">
           <When run={run} />
-          {run && <span>· {runResult(source, run)}</span>}
+          {run && source !== "status" && <span>· {runResult(source, run)}</span>}
         </p>
       )}
       {children}
@@ -199,7 +199,7 @@ export function SourcesSheet({ sources, isAvailable, isSyncing, onSync, onClose 
               {!sources.ramp.connected && (
                 <p className="flex flex-col gap-2 text-14 text-dim">
                   Add the app's credentials to backend/.env on the server:
-                  <Copyable text="RECOUP_RAMP_CLIENT_ID=… RECOUP_RAMP_CLIENT_SECRET=…" />
+                  <Copyable text={"RECOUP_RAMP_CLIENT_ID=\nRECOUP_RAMP_CLIENT_SECRET="} />
                 </p>
               )}
             </Row>
@@ -272,6 +272,10 @@ export function syncNotice(report: SyncReport): { title: string; body: string; o
     }
   }
   const created = report.run.created;
-  const title = created > 0 ? `Synced · ${plural(created, "new case")} found` : "Synced · nothing new";
+  const title = !ok
+    ? "Sync couldn't reach every source"
+    : created > 0
+      ? `Synced · ${plural(created, "new case")} found`
+      : "Synced · nothing new";
   return { title, body: parts.join(" ") || "No sources are connected yet.", ok };
 }

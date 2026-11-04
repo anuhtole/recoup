@@ -22,7 +22,10 @@ const ADVANCE_DAYS = 14;
 type NoticeInput = Omit<Notice, "id">;
 
 function errorText(error: unknown): string {
-  return error instanceof ApiError ? error.message : "Something went wrong. Check the API logs.";
+  if (error instanceof ApiError) return error.message;
+  // fetch rejects with a TypeError when the server can't be reached at all.
+  if (error instanceof TypeError) return "Couldn't reach the Recoup server. Check that it's running and try again.";
+  return "Something went wrong. Check the API logs.";
 }
 
 /** One card per vendor reply and per credit the ledger confirmed while the clock moved. */
