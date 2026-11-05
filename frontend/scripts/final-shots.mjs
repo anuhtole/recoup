@@ -76,7 +76,11 @@ await page.getByRole("button", { name: "Advance 2 weeks" }).click();
 await page.locator("[aria-live=polite] li").filter({ hasText: /credit posted/i }).first().waitFor();
 await page.waitForTimeout(1600);
 // Clear the notices so the screenshot shows the page, not the toasts over it.
-for (const button of await page.getByRole("button", { name: "Dismiss notification" }).all()) await button.click();
+const dismiss = page.getByRole("button", { name: "Dismiss notification" });
+while ((await dismiss.count()) > 0) {
+  await dismiss.first().click().catch(() => undefined);
+  await page.waitForTimeout(250);
+}
 await page.waitForTimeout(600);
 await shot(page, "overview-1440");
 await page.goto(`${base}/#/recovered`);
