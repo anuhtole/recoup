@@ -362,7 +362,7 @@ export default function SlideToConfirm({
           aria-label={keyArmed ? armedLabel : `${label}. Or press Enter twice.`}
           className={cn(
             "absolute flex touch-none items-center justify-center rounded-xs outline-none",
-            "bg-paper text-ink border border-paper",
+            "bg-mint text-ink border border-mint",
             "focus-visible:ring-2 focus-visible:ring-mint focus-visible:ring-offset-2 focus-visible:ring-offset-panel",
             phase === "idle" && !disabled && "cursor-grab",
             phase === "dragging" && "cursor-grabbing"
@@ -408,7 +408,7 @@ export default function SlideToConfirm({
             <Check
               aria-hidden
               className={cn(
-                "absolute inset-0 size-5 text-mint-ink transition-[opacity,scale,filter] duration-200 ease-out motion-reduce:transition-none",
+                "absolute inset-0 size-5 text-ink transition-[opacity,scale,filter] duration-200 ease-out motion-reduce:transition-none",
                 done ? "scale-100 opacity-100" : "scale-50 opacity-0 blur-[2px]"
               )}
               strokeWidth={2.5}

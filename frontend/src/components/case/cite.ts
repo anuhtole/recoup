@@ -87,6 +87,17 @@ export function citeReason(detail: FindingDetail): CitedReason {
   for (const txn of detail.transactions) {
     if (!claim(formatDate(txn.posted_at), { kind: "charge", transactions: [txn] })) uncited.push(txn);
   }
+  // Some charges are dated in the sentence and some aren't ("3 charges since Jul 3"): cite them as one
+  // group on the count, so every charge in the ledger carries a number, not just the first.
+  if (uncited.length > 0 && uncited.length < detail.transactions.length) {
+    const group: Source = { kind: "charge", transactions: detail.transactions };
+    const singles = spans.filter((sp) => sp.source.kind === "charge");
+    const kept = spans.filter((sp) => sp.source.kind !== "charge");
+    spans.length = 0;
+    spans.push(...kept);
+    if (claimPattern(new RegExp(`\\b${detail.transactions.length} charges\\b`, "g"), group)) uncited.length = 0;
+    else spans.push(...singles);
+  }
   if (uncited.length > 0 && uncited.length === detail.transactions.length) {
     const total = uncited.reduce((sum, t) => sum + Math.abs(t.amount_minor), 0);
     const source: Source = { kind: "charge", transactions: uncited };
@@ -99,7 +110,7 @@ export function citeReason(detail: FindingDetail): CitedReason {
   if (incidents.length > 0) claimPattern(/\d+(?:\.\d+)?% uptime/g, { kind: "incident", items: incidents });
 
   const contract = detail.evidence.find((e) => e.kind === "contract");
-  if (contract) claimPattern(/\d+(?:\.\d+)?% commitment|commitment|contract/g, { kind: "contract", evidence: contract });
+  if (contract) claimPattern(/\d+(?:\.\d+)?% commitment|commitment|contract|agreement/g, { kind: "contract", evidence: contract });
 
   spans.sort((a, b) => a.start - b.start);
   const citations = spans.map((span, i) => ({ n: i + 1, at: span.end, source: span.source }));

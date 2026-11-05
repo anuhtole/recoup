@@ -79,14 +79,14 @@ export function RespondBy({ detail }: { detail: FindingDetail }) {
 
 function Fact({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-center justify-between gap-4 border-b border-line py-2.5 last:border-b-0">
+    <div className="flex items-center justify-between gap-4 min-h-12 border-b border-line py-3 last:border-b-0">
       <dt className="label text-dim">{label}</dt>
       <dd className="m-0 min-w-0 truncate text-right text-13">{children}</dd>
     </div>
   );
 }
 
-export function Facts({ detail, reference }: { detail: FindingDetail; reference: string | null }) {
+export function Facts({ detail }: { detail: FindingDetail }) {
   const status = statusOf(detail);
   const card = detail.transactions.find((t) => t.card_last4)?.card_last4;
   // The demo clock's date it was flagged, not the wall-clock row time.
@@ -96,9 +96,6 @@ export function Facts({ detail, reference }: { detail: FindingDetail; reference:
       <dl className="m-0">
         <Fact label="Status">
           <Pill label={status.label} tone={status.tone} />
-        </Fact>
-        <Fact label="Reference">
-          <span className="ref">{reference ?? "—"}</span>
         </Fact>
         <Fact label="Vendor">{detail.merchant}</Fact>
         <Fact label="Type">{LEAK_LABEL[detail.leak_type]}</Fact>
@@ -133,6 +130,8 @@ const HINT: Record<string, string> = {
 interface NextStepProps {
   detail: FindingDetail;
   openDraft: Draft | undefined;
+  /** The approval sheet is open over the page: its slider is the only send control showing. */
+  isReviewing?: boolean;
   isBusy: boolean;
   onDraft: () => void;
   onReview: () => void;
@@ -140,7 +139,7 @@ interface NextStepProps {
 }
 
 /** The ink next-step panel: what to do, the one mint action, and the way out. */
-export function NextStep({ detail, openDraft, isBusy, onDraft, onReview, onDismiss }: NextStepProps) {
+export function NextStep({ detail, openDraft, isReviewing = false, isBusy, onDraft, onReview, onDismiss }: NextStepProps) {
   const [isDismissing, setIsDismissing] = useState(false);
   const [reason, setReason] = useState("");
   const { kind } = detail.next_action;
@@ -168,13 +167,22 @@ export function NextStep({ detail, openDraft, isBusy, onDraft, onReview, onDismi
       {(openDraft || canDraft || canDismiss) && !isDismissing && (
         <div className="flex flex-col gap-2">
           {openDraft && (
-            <Button variant="primary" size="lg" onClick={onReview} className="w-full" aria-label={`Send to ${openDraft.to_addr} · ${formatMoney(detail.amount_minor, detail.currency)}`}>
-              <span className="min-w-0 truncate">
+            // Hidden (not removed, so nothing jumps) while the approval sheet's slider is the send control.
+            <div className={cn(isReviewing && "invisible")}>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={onReview}
+              className="h-auto min-h-12 w-full flex-wrap gap-x-2 gap-y-0 whitespace-normal py-2 text-center"
+              aria-label={`Send to ${openDraft.to_addr} · ${formatMoney(detail.amount_minor, detail.currency)}`}
+            >
+              <span className="min-w-0 [overflow-wrap:anywhere]">
                 Send to <span className="ref text-14">{openDraft.to_addr}</span>
               </span>
-              <span aria-hidden className="text-ink/40">·</span>
+              <span aria-hidden className="hidden text-ink/40 sm:inline">·</span>
               <span className="figure flex-none">{formatMoney(detail.amount_minor, detail.currency)}</span>
             </Button>
+            </div>
           )}
           {canDraft && (
             <Button variant="primary" size="lg" onClick={onDraft} isBusy={isBusy} busyLabel="Drafting…" className="w-full">

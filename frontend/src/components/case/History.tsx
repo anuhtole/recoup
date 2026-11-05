@@ -63,13 +63,14 @@ export function History({ events, trace }: { events: TimelineEvent[]; trace: Aud
                   {event.title}
                   {event.is_future && <span className="label ml-2 text-dim">Upcoming</span>}
                 </p>
-                {event.detail && event.kind !== "detected" && <p className="ref m-0 truncate text-11 text-dim">{event.detail}</p>}
+                {event.detail && event.kind !== "detected" && <p className="ref m-0 text-11 text-dim [overflow-wrap:anywhere]">{event.detail}</p>}
               </div>
             </li>
           ))}
         </ol>
         <div className="field-box bg-wash px-4 py-3">
-          <p className="label m-0 text-dim">Recorded events · append-only</p>
+          {/* These are the server's wall-clock times, not the demo date the story above runs on. */}
+          <p className="label m-0 text-dim">Recorded events · append-only · server clock</p>
           <ul className="m-0 mt-2 flex flex-col gap-1 p-0">
             {trace.map((event) => (
               <li key={event.id} className="list-none text-13">

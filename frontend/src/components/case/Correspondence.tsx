@@ -33,8 +33,8 @@ export function Correspondence({ emails, drafts }: { emails: Email[]; drafts: Dr
               <summary className="flex cursor-pointer select-none items-start gap-3 px-5 py-3 transition-colors hover:bg-wash">
                 <span aria-hidden className={`mt-2 size-1.5 flex-none rounded-full ${message.isOurs ? "bg-ink" : "bg-line-strong"}`} />
                 <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-14 font-medium">{message.subject}</span>
-                  <span className="truncate text-13 text-dim">
+                  <span className="text-14 font-medium [overflow-wrap:anywhere]">{message.subject}</span>
+                  <span className="text-13 text-dim [overflow-wrap:anywhere]">
                     {message.from} · <span className="ref text-11 uppercase">{formatDateTime(message.at)}</span>
                   </span>
                 </span>

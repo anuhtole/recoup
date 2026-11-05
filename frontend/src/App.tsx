@@ -88,12 +88,14 @@ export function App() {
     else window.scrollTo({ top: 0 });
   }, [scrollKey]);
 
-  const navIds = useMemo(() => {
-    if (caseId === null) return [];
+  // Prev/next walk the list you came from. A case that just left it (sent, dismissed) walks its new
+  // stage instead, without a "1 of 1" count that would read as the list having emptied.
+  const { navIds, inList } = useMemo(() => {
+    if (caseId === null) return { navIds: [] as number[], inList: false };
     const fromList = visibleIds(findings, listParams.current);
-    if (fromList.includes(caseId)) return fromList;
+    if (fromList.includes(caseId)) return { navIds: fromList, inList: true };
     const finding = findings.find((f) => f.id === caseId);
-    return finding ? visibleIds(findings, { tab: tabOf(finding), q: "", type: null }) : [];
+    return { navIds: finding ? visibleIds(findings, { tab: tabOf(finding), q: "", type: null }) : [], inList: false };
   }, [findings, caseId]);
   const navIndex = caseId === null ? -1 : navIds.indexOf(caseId);
 
@@ -187,7 +189,7 @@ export function App() {
         listHref={hrefFor({ page: "claims", params: writeParams(listParams.current) })}
         prevId={navIndex > 0 ? navIds[navIndex - 1] : null}
         nextId={navIndex >= 0 && navIndex < navIds.length - 1 ? navIds[navIndex + 1] : null}
-        position={navIndex >= 0 ? { index: navIndex, total: navIds.length } : null}
+        position={navIndex >= 0 && inList ? { index: navIndex, total: navIds.length } : null}
         onNavigate={navigateCase}
         onBack={backToList}
         onDraft={() =>

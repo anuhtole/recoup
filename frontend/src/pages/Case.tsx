@@ -16,7 +16,7 @@ import { Label, Pill } from "../components/ui";
 import { formatMoney } from "../format";
 import { useMediaQuery } from "../hooks/useIsNarrow";
 import { displayReason, referenceOf } from "../queue";
-import { LEAK_LABEL, statusOf } from "../theme";
+import { LEAK_LABEL } from "../theme";
 
 export interface CaseActions {
   onDraft: () => void;
@@ -64,7 +64,6 @@ export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, o
   const [edits, setEdits] = useState({ subject: openDraft?.subject ?? "", body: openDraft?.body ?? "" });
   const references = [...new Set(detail.transactions.map((t) => t.reference).filter((r): r is string => Boolean(r)))];
   const reference = referenceOf(detail.reason) ?? references[0] ?? null;
-  const status = statusOf(detail);
   const isRecovered = detail.status === "recovered";
   // Two columns from 1280px; below that the action panel follows the header and the facts go last.
   const isWide = useMediaQuery("(min-width: 1280px)");
@@ -91,7 +90,7 @@ export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, o
 
   const review = () => openDraft && setApproving({ draft: openDraft, subject: edits.subject, body: edits.body });
   const nextStep = (
-    <NextStep detail={detail} openDraft={openDraft} isBusy={isBusy} onDraft={onDraft} onReview={review} onDismiss={onDismiss} />
+    <NextStep detail={detail} openDraft={openDraft} isReviewing={approving !== null} isBusy={isBusy} onDraft={onDraft} onReview={review} onDismiss={onDismiss} />
   );
 
   return (
@@ -134,10 +133,8 @@ export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, o
           <header className="card flex flex-col gap-5 p-5 md:p-6">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <Label>{LEAK_LABEL[detail.leak_type]}</Label>
-              <div className="flex flex-wrap gap-2">
-                {publicStatus && <Pill label="Public status page" tone="neutral" />}
-                <Pill label={status.label} tone={status.tone} />
-              </div>
+              {/* Status lives once, in the facts; the header only flags what changes how to read the case. */}
+              {publicStatus && <Pill label="Public status page" tone="neutral" />}
             </div>
             <div className="flex flex-col gap-1">
               <h1 className="m-0 text-28 font-semibold tracking-[-0.03em]">{detail.merchant}</h1>
@@ -145,7 +142,7 @@ export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, o
                 {formatMoney(isRecovered ? (detail.recovered_minor ?? detail.amount_minor) : detail.amount_minor, detail.currency)}
               </p>
               {reference && (
-                <p className="ref m-0 text-13 text-dim">
+                <p data-reference className="ref m-0 text-13 text-dim">
                   {references.length > 1 ? references.slice(0, 3).join(" · ") : reference}
                 </p>
               )}
@@ -190,13 +187,13 @@ export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, o
 
           <Correspondence emails={detail.emails} drafts={detail.drafts} />
           <History events={detail.timeline} trace={detail.trace} />
-          {!isWide && <Facts detail={detail} reference={reference} />}
+          {!isWide && <Facts detail={detail} />}
         </div>
 
         {isWide && (
           <aside aria-label="Case sidebar" className="sticky top-8 flex min-w-0 flex-col gap-4">
             <RespondBy detail={detail} />
-            <Facts detail={detail} reference={reference} />
+            <Facts detail={detail} />
             {nextStep}
           </aside>
         )}

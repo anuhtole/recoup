@@ -1,5 +1,5 @@
 import { Lock } from "lucide-react";
-import { useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Draft } from "../../api";
 import { formatMoney } from "../../format";
 import SlideToConfirm from "../kokonutui/slide-to-confirm";
@@ -19,6 +19,42 @@ interface Props {
   /** Saves pending edits, then sends with confirm=true. Rejects if either fails. */
   onConfirm: () => Promise<void>;
   onClose: () => void;
+}
+
+/** The letter, whole: it scrolls when it is longer than the box, with a fade and a hint so nothing reads as cut off. */
+function Letter({ subject, body }: { subject: string; body: string }) {
+  const box = useRef<HTMLDivElement>(null);
+  const [more, setMore] = useState(false);
+  const measure = useCallback(() => {
+    const el = box.current;
+    if (el) setMore(el.scrollHeight - el.scrollTop - el.clientHeight > 4);
+  }, []);
+  useEffect(() => {
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [measure, body]);
+  return (
+    <div className="flex min-h-0 flex-col gap-2">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="label m-0 text-dim">Letter</p>
+        {more && <p className="label m-0 text-dim">Scroll to read it all</p>}
+      </div>
+      <div className="relative">
+        <div
+          ref={box}
+          onScroll={measure}
+          tabIndex={0}
+          aria-label="Letter preview"
+          className="field-box max-h-[min(20rem,32dvh)] overflow-y-auto bg-wash px-4 py-3"
+        >
+          <p className="m-0 text-14 font-medium">{subject}</p>
+          <p className="m-0 mt-2 whitespace-pre-wrap text-13 leading-6 text-ink">{body}</p>
+        </div>
+        {more && <div aria-hidden className="pointer-events-none absolute inset-x-px bottom-px h-12 rounded-b-xs bg-gradient-to-t from-wash to-transparent" />}
+      </div>
+    </div>
+  );
 }
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
@@ -60,19 +96,17 @@ export function ApprovalSheet({ draft, subject, body, amountMinor, currency, ref
           </Row>
           <Row label="Channel">{isDispute ? "Card dispute" : "Email"}</Row>
         </dl>
-        <div className="flex min-h-0 flex-col gap-2">
-          <p className="label m-0 text-dim">Letter</p>
-          <div className="field-box max-h-56 overflow-y-auto bg-wash px-4 py-3">
-            <p className="m-0 text-14 font-medium">{subject}</p>
-            <p className="m-0 mt-2 whitespace-pre-wrap text-13 leading-6 text-ink">{body}</p>
-          </div>
-        </div>
-        <p className="m-0 flex items-start gap-2 text-13 text-dim">
-          <Lock aria-hidden className="mt-0.5 size-3.5 flex-none" strokeWidth={2} />
-          Can't be edited after sending. Recoup never contacts anyone without this approval, and records it in the history.
-        </p>
+        <Letter subject={subject} body={body} />
       </div>
-      <div className="on-ink flex flex-col gap-2 bg-panel px-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
+      <div className="on-ink flex flex-col gap-3 bg-panel px-6 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4">
+        {/* In the footer, next to the slider, so the irreversibility is never scrolled out of view. */}
+        <p className="m-0 flex items-start gap-2 text-13 text-sub">
+          <Lock aria-hidden className="mt-0.5 size-3.5 flex-none text-mint" strokeWidth={2} />
+          <span>
+            <span className="font-medium text-white">Can't be edited after sending.</span> Recoup never contacts anyone without this approval, and
+            records it in the history.
+          </span>
+        </p>
         <SlideToConfirm
           thumbRef={thumb}
           label="Slide to send"
@@ -85,7 +119,7 @@ export function ApprovalSheet({ draft, subject, body, amountMinor, currency, ref
             window.setTimeout(onClose, CLOSE_AFTER_DONE_MS);
           }}
         />
-        <p className="label m-0 text-center text-sub">Or press Enter twice</p>
+        <p className="m-0 text-center text-13 text-sub">Drag the arrow to the end, or press Enter, then Enter again.</p>
       </div>
     </Sheet>
   );

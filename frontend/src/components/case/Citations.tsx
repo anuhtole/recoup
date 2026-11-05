@@ -136,10 +136,11 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
             setIsOpen((open) => !open);
           }
         }}
-        // A 24px target around an 18px chip, so the citation is easy to hit without looking bigger.
-        className="group/fn -my-1 inline-grid size-6 -translate-y-[0.4em] place-items-center align-baseline transition-transform duration-150 active:scale-90"
+        // An unboxed mono superscript at line-height 0, so the sentence keeps its rhythm; the padding and
+        // negative margins give a 24px target without pushing the line apart.
+        className="group/fn relative -mx-1 -my-3 inline-block px-1 py-3 align-super leading-[0] text-dim transition-colors duration-150 hover:text-ink"
       >
-        <span className="ref inline-grid h-[18px] min-w-[18px] place-items-center rounded-xs border border-line bg-ground px-1 text-11 font-medium text-ink transition-colors duration-150 group-hover/fn:border-ink group-hover/fn:bg-ink group-hover/fn:text-white">
+        <span className="ref text-11 font-semibold leading-[0] underline decoration-transparent underline-offset-2 transition-colors group-hover/fn:decoration-current">
           {citation.n}
         </span>
       </button>
