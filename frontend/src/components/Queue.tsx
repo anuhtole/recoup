@@ -83,7 +83,12 @@ function Row({ finding, isSelected, isNarrow, onSelect }: RowProps) {
         <span className="relative flex min-w-0 flex-wrap items-center gap-x-2 text-16 font-medium">
           {finding.merchant}
           {needsReview && (
-            <span className="inline-flex h-5 items-center rounded-full bg-amber/12 px-2 text-12 font-medium text-amber">Needs review</span>
+            <span
+              title="Recoup isn't sure this is owed. Check the evidence before you send anything."
+              className="inline-flex h-5 items-center rounded-full bg-amber/12 px-2 text-12 font-medium text-amber"
+            >
+              Needs review
+            </span>
           )}
         </span>
         <span className={cn("figure relative text-right text-16 font-medium", isRecovered && "text-money-ink")}>

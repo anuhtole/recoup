@@ -16,6 +16,7 @@ import { SourcesSheet, syncNotice } from "./components/Sources";
 import { useKeyboardNav } from "./hooks/useKeyboardNav";
 import { SPRING } from "./motion";
 import { orderStage } from "./queue";
+import { LEAK_LABEL } from "./theme";
 
 const ADVANCE_DAYS = 14;
 
@@ -29,14 +30,19 @@ function errorText(error: unknown): string {
 }
 
 /** One card per vendor reply and per credit the ledger confirmed while the clock moved. */
-function advanceNotices(before: Finding[], after: Finding[], asOf: string): NoticeInput[] {
+function advanceNotices(
+  before: Finding[],
+  after: Finding[],
+  asOf: string,
+  openCase: (id: number) => void,
+): NoticeInput[] {
   const previous = new Map(before.map((f) => [f.id, f]));
   const notices: NoticeInput[] = [];
-  let created = 0;
+  const created: Finding[] = [];
   for (const f of after) {
     const was = previous.get(f.id);
     if (!was) {
-      created += 1;
+      created.push(f);
       continue;
     }
     if (was.status === f.status) continue;
@@ -54,8 +60,21 @@ function advanceNotices(before: Finding[], after: Finding[], asOf: string): Noti
       notices.push({ tone: "info", title: `${f.merchant}: the claim window closed`, body: `${amount} moved to Missed.` });
     }
   }
-  if (created > 0) {
-    notices.push({ tone: "info", title: created === 1 ? "1 new case found" : `${created} new cases found` });
+  if (created.length === 1) {
+    const [f] = created;
+    notices.push({
+      tone: "info",
+      title: "New case found",
+      body: `${f.merchant}, ${formatMoney(f.amount_minor, f.currency)}: ${LEAK_LABEL[f.leak_type].toLowerCase()}.`,
+      action: { label: "Open case", onClick: () => openCase(f.id) },
+    });
+  } else if (created.length > 1) {
+    notices.push({
+      tone: "info",
+      title: `${created.length} new cases found`,
+      body: "They are under To do.",
+      action: { label: "Review claims", onClick: () => openCase(created[0].id) },
+    });
   }
   if (notices.length === 0) {
     notices.push({ tone: "info", title: `Now ${formatDate(asOf)}`, body: "No vendor replies or credits in these two weeks." });
@@ -188,6 +207,7 @@ export function App() {
     <CaseView
       detail={detail}
       isBusy={busy === "case"}
+      isDemo={summary?.data_mode === "demo"}
       onBack={isNarrow ? closeCase : undefined}
       onDraft={() =>
         void act("case", async () => {
@@ -215,14 +235,17 @@ export function App() {
               tone: "info",
               isResult: true,
               title: `${sent.channel === "card_dispute" ? "Dispute" : "Request"} sent to ${sent.to_addr}`,
-              body: "The case is now under Waiting until the vendor replies.",
+              body:
+                summary?.data_mode === "demo"
+                  ? "Demo: kept in Recoup's outbox, no email went out. The case is under Waiting until the vendor replies."
+                  : "The case is now under Waiting until the vendor replies.",
             },
           ];
         });
         if (!ok) throw new Error("Could not send.");
-        // Show the case where it now lives: the Waiting tab, still selected.
-        setStage("waiting");
       }}
+      // Once the sheet is gone, show the case where it now lives: the Waiting tab, still selected.
+      onSent={() => setStage("waiting")}
     />
   );
 
@@ -260,7 +283,8 @@ export function App() {
                 const before = findings;
                 const result = await api.advance(ADVANCE_DAYS);
                 const after = await api.findings();
-                return advanceNotices(before, after, result.as_of).map((notice) => ({ ...notice, isResult: true }));
+                const openCase = (id: number) => go({ page: "claims", caseId: id });
+                return advanceNotices(before, after, result.as_of, openCase).map((notice) => ({ ...notice, isResult: true }));
               })
             }
           />

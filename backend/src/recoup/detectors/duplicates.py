@@ -86,6 +86,7 @@ def _evidence(
         return f"{txn.posted_at.date()} {txn.merchant} {txn.money.format()} ({reference})"
 
     gap_days = (duplicate.posted_at - original.posted_at).days
+    gap = "the same day" if gap_days == 0 else f"{gap_days} day{'' if gap_days == 1 else 's'} apart"
     return (
         Evidence(kind="transaction", ref=original.id, detail=describe(original)),
         Evidence(kind="transaction", ref=duplicate.id, detail=describe(duplicate)),
@@ -93,7 +94,7 @@ def _evidence(
             kind="rule",
             ref=DETECTOR_VERSION,
             detail=(
-                f"Same merchant and exact amount {gap_days} day(s) apart "
+                f"Same merchant and exact amount {gap} "
                 f"(window: {config.window_days} days); no matching refund has posted."
             ),
         ),

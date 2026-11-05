@@ -11,6 +11,8 @@ export interface Notice {
   tone: "info" | "money" | "error";
   /** Advance results (replies, credits, new cases) stack; everything else is a routine notice, one at a time. */
   isResult?: boolean;
+  /** One follow-up, such as opening the case the notice is about. */
+  action?: { label: string; onClick: () => void };
 }
 
 const RESULT_MS = 6_000;
@@ -41,6 +43,18 @@ function Card({ notice, onDismiss }: { notice: Notice; onDismiss: () => void }) 
       <div className="min-w-0 flex-1">
         <p className={cn("text-14 font-medium", notice.tone === "money" && "text-money-ink")}>{notice.title}</p>
         {notice.body && <p className="mt-1 text-14 text-dim">{notice.body}</p>}
+        {notice.action && (
+          <button
+            type="button"
+            onClick={() => {
+              notice.action?.onClick();
+              onDismiss();
+            }}
+            className="mt-2 text-14 font-medium text-primary transition-colors duration-150 hover:underline"
+          >
+            {notice.action.label}
+          </button>
+        )}
       </div>
       <button
         type="button"

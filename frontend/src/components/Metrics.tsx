@@ -38,10 +38,10 @@ const SHADES = [
   "color-mix(in srgb, var(--primary) 18%, var(--base))",
 ];
 
-/** Ready to claim, split by the kind of leak: one stacked bar and the same numbers as a list. */
-export function ByType({ findings, total, currency }: { findings: Finding[]; total: number; currency: string }) {
+/** Ready to claim (window still open), split by the kind of leak: one stacked bar and the same numbers as a list. */
+export function ByType({ live, total, currency }: { live: Finding[]; total: number; currency: string }) {
   const sums = new Map<LeakType, { amount: number; count: number }>();
-  for (const f of findings.filter((f) => f.stage === "todo")) {
+  for (const f of live) {
     const entry = sums.get(f.leak_type) ?? { amount: 0, count: 0 };
     sums.set(f.leak_type, { amount: entry.amount + f.amount_minor, count: entry.count + 1 });
   }
@@ -120,8 +120,8 @@ export function HeadlineHero({ summary, live, action }: { summary: Summary; live
             <RollingMoney minor={recovered} currency={currency} className={cn("figure font-medium", recovered > 0 ? "text-money-ink" : "text-ink")} />{" "}
             recovered · <RollingMoney minor={inFlight} currency={currency} className="figure font-medium text-ink" /> in flight
           </span>
-          <span>
-            <RollingMoney minor={missed} currency={currency} className="figure" /> missed
+          <span title="Claims whose window closed before a request went out">
+            <RollingMoney minor={missed} currency={currency} className="figure" /> missed, window closed
           </span>
         </div>
       </div>

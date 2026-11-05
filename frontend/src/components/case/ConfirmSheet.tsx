@@ -4,21 +4,25 @@ import SlideToConfirm from "../kokonutui/slide-to-confirm";
 import { Sheet } from "../Sheet";
 
 // Long enough to read "Sent" on the slider (it holds the spinner for at least 800ms).
-const CLOSE_AFTER_DONE_MS = 1400;
+const CLOSE_AFTER_DONE_MS = 900;
 
 interface Props {
   draft: Draft;
   subject: string;
   /** Saves pending edits, then sends with confirm=true. Rejects if either fails. */
   onConfirm: () => Promise<void>;
+  /** Called once the sheet has shown "Sent" and closed. */
+  onSent: () => void;
   onClose: () => void;
+  /** Sample data: the address is fictional and the message stays in Recoup's local outbox. */
+  isDemo: boolean;
 }
 
 /**
  * The human approval. Sliding to the end (or Enter, then Enter again) is the explicit confirm step;
  * nothing is sent without it.
  */
-export function ConfirmSheet({ draft, subject, onConfirm, onClose }: Props) {
+export function ConfirmSheet({ draft, subject, onConfirm, onSent, onClose, isDemo }: Props) {
   const thumb = useRef<HTMLButtonElement>(null);
   const isDispute = draft.channel === "card_dispute";
   return (
@@ -33,6 +37,12 @@ export function ConfirmSheet({ draft, subject, onConfirm, onClose }: Props) {
           It goes exactly as written. Recoup never contacts anyone without this approval, and it is recorded in the
           history.
         </p>
+        {isDemo && (
+          <p className="rounded-card bg-tint px-4 py-3 text-14 text-dim">
+            <span className="font-medium text-ink">Demo.</span> This is sample data, so the message is recorded in
+            Recoup&rsquo;s outbox and no email leaves this machine.
+          </p>
+        )}
         <SlideToConfirm
           thumbRef={thumb}
           label="Slide to send"
@@ -42,7 +52,7 @@ export function ConfirmSheet({ draft, subject, onConfirm, onClose }: Props) {
           resetAfter={null}
           onConfirm={async () => {
             await onConfirm();
-            window.setTimeout(onClose, CLOSE_AFTER_DONE_MS);
+            window.setTimeout(onSent, CLOSE_AFTER_DONE_MS);
           }}
         />
       </div>

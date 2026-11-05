@@ -44,6 +44,7 @@ def _get(session: SessionDep, finding_id: int) -> FindingRow:
 @router.get("/summary", response_model=SummaryOut)
 def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
     rows = session.scalars(select(FindingRow)).all()
+    as_of = get_as_of(session, context.settings)
     claimable = in_flight = recovered = expired = 0
     stage_counts = dict.fromkeys(Stage, 0)
     for row in rows:
@@ -57,6 +58,9 @@ def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
             expired += row.amount_minor
         elif STAGE_OF[status] is Stage.WAITING:
             in_flight += row.amount_minor
+        elif row.recover_by is not None and row.recover_by < as_of:
+            # Never sent and the window has closed: it is missed money, not money still owed.
+            expired += row.amount_minor
         else:
             claimable += row.amount_minor
 
@@ -68,7 +72,7 @@ def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
     by_outcome = {outcome: (count, total or 0) for outcome, count, total in totals_rows}
     return SummaryOut(
         currency="USD",
-        as_of=get_as_of(session, context.settings),
+        as_of=as_of,
         mode=context.services.mode,
         demo_mode=context.settings.demo_mode,
         data_mode=context.settings.data_mode,

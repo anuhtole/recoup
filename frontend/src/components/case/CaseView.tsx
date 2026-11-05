@@ -21,11 +21,14 @@ export interface CaseActions {
   onDismiss: (reason: string) => void;
   onSave: (draftId: number, subject: string, body: string) => Promise<void>;
   onSend: (draftId: number) => Promise<void>;
+  /** After the confirm sheet has closed on a successful send. */
+  onSent: () => void;
 }
 
 interface Props extends CaseActions {
   detail: FindingDetail;
   isBusy: boolean;
+  isDemo: boolean;
   onBack?: () => void;
 }
 
@@ -84,7 +87,7 @@ function Header({ detail }: { detail: FindingDetail }) {
   );
 }
 
-export function CaseView({ detail, isBusy, onBack, onDraft, onDismiss, onSave, onSend }: Props) {
+export function CaseView({ detail, isBusy, isDemo, onBack, onDraft, onDismiss, onSave, onSend, onSent }: Props) {
   const [openEmail, setOpenEmail] = useState<{ email: Email; quote: VendorQuote } | null>(null);
   // Held here, not in the editor, so the sheet can show "Sent" after the draft leaves the case.
   const [confirming, setConfirming] = useState<{ draft: Draft; subject: string; body: string } | null>(null);
@@ -155,7 +158,12 @@ export function CaseView({ detail, isBusy, onBack, onDraft, onDismiss, onSave, o
             key="confirm"
             draft={confirming.draft}
             subject={confirming.subject}
+            isDemo={isDemo}
             onClose={() => setConfirming(null)}
+            onSent={() => {
+              setConfirming(null);
+              onSent();
+            }}
             onConfirm={async () => {
               const { draft, subject, body } = confirming;
               if (subject !== draft.subject || body !== draft.body) await onSave(draft.id, subject, body);

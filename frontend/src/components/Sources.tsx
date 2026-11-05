@@ -35,7 +35,9 @@ export function sourcesHealth(sources: Sources | null): SourcesHealth {
   return runs.every((r) => r !== null && r.ok && fresh(r)) ? "ok" : "attention";
 }
 
-export function sourcesLabel(sources: Sources | null): string {
+/** Demo data comes bundled, so there is nothing to connect or sync: say so instead of "not synced". */
+export function sourcesLabel(sources: Sources | null, isDemo = false): string {
+  if (isDemo) return "Sample ledger and inbox";
   if (!sources) return "Sources";
   const total = sources.connectors.length;
   const on = configured(sources).length;
@@ -58,8 +60,8 @@ export function StatusDot({ health }: { health: SourcesHealth }) {
 }
 
 /** The quiet top-bar button: how many sources are on and when they last synced. */
-export function SourcesButton({ sources, onOpen }: { sources: Sources | null; onOpen: () => void }) {
-  const health = sourcesHealth(sources);
+export function SourcesButton({ sources, isDemo, onOpen }: { sources: Sources | null; isDemo: boolean; onOpen: () => void }) {
+  const health = isDemo ? "ok" : sourcesHealth(sources);
   return (
     <button
       type="button"
@@ -69,7 +71,7 @@ export function SourcesButton({ sources, onOpen }: { sources: Sources | null; on
       className="inline-flex h-9 items-center gap-2 rounded-full px-3 text-14 font-medium text-dim transition-[transform,background-color,color] duration-150 hover:bg-tint hover:text-ink active:scale-[0.97]"
     >
       <StatusDot health={health} />
-      <span className="figure whitespace-nowrap">{sourcesLabel(sources)}</span>
+      <span className="figure whitespace-nowrap">{sourcesLabel(sources, isDemo)}</span>
     </button>
   );
 }

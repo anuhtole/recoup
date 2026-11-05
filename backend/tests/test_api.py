@@ -49,8 +49,19 @@ def test_summary_splits_money_by_where_it_stands(client: TestClient) -> None:
     assert summary["mode"] == "offline"
     assert summary["data_mode"] == "demo"
     assert summary["claimable_minor"] > 0
-    assert summary["expired_minor"] == 3_748
+    assert summary["expired_minor"] >= 3_748
     assert (summary["in_flight_minor"], summary["recovered_minor"]) == (0, 0)
+
+
+def test_summary_counts_unsent_cases_past_their_deadline_as_missed(client: TestClient) -> None:
+    summary = client.get("/api/summary").json()
+    todo = client.get("/api/findings", params={"stage": "todo"}).json()
+    past = [f for f in todo if f["days_left"] is not None and f["days_left"] < 0]
+    open_window = [f for f in todo if f not in past]
+
+    assert past, "the demo world should have cases whose claim window already closed"
+    assert summary["claimable_minor"] == sum(f["amount_minor"] for f in open_window)
+    assert summary["expired_minor"] == 3_748 + sum(f["amount_minor"] for f in past)
 
 
 def test_queue_puts_the_soonest_open_deadline_first(client: TestClient) -> None:
