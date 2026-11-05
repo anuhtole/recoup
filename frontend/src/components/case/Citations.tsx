@@ -14,42 +14,42 @@ function Preview({ source }: { source: Source }) {
     case "charge":
       return (
         <>
-          <p className="text-12 font-medium text-dim">{source.transactions.length > 1 ? "Charges on your card" : "Charge on your card"}</p>
+          <p className="text-11 label text-sub">{source.transactions.length > 1 ? "Charges on your card" : "Charge on your card"}</p>
           <ul className="mt-2 flex flex-col gap-2">
             {source.transactions.map((t) => (
               <li key={t.id} className="grid grid-cols-[auto_1fr_auto] items-baseline gap-3 text-14">
-                <span className="figure text-dim">{formatDate(t.posted_at)}</span>
+                <span className="figure text-sub">{formatDate(t.posted_at)}</span>
                 <span className="truncate">{titleCase(t.merchant)}</span>
                 <span className="figure">{formatMoney(t.amount_minor, t.currency)}</span>
               </li>
             ))}
           </ul>
           {source.transactions[0]?.reference && (
-            <p className="mt-2 text-12 text-dim">Reference <span className="ref"> {source.transactions[0].reference}</span></p>
+            <p className="mt-2 text-11 text-sub">Reference <span className="ref"> {source.transactions[0].reference}</span></p>
           )}
         </>
       );
     case "email":
       return (
         <>
-          <p className="text-12 font-medium text-dim">
+          <p className="text-11 label text-sub">
             {source.quote.vendor}, <span className="figure">{formatDate(source.quote.day)}</span>
           </p>
           <p className="mt-2 text-14">“{source.quote.quote}”</p>
-          {source.email && <p className="mt-2 text-12 text-dim">Click to read the whole email.</p>}
+          {source.email && <p className="mt-2 text-11 text-sub">Click to read the whole email.</p>}
         </>
       );
     case "contract":
       return (
         <>
-          <p className="ref truncate text-12 text-dim">{source.evidence.ref}</p>
+          <p className="ref truncate text-11 text-sub">{source.evidence.ref}</p>
           <p className="mt-2 line-clamp-5 text-14">{source.evidence.detail}</p>
         </>
       );
     case "incident":
       return (
         <>
-          <p className="text-12 font-medium text-dim">Vendor status page</p>
+          <p className="text-11 label text-sub">Vendor status page</p>
           <ul className="mt-2 flex flex-col gap-2">
             {source.items.map((item) => (
               <li key={item.ref} className="text-14">
@@ -139,7 +139,7 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
         // A 24px target around an 18px chip, so the citation is easy to hit without looking bigger.
         className="group/fn -my-1 inline-grid size-6 -translate-y-[0.4em] place-items-center align-baseline transition-transform duration-150 active:scale-90"
       >
-        <span className="figure inline-grid h-[18px] min-w-[18px] place-items-center rounded-full bg-selected px-1 text-12 font-medium text-dim transition-colors duration-150 group-hover/fn:bg-tint-hover group-hover/fn:text-ink">
+        <span className="ref inline-grid h-[18px] min-w-[18px] place-items-center rounded-xs border border-line bg-ground px-1 text-11 font-medium text-ink transition-colors duration-150 group-hover/fn:border-ink group-hover/fn:bg-ink group-hover/fn:text-white">
           {citation.n}
         </span>
       </button>
@@ -149,7 +149,7 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
             <motion.div
               id={id}
               role="tooltip"
-              className="glass-float pointer-events-none fixed z-50 rounded-card px-4 py-3 text-ink"
+              className="on-ink float pointer-events-none fixed z-50 rounded-md border border-rule bg-panel px-4 py-3 text-white"
               style={{
                 left: place.left,
                 top: place.top,
@@ -175,7 +175,7 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
 /** The one-sentence reason, with a numbered footnote on every claim we hold a source for. */
 export function Reason({ cited, onOpenEmail }: { cited: CitedReason; onOpenEmail: (source: Extract<Source, { kind: "email" }>) => void }) {
   return (
-    <p className="max-w-[62ch] text-16 text-ink text-pretty">
+    <p className="m-0 max-w-[64ch] text-16 text-ink text-pretty">
       {cited.parts.map((part, i) =>
         typeof part === "string" ? <span key={i}>{part}</span> : <Footnote key={`fn-${part.n}`} citation={part} onOpenEmail={onOpenEmail} />,
       )}

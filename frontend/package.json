@@ -10,17 +10,8 @@
     "e2e": "playwright test"
   },
   "dependencies": {
-    "@number-flow/react": "^0.6.2",
     "@tailwindcss/vite": "^4.3.3",
-    "@visx/event": "^4.0.0",
-    "@visx/gradient": "^4.0.0",
-    "@visx/responsive": "^4.0.0",
-    "@visx/sankey": "^4.0.0",
-    "@visx/scale": "^4.0.0",
     "clsx": "^2.1.1",
-    "d3-array": "^3.2.4",
-    "d3-sankey": "^0.12.3",
-    "d3-shape": "^3.2.0",
     "lucide-react": "^1.64.0",
     "motion": "^14.8.0",
     "react": "^18.3.1",

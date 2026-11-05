@@ -1,29 +1,58 @@
-import type { Finding, Stage } from "./api";
+import type { Finding, LeakType } from "./api";
 
-/** A case whose claim window has passed: kept, but out of the live To do list. */
+/** A case whose claim window has passed: kept, but out of the live lists. */
 export function isWindowClosed(finding: Finding): boolean {
   return (
     finding.outcome === "not_recoverable" ||
     finding.status === "expired" ||
-    (finding.days_left !== null && finding.days_left < 0)
+    ((finding.status === "open" || finding.status === "drafted") && finding.days_left !== null && finding.days_left < 0)
   );
 }
 
-/**
- * The rows of one tab in display order. To do splits into live cases, most urgent first, and a
- * quiet group of closed-window cases at the bottom. The other tabs keep the API's order.
- */
-export function orderStage(findings: Finding[], stage: Stage): { live: Finding[]; closed: Finding[] } {
-  const rows = findings.filter((f) => f.stage === stage);
-  if (stage !== "todo") return { live: rows, closed: [] };
-  const daysLeft = (f: Finding) => f.days_left ?? Number.POSITIVE_INFINITY;
-  const live = rows
-    .filter((f) => !isWindowClosed(f))
-    .sort((a, b) => daysLeft(a) - daysLeft(b) || b.amount_minor - a.amount_minor);
-  return { live, closed: rows.filter(isWindowClosed) };
+export type Tab = "todo" | "waiting" | "done" | "closed";
+export const TABS: { id: Tab; label: string }[] = [
+  { id: "todo", label: "To do" },
+  { id: "waiting", label: "Waiting" },
+  { id: "done", label: "Done" },
+  { id: "closed", label: "Window closed" },
+];
+
+export function tabOf(finding: Finding): Tab {
+  if (isWindowClosed(finding)) return "closed";
+  return finding.stage;
 }
 
-/** The shared reference a duplicate charge was matched on, from the reason sentence ("under the same reference FIG-202606"). */
+const daysLeft = (f: Finding) => f.days_left ?? Number.POSITIVE_INFINITY;
+
+/** The rows of one tab in display order: To do by fewest days left (then largest), the rest newest first. */
+export function rowsFor(findings: Finding[], tab: Tab): Finding[] {
+  const rows = findings.filter((f) => tabOf(f) === tab);
+  if (tab === "todo") return rows.sort((a, b) => daysLeft(a) - daysLeft(b) || b.amount_minor - a.amount_minor);
+  if (tab === "closed") return rows.sort((a, b) => (b.days_left ?? -1e9) - (a.days_left ?? -1e9) || b.amount_minor - a.amount_minor);
+  return rows.sort((a, b) => b.created_at.localeCompare(a.created_at) || b.id - a.id);
+}
+
+export function countsFor(findings: Finding[]): Record<Tab, number> {
+  const counts: Record<Tab, number> = { todo: 0, waiting: 0, done: 0, closed: 0 };
+  for (const f of findings) counts[tabOf(f)] += 1;
+  return counts;
+}
+
+/** Search across vendor, reference and reason; type narrows to one leak type. */
+export function filterRows(rows: Finding[], query: string, type: LeakType | null): Finding[] {
+  const q = query.trim().toLowerCase();
+  return rows.filter((f) => {
+    if (type && f.leak_type !== type) return false;
+    if (!q) return true;
+    return (
+      f.merchant.toLowerCase().includes(q) ||
+      (referenceOf(f.reason) ?? "").toLowerCase().includes(q) ||
+      f.reason.toLowerCase().includes(q)
+    );
+  });
+}
+
+/** The shared reference a case was matched on, from the reason sentence ("under the same reference FIG-202606"). */
 export function referenceOf(reason: string): string | null {
   return /reference ([A-Z0-9][A-Z0-9-]{3,})/.exec(reason)?.[1] ?? null;
 }

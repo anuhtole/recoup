@@ -50,3 +50,24 @@ export function daysLeftLabel(days: number | null): string | null {
   if (days === 1) return "1 day left";
   return `${days} days left`;
 }
+
+/** "1 day", "12 days", "Today" — the countdown in the case sidebar and tags. */
+export function daysWord(days: number): string {
+  if (days === 0) return "Today";
+  return days === 1 ? "1 day" : `${days} days`;
+}
+
+/** Money without cents when it is a whole amount, for compact axis and band labels. */
+export function formatMoneyShort(amountMinor: number, currency = "USD"): string {
+  const whole = amountMinor % 100 === 0;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: whole ? 0 : 2,
+    minimumFractionDigits: whole ? 0 : 2,
+  }).format(amountMinor / 100);
+}
+
+export function plural(n: number, one: string, many = `${one}s`): string {
+  return `${n} ${n === 1 ? one : many}`;
+}
