@@ -20,20 +20,21 @@ interface Props {
 }
 
 /** The second line of the hero: the most urgent thing, in plain words. */
-function urgency(live: Finding[]): string {
+function urgency(live: Finding[]): { text: string; urgent: boolean } {
   const days = live.map((f) => f.days_left).filter((d): d is number => d !== null && d >= 0);
-  if (days.length === 0) return live.length > 0 ? "No claim has a deadline coming up." : "Nothing is waiting on you.";
+  if (days.length === 0) return { text: live.length > 0 ? "No deadline coming up" : "Nothing is waiting on you", urgent: false };
   const today = days.filter((d) => d === 0).length;
-  if (today) return today === 1 ? "One claim expires today." : `${today} claims expire today.`;
+  if (today) return { text: today === 1 ? "1 claim expires today" : `${today} claims expire today`, urgent: true };
   const tomorrow = days.filter((d) => d === 1).length;
-  if (tomorrow) return tomorrow === 1 ? "One claim expires tomorrow." : `${tomorrow} claims expire tomorrow.`;
+  if (tomorrow) return { text: tomorrow === 1 ? "1 claim expires tomorrow" : `${tomorrow} claims expire tomorrow`, urgent: true };
   const week = days.filter((d) => d <= 7).length;
-  if (week) return week === 1 ? "One claim expires this week." : `${week} claims expire this week.`;
-  return `The next deadline is in ${Math.min(...days)} days.`;
+  if (week) return { text: week === 1 ? "1 claim expires this week" : `${week} claims expire this week`, urgent: true };
+  return { text: `Next deadline in ${Math.min(...days)} days`, urgent: false };
 }
 
-function Hero({ summary, live, onReview }: { summary: Summary; live: Finding[]; onReview: () => void }) {
+function Hero({ summary, ready, live, onReview }: { summary: Summary; ready: number; live: Finding[]; onReview: () => void }) {
   const history = useSummaryHistory(summary);
+  const soon = urgency(live);
   const { currency } = summary;
   const first = history[0];
   const delta = first ? summary.recovered_minor - first.recovered : 0;
@@ -41,14 +42,14 @@ function Hero({ summary, live, onReview }: { summary: Summary; live: Finding[]; 
   return (
     <section aria-label="Ready to claim" className="card relative overflow-hidden">
       <div aria-hidden className="ticks absolute inset-y-0 left-0 w-3" />
-      <div className="flex flex-col gap-6 py-6 pl-8 pr-5 md:py-8 md:pl-12 md:pr-8">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+      <div className="flex flex-col gap-5 py-6 pl-10 pr-5 md:pl-12 md:pr-8">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div className="flex min-w-0 flex-col">
             <Label>Ready to claim</Label>
-            <p className="m-0 mt-3 text-44 font-semibold tracking-[-0.035em] md:text-64">
-              <RollingMoney minor={summary.claimable_minor} currency={currency} />
+            <p className="m-0 mt-2 text-44 font-semibold tracking-[-0.035em] md:text-64">
+              <RollingMoney minor={ready} currency={currency} />
             </p>
-            <p className="m-0 mt-4 text-14">
+            <p className="m-0 mt-3 text-14">
               {delta > 0 ? (
                 <>
                   <span className="figure font-medium text-mint-ink">+{formatMoney(delta, currency)}</span>{" "}
@@ -63,14 +64,16 @@ function Hero({ summary, live, onReview }: { summary: Summary; live: Finding[]; 
                 <span className="text-dim">Nothing back yet. Send a request and it lands here.</span>
               )}
             </p>
-            <p className="m-0 mt-1 text-14 font-medium">{urgency(live)}</p>
           </div>
-          {live.length > 0 && (
-            <Button variant="primary" size="lg" onClick={onReview} className="self-start">
-              Review {plural(live.length, "claim")}
-              <ArrowRight aria-hidden className="size-4" strokeWidth={2} />
-            </Button>
-          )}
+          <div className="flex flex-col gap-2 lg:items-end">
+            <p className={cn("label m-0", soon.urgent ? "text-amber-ink" : "text-dim")}>{soon.text}</p>
+            {live.length > 0 && (
+              <Button variant="primary" size="lg" onClick={onReview} className="w-full lg:w-auto">
+                Review {plural(live.length, "claim")}
+                <ArrowRight aria-hidden className="size-4" strokeWidth={2} />
+              </Button>
+            )}
+          </div>
         </div>
         <RecoveryChart history={history} currency={currency} />
       </div>
@@ -79,8 +82,8 @@ function Hero({ summary, live, onReview }: { summary: Summary; live: Finding[]; 
 }
 
 /** The ink data band: the four totals and how much of everything found is back or on its way. */
-function Band({ summary }: { summary: Summary }) {
-  const { claimable_minor: ready, in_flight_minor: inFlight, recovered_minor: recovered, expired_minor: missed, currency } = summary;
+function Band({ summary, ready, missed }: { summary: Summary; ready: number; missed: number }) {
+  const { in_flight_minor: inFlight, recovered_minor: recovered, currency } = summary;
   const total = ready + inFlight + recovered + missed;
   const pct = (v: number) => (total > 0 ? (v / total) * 100 : 0);
   const cells = [
@@ -144,15 +147,15 @@ function ByType({ todo, currency }: { todo: Finding[]; currency: string }) {
   const share = (amount: number) => (amount / total) * 100;
   return (
     <div className="flex flex-col gap-4">
-      <div aria-hidden className="flex h-2.5 gap-0.5 overflow-hidden rounded-xs">
+      <div aria-hidden className="flex h-2 gap-0.5 overflow-hidden rounded-xs">
         {rows.map(([type, { amount }], i) => (
           <span key={type} className="h-full" style={{ width: `max(${share(amount)}%, 6px)`, background: SHADES[i] }} />
         ))}
       </div>
       <ul className="m-0 flex flex-col p-0">
         {rows.map(([type, { amount, count }], i) => (
-          <li key={type} className="grid list-none grid-cols-[10px_minmax(0,1fr)_auto_44px] items-center gap-x-3 border-b border-line py-2.5 text-14 last:border-b-0">
-            <span aria-hidden className="size-2.5 rounded-xs" style={{ background: SHADES[i] }} />
+          <li key={type} className="grid list-none grid-cols-[8px_minmax(0,1fr)_auto_44px] items-center gap-x-3 border-b border-line py-3 text-14 last:border-b-0">
+            <span aria-hidden className="size-2 rounded-xs" style={{ background: SHADES[i] }} />
             <span className="min-w-0 truncate">
               {LEAK_GROUP[type]} <span className="ref text-13 text-dim">· {count}</span>
             </span>
@@ -179,10 +182,14 @@ function TopVendors({ todo, currency }: { todo: Finding[]; currency: string }) {
       {rows.map(([vendor, { amount, count }]) => (
         <li key={vendor} className="flex list-none items-center gap-3 border-b border-line py-3 last:border-b-0">
           <VendorTile name={vendor} />
-          <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-            <div className="flex items-baseline justify-between gap-4 text-14">
-              <span className="min-w-0 truncate font-medium">
-                {vendor} <span className="ref text-13 font-normal text-dim">· {plural(count, "case")}</span>
+          <div className="flex min-w-0 flex-1 flex-col gap-2">
+            <div className="flex items-start justify-between gap-4 text-14 sm:items-baseline">
+              <span className="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-1">
+                <span className="truncate font-medium">{vendor}</span>
+                <span className="ref flex-none text-11 font-normal text-dim sm:text-13">
+                  <span className="hidden sm:inline">· </span>
+                  {plural(count, "case")}
+                </span>
               </span>
               <span className="figure font-medium">{formatMoney(amount, currency)}</span>
             </div>
@@ -245,7 +252,7 @@ function RecentlyRecovered({ findings }: { findings: Finding[] }) {
 function SourcesModule({ sources, isSyncing, onSync }: { sources: Sources | null; isSyncing: boolean; onSync: () => void }) {
   const on = sources ? configured(sources) : [];
   return (
-    <Module title="Sources" aside={<a href="#/sources" className="font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-current">Manage</a>}>
+    <Module title="Sources" aside={<a href="#/sources" className="inline-flex min-h-6 items-center font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-current">Manage</a>}>
       <ul className="m-0 flex flex-col gap-2 p-0">
         {(sources?.connectors ?? []).map((c) => (
           <li key={c.key} className="flex list-none items-center justify-between gap-3 text-14">
@@ -253,7 +260,7 @@ function SourcesModule({ sources, isSyncing, onSync }: { sources: Sources | null
               <StatusDot health={!c.configured ? "none" : c.last_sync && !c.last_sync.ok ? "attention" : c.last_sync ? "ok" : "none"} className={c.configured && c.last_sync?.ok ? "bg-mint-ink" : undefined} />
               <span className="truncate">{c.key === "ramp" ? "Ramp" : c.key === "gmail" ? "Gmail" : "Status pages"}</span>
             </span>
-            <span className="ref text-13 text-dim">{!c.configured ? "Not connected" : c.last_sync ? relativeTime(c.last_sync.finished_at) : "Not synced"}</span>
+            <span className="ref text-13 text-dim">{!c.configured ? "Not connected" : c.last_sync ? relativeTime(c.last_sync.finished_at) : "Connected, never synced"}</span>
           </li>
         ))}
         {!sources && <li className="list-none text-14 text-dim">Loading sources…</li>}
@@ -273,21 +280,26 @@ function SourcesModule({ sources, isSyncing, onSync }: { sources: Sources | null
 
 /** The landing page: what is owed, what expires first, where it comes from, and what has come back. */
 export function Overview({ summary, findings, sources, isSyncing, onSync, onReview }: Props) {
+  // Ready means a claim you can still make: open and inside its window. Closed windows count as missed,
+  // matching the Claims list and its "Window closed" tab.
   const live = rowsFor(findings, "todo");
-  // Everything still claimable, closed card windows included (the vendor can still refund): the hero's number.
-  const todo = findings.filter((f) => f.stage === "todo");
+  const ready = live.reduce((sum, f) => sum + f.amount_minor, 0);
+  const closedOpen = rowsFor(findings, "closed")
+    .filter((f) => f.status !== "expired")
+    .reduce((sum, f) => sum + f.amount_minor, 0);
+  const missed = summary.expired_minor + closedOpen;
   return (
     <>
       <PageHeader crumbs={<span>Recoup / Overview</span>} title="Overview" />
-      <Hero summary={summary} live={live} onReview={onReview} />
-      <Band summary={summary} />
+      <Hero summary={summary} ready={ready} live={live} onReview={onReview} />
+      <Band summary={summary} ready={ready} missed={missed} />
       <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
         <div className="flex min-w-0 flex-col gap-6">
-          <Module title="Where it comes from" aside={<span className="figure">{formatMoney(summary.claimable_minor, summary.currency)}</span>}>
-            <ByType todo={todo} currency={summary.currency} />
+          <Module title="Where it comes from" aside={<span className="figure">{formatMoney(ready, summary.currency)}</span>}>
+            <ByType todo={live} currency={summary.currency} />
           </Module>
           <Module title="Top vendors" aside="Ready to claim" bodyClassName="py-1">
-            <TopVendors todo={todo} currency={summary.currency} />
+            <TopVendors todo={live} currency={summary.currency} />
           </Module>
         </div>
         <div className="flex min-w-0 flex-col gap-6">
@@ -296,7 +308,7 @@ export function Overview({ summary, findings, sources, isSyncing, onSync, onRevi
           </Module>
           <Module
             title="Recently recovered"
-            aside={<a href="#/recovered" className="font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-current">All activity</a>}
+            aside={<a href="#/recovered" className="inline-flex min-h-6 items-center font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-current">All activity</a>}
             bodyClassName={findings.some((f) => f.status === "recovered") ? "py-0" : undefined}
           >
             <RecentlyRecovered findings={findings} />

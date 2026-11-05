@@ -25,7 +25,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(nav(page, "Overview")).toHaveAttribute("aria-current", "page");
     await expect(nav(page, "Claims")).toContainText("15");
     await expect(page.getByRole("status").filter({ hasText: "Demo data" })).toContainText("As of Oct 1, 2026");
-    await expect(page.getByRole("region", { name: "Ready to claim" })).toContainText("$15,105.34");
+    await expect(page.getByRole("region", { name: "Ready to claim" })).toContainText("$13,710.09");
     await expect(page.getByRole("region", { name: "Ready to claim" })).toContainText("Chart fills in as money comes back");
     await expect(page.getByRole("region", { name: "Totals" })).toContainText("Recovered");
     const needs = page.getByRole("region", { name: "Needs action" });
@@ -100,7 +100,8 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(page.getByRole("tooltip")).toContainText("FIG-202606");
     await expect(page.getByRole("region", { name: "How Recoup found this" })).toContainText("No matching refund has posted");
     await expect(page.getByRole("region", { name: "Respond by" })).toContainText("1 day left");
-    await expect(sidebar(page).getByRole("region", { name: "Facts" })).toContainText("FIG-202606");
+    await expect(page.locator("[data-reference]")).toHaveText("FIG-202606");
+    await expect(sidebar(page).getByRole("region", { name: "Facts" })).toContainText("Duplicate charge");
   });
 
   await test.step("email footnote opens the original email; Escape closes it", async () => {

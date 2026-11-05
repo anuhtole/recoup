@@ -2,11 +2,12 @@ import { motion } from "motion/react";
 import type { Snapshot } from "../hooks/useSummaryHistory";
 import { formatMoney, formatShortDate } from "../format";
 
-const H = 88;
+const H = 64;
 const W = 1000;
 
 /**
- * Money back over time, one point per demo date: a line with a soft wash under it and no gridlines.
+ * Money back over time, one point per demo date: a stepped line (money lands on a date, it does not
+ * drift in) with a soft wash under it and no gridlines.
  * With one point, or nothing back yet, it is a flat dashed baseline that says it will fill in.
  */
 export function RecoveryChart({ history, currency }: { history: Snapshot[]; currency: string }) {
@@ -32,7 +33,9 @@ export function RecoveryChart({ history, currency }: { history: Snapshot[]; curr
 
   const x = (i: number) => (i / (points.length - 1)) * W;
   const y = (v: number) => H - 4 - (v / max) * (H - 12);
-  const line = points.map((p, i) => `${i === 0 ? "M" : "L"}${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join(" ");
+  const line = points
+    .map((p, i) => (i === 0 ? `M0,${y(p.v).toFixed(1)}` : `H${x(i).toFixed(1)} V${y(p.v).toFixed(1)}`))
+    .join(" ");
   const area = `${line} L${W},${H} L0,${H} Z`;
   return (
     <figure
@@ -40,7 +43,7 @@ export function RecoveryChart({ history, currency }: { history: Snapshot[]; curr
       aria-label={`Recovered over time: ${formatMoney(first.v, currency)} on ${formatShortDate(first.at)}, ${formatMoney(last.v, currency)} on ${formatShortDate(last.at)}`}
     >
       <div className="relative">
-        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-[88px] w-full overflow-visible" aria-hidden>
+        <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-16 w-full overflow-visible" aria-hidden>
           <motion.path
             d={area}
             fill="var(--mint-wash)"
@@ -53,7 +56,7 @@ export function RecoveryChart({ history, currency }: { history: Snapshot[]; curr
             fill="none"
             stroke="var(--mint-ink)"
             strokeWidth={2}
-            strokeLinejoin="round"
+            strokeLinejoin="miter"
             vectorEffect="non-scaling-stroke"
             // pathLength can't be used here: it miscounts with a non-scaling stroke and stops short.
             initial={{ opacity: 0 }}
