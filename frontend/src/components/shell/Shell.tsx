@@ -52,11 +52,11 @@ function latestSync(sources: Sources | null): string | null {
 
 /** The warm strip at the top of the content: which data you are looking at, and how fresh. */
 function Strip({ summary, sources }: { summary: Summary | null; sources: Sources | null }) {
-  if (!summary) return <div aria-hidden className="h-8 bg-amber" />;
+  if (!summary) return <div aria-hidden className="h-8 bg-strip" />;
   const live = summary.data_mode === "live";
   const synced = latestSync(sources);
   return (
-    <div role="status" className="label flex h-8 items-center gap-3 overflow-hidden whitespace-nowrap bg-amber px-4 text-ink md:px-8">
+    <div role="status" className="label flex h-8 items-center gap-3 overflow-hidden whitespace-nowrap border-b border-amber/60 bg-strip px-4 text-ink md:px-8">
       <span aria-hidden className="size-1.5 flex-none rounded-full bg-ink" />
       <span className="truncate">
         {live ? "Live data" : "Demo data"} ·{" "}
@@ -124,7 +124,7 @@ function Environment({ summary, sources }: { summary: Summary | null; sources: S
           <StatusDot health={sourcesHealth(sources)} />
           {sources ? `${configured(sources).length} of ${sources.connectors.length} sources` : "Sources"}
         </span>
-        <span className="ref text-11 text-sub">{synced ? relativeTime(synced) : "—"}</span>
+        <span className="ref text-11 text-sub">{synced ? relativeTime(synced) : "Not synced"}</span>
       </a>
     </div>
   );
@@ -139,7 +139,7 @@ function Sidebar(props: ShellProps) {
         <img src="/brand/recoup-wordmark-ink.png" alt="Recoup" width={994} height={265} className="h-[22px] w-auto" />
       </a>
       <nav aria-label="Pages" className="px-3">
-        <ul className="m-0 flex flex-col gap-0.5 p-0">
+        <ul className="m-0 flex flex-col gap-1 p-0">
           {NAV.map((item) => {
             const active = item.page === page;
             const Icon = item.icon;
@@ -221,7 +221,7 @@ function TabBar({ page, claimsCount }: Pick<ShellProps, "page" | "claimsCount">)
                 <span className="relative">
                   <Icon aria-hidden className="size-5" strokeWidth={1.75} />
                   {item.page === "claims" && claimsCount > 0 && (
-                    <span className="ref absolute -right-3 -top-1.5 grid h-4 min-w-4 place-items-center rounded-xs bg-mint px-1 text-11 leading-none text-ink">
+                    <span className="ref absolute -top-1 left-full ml-0.5 grid h-4 min-w-4 place-items-center rounded-xs bg-mint px-1 text-11 leading-none text-ink">
                       {claimsCount}
                     </span>
                   )}

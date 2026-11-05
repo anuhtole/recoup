@@ -140,13 +140,13 @@ export function Recovered({ summary, findings, version }: { summary: Summary; fi
                           data-activity={a.kind}
                           className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 px-5 py-3 transition-colors hover:bg-wash"
                         >
-                          <span className="relative">
-                            <VendorTile name={a.finding.merchant} />
-                            <span aria-hidden className={cn("absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full ring-2 ring-paper", DOT[a.kind])} />
-                          </span>
+                          <VendorTile name={a.finding.merchant} />
                           <span className="flex min-w-0 flex-col">
-                            <span className="truncate text-14 font-medium">{headline(a)}</span>
-                            <span className="truncate text-13 text-dim">{sub(a)}</span>
+                            <span className="flex min-w-0 items-center gap-2">
+                              <span aria-hidden className={cn("size-1.5 flex-none rounded-full", DOT[a.kind])} />
+                              <span className="truncate text-14 font-medium">{headline(a)}</span>
+                            </span>
+                            <span className="truncate pl-3.5 text-13 text-dim">{sub(a)}</span>
                           </span>
                           <span className="flex flex-col items-end">
                             <span className={cn("figure text-14 font-medium", a.kind === "recovered" ? "text-mint-ink" : "text-ink")}>

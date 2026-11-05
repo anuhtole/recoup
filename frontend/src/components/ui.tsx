@@ -13,7 +13,7 @@ const PILL: Record<Tone, string> = {
   mint: "bg-mint-wash text-mint-ink",
   amber: "bg-amber-wash text-amber-ink",
   neutral: "bg-ground text-ink",
-  muted: "bg-transparent text-dim border border-line",
+  muted: "bg-wash text-dim",
 };
 const DOT: Record<Tone, string> = {
   mint: "bg-mint-ink",
@@ -23,16 +23,24 @@ const DOT: Record<Tone, string> = {
 };
 
 /** A status pill: dot + mono label on the fixed four-tone scale. */
-export function Pill({ label, tone, className }: { label: string; tone: Tone; className?: string }) {
+// On an ink row a filled pill glares; it becomes an outline in the same hue.
+const PILL_ON_INK: Record<Tone, string> = {
+  mint: "border border-mint/60 text-mint",
+  amber: "border border-amber/70 text-amber",
+  neutral: "border border-rule text-white",
+  muted: "border border-rule text-sub",
+};
+
+export function Pill({ label, tone, className, onInk }: { label: string; tone: Tone; className?: string; onInk?: boolean }) {
   return (
     <span
       className={cn(
-        "label inline-flex h-6 flex-none items-center gap-1.5 whitespace-nowrap rounded-xs px-2",
-        PILL[tone],
+        "label inline-flex h-6 flex-none items-center gap-2 whitespace-nowrap rounded-xs px-2",
+        onInk ? PILL_ON_INK[tone] : PILL[tone],
         className,
       )}
     >
-      <span aria-hidden className={cn("size-1.5 rounded-full", DOT[tone])} />
+      <span aria-hidden className={cn("size-1.5 rounded-full", onInk && tone === "amber" ? "bg-amber" : DOT[tone])} />
       {label}
     </span>
   );
@@ -97,7 +105,7 @@ export function Empty({ children, action }: { children: ReactNode; action?: Reac
 /** Page header: mono breadcrumb, title, right-aligned page actions. */
 export function PageHeader({ crumbs, title, actions, meta }: { crumbs: ReactNode; title: ReactNode; actions?: ReactNode; meta?: ReactNode }) {
   return (
-    <header className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+    <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
       <div className="flex min-w-0 flex-col gap-2">
         <nav aria-label="Breadcrumb" className="label flex min-w-0 items-center gap-2 text-dim">
           {crumbs}
@@ -105,7 +113,8 @@ export function PageHeader({ crumbs, title, actions, meta }: { crumbs: ReactNode
         <h1 className="m-0 truncate text-28 font-semibold tracking-[-0.03em]">{title}</h1>
         {meta}
       </div>
-      {actions && <div className="flex flex-none flex-wrap items-center gap-2">{actions}</div>}
+      {/* Lined up with the title, not the bottom of the meta line under it. */}
+      {actions && <div className="flex flex-none flex-wrap items-center gap-2 md:mt-5">{actions}</div>}
     </header>
   );
 }

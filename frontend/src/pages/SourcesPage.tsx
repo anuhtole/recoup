@@ -2,7 +2,7 @@ import { ArrowUpRight, RefreshCw } from "lucide-react";
 import type { ReactNode } from "react";
 import type { Sources, SyncRun } from "../api";
 import { Button } from "../components/Button";
-import { Copyable, FEED_LABEL, num, relativeTime, runResult, StatusDot } from "../components/Sources";
+import { Copyable, FEED_LABEL, num, relativeTime, runResult } from "../components/Sources";
 import { Label, PageHeader, Pill } from "../components/ui";
 import { formatDateTime, plural } from "../format";
 import { cn } from "@/lib/utils";
@@ -42,16 +42,13 @@ function SourceRow({
     <li className="list-none border-b border-line last:border-b-0">
       <div className="grid grid-cols-1 gap-4 px-5 py-5 lg:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))] lg:items-start">
         <div className="flex min-w-0 flex-col gap-1">
-          <span className="flex items-center gap-2 text-14 font-semibold">
-            <StatusDot health={h} className={h === "ok" ? "bg-mint-ink" : undefined} />
-            {name}
-          </span>
+          <span className="text-14 font-semibold">{name}</span>
           <span className="text-13 text-dim">{kind}</span>
         </div>
         <div className="flex flex-col gap-1">
           <Label as="span">Status</Label>
           <span>
-            <Pill label={connected ? (h === "attention" ? "Needs attention" : "Connected") : "Not connected"} tone={!connected ? "muted" : h === "attention" ? "amber" : h === "ok" ? "mint" : "neutral"} />
+            <Pill label={connected ? (h === "attention" ? "Needs attention" : "Connected") : "Not connected"} tone={!connected ? "muted" : h === "attention" ? "amber" : "mint"} />
           </span>
         </div>
         <div className="flex flex-col gap-1">
@@ -61,7 +58,11 @@ function SourceRow({
         <div className="flex flex-col gap-1">
           <Label as="span">Last sync</Label>
           <span className="text-14" title={run ? formatDateTime(run.finished_at) : undefined}>
-            {run ? <span className="figure">{relativeTime(run.finished_at)}</span> : <span className="text-dim">Not synced yet</span>}
+            {run ? (
+              <span className="figure">{relativeTime(run.finished_at)}</span>
+            ) : (
+              <span className="text-dim">{connected ? "Never. Sync now reads it." : "—"}</span>
+            )}
           </span>
           {result && <span className={cn("text-13", run && !run.ok ? "text-amber-ink" : "text-dim")}>{result}</span>}
         </div>
@@ -114,7 +115,7 @@ export function SourcesPage({ sources, isAvailable, isSyncing, onSync }: Props) 
             >
               {!sources.ramp.connected && (
                 <>
-                  <p className="m-0 text-13 text-dim">Add the app's credentials to backend/.env on the server:</p>
+                  <p className="m-0 text-13 text-dim">Not connected yet. Whoever runs your Recoup server adds the Ramp app's keys to its settings file (backend/.env):</p>
                   <Copyable text={"RECOUP_RAMP_CLIENT_ID=\nRECOUP_RAMP_CLIENT_SECRET="} />
                 </>
               )}
@@ -129,7 +130,7 @@ export function SourcesPage({ sources, isAvailable, isSyncing, onSync }: Props) 
             >
               {!sources.gmail.connected && (
                 <>
-                  <p className="m-0 text-13 text-dim">With RECOUP_GMAIL_CLIENT_ID and RECOUP_GMAIL_CLIENT_SECRET in backend/.env, run this in backend/ on the server:</p>
+                  <p className="m-0 text-13 text-dim">Not connected yet. Whoever runs your Recoup server adds the Gmail app's keys (RECOUP_GMAIL_CLIENT_ID and RECOUP_GMAIL_CLIENT_SECRET) to backend/.env, then runs this in backend/:</p>
                   <Copyable text="recoup connect gmail" />
                 </>
               )}
@@ -142,6 +143,7 @@ export function SourcesPage({ sources, isAvailable, isSyncing, onSync }: Props) 
               run={status?.last_sync ?? null}
               result={status?.last_sync ? (status.last_sync.ok ? "Finished." : "Didn't finish.") : null}
             >
+              <p className="m-0 text-13 text-dim">The public status pages it watches for outages that owe you a credit. These are part of this source, not separate ones.</p>
               <ul className="m-0 grid grid-cols-1 gap-2 p-0 sm:grid-cols-3">
                 {sources.status_feeds.map((feed) => {
                   const seen = num(feed.last_sync?.detail, "incidents_seen");
@@ -151,7 +153,7 @@ export function SourcesPage({ sources, isAvailable, isSyncing, onSync }: Props) 
                         href={feed.page_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center justify-between gap-2 text-14 font-medium underline decoration-line-strong underline-offset-4 hover:decoration-current"
+                        className="flex min-h-6 items-center justify-between gap-2 text-14 font-medium underline decoration-line-strong underline-offset-4 hover:decoration-current"
                       >
                         {FEED_LABEL[feed.key] ?? feed.key}
                         <ArrowUpRight aria-hidden className="size-3.5 flex-none text-dim" strokeWidth={1.75} />

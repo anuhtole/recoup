@@ -60,7 +60,8 @@ const canDismiss = (f: Finding) => !["recovered", "dismissed", "expired"].includ
 
 function Tabs({ tab, counts, onTab }: { tab: Tab; counts: Record<Tab, number>; onTab: (t: Tab) => void }) {
   return (
-    <div role="tablist" aria-label="Claim stages" className="grid w-full grid-cols-4 gap-0.5 rounded-sm border border-line bg-paper p-0.5 md:flex md:w-auto">
+    <div role="tablist" aria-label="Claim stages" className="-mx-4 flex overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:px-0">
+      <div className="flex flex-none gap-1 rounded-sm border border-line bg-paper p-1">
       {TABS.map((t) => {
         const active = t.id === tab;
         return (
@@ -71,25 +72,17 @@ function Tabs({ tab, counts, onTab }: { tab: Tab; counts: Record<Tab, number>; o
             aria-selected={active}
             onClick={() => onTab(t.id)}
             className={cn(
-              "relative flex h-8 flex-none items-center justify-center gap-1.5 whitespace-nowrap rounded-xs px-2 text-13 font-medium transition-colors md:gap-2 md:px-3",
+              "relative flex h-8 flex-none items-center justify-center gap-2 whitespace-nowrap rounded-xs px-3 text-13 font-medium transition-colors",
               active ? "text-white" : "text-dim hover:bg-wash hover:text-ink",
             )}
           >
             {active && <motion.span layoutId="claims-tab" transition={SPRING} aria-hidden className="absolute inset-0 rounded-xs bg-panel" />}
-            <span className="relative">
-              {t.id === "closed" ? (
-                <>
-                  <span className="md:hidden">Closed</span>
-                  <span className="hidden md:inline">{t.label}</span>
-                </>
-              ) : (
-                t.label
-              )}
-            </span>
+            <span className="relative">{t.label}</span>
             <span className={cn("ref relative text-11", active ? "text-mint" : "text-dim")}>{counts[t.id]}</span>
           </button>
         );
       })}
+      </div>
     </div>
   );
 }
@@ -123,11 +116,13 @@ function SearchField({ value, onChange, inputRef }: { value: string; onChange: (
 function TypeChips({ type, onType }: { type: LeakType | null; onType: (t: LeakType | null) => void }) {
   const chip = (active: boolean) =>
     cn(
-      "h-7 flex-none whitespace-nowrap rounded-xs border px-2.5 text-13 transition-colors",
-      active ? "border-ink bg-ink text-white" : "border-line bg-paper text-dim hover:border-line-strong hover:text-ink",
+      "h-8 flex-none whitespace-nowrap rounded-xs border px-3 text-13 transition-colors",
+      active
+        ? "border-ink bg-paper font-medium text-ink underline decoration-2 underline-offset-[6px]"
+        : "border-line bg-paper text-dim hover:border-line-strong hover:text-ink",
     );
   return (
-    <div role="group" aria-label="Filter by type" className="flex flex-wrap gap-1.5">
+    <div role="group" aria-label="Filter by type" className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:flex-wrap md:px-0">
       <button type="button" aria-pressed={type === null} onClick={() => onType(null)} className={chip(type === null)}>
         All types
       </button>
@@ -140,21 +135,23 @@ function TypeChips({ type, onType }: { type: LeakType | null; onType: (t: LeakTy
   );
 }
 
+/** A checkbox with a 40px hit area, so a near miss selects instead of opening the case. */
 function Check({ checked, indeterminate, onChange, label, onInk }: { checked: boolean; indeterminate?: boolean; onChange: () => void; label: string; onInk?: boolean }) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (ref.current) ref.current.indeterminate = Boolean(indeterminate);
   }, [indeterminate]);
   return (
-    <input
-      ref={ref}
-      type="checkbox"
-      aria-label={label}
-      checked={checked}
-      onChange={onChange}
-      onClick={(e) => e.stopPropagation()}
-      className={cn("size-4 cursor-pointer rounded-xs", onInk ? "accent-mint" : "accent-ink")}
-    />
+    <label className="grid size-10 cursor-pointer place-items-center" onClick={(e) => e.stopPropagation()}>
+      <input
+        ref={ref}
+        type="checkbox"
+        aria-label={label}
+        checked={checked}
+        onChange={onChange}
+        className={cn("size-4 cursor-pointer rounded-xs", onInk ? "accent-mint" : "accent-ink")}
+      />
+    </label>
   );
 }
 
@@ -197,16 +194,16 @@ function Table({
   return (
     <table className="w-full table-fixed border-collapse text-left">
       <colgroup>
-        <col className="w-12" />
-        <col />
-        <col className="hidden w-[200px] lg:table-column" />
+        <col className="w-14" />
+        <col className="lg:w-[36%]" />
+        <col className="hidden lg:table-column" />
         <col className="w-[136px]" />
-        <col className="w-[128px]" />
-        <col className="w-[148px]" />
+        <col className="w-[136px]" />
+        <col className="w-[160px]" />
       </colgroup>
       <thead>
         <tr className="h-10 border-b border-line">
-          <th scope="col" className="pl-4">
+          <th scope="col" className="pl-2">
             <Check checked={all} indeterminate={!all && some} onChange={onToggleAll} label="Select all" />
           </th>
           <th scope="col" className="label px-3 font-medium text-dim">Vendor</th>
@@ -235,7 +232,7 @@ function Table({
                 on ? "on-ink bg-panel text-white" : isSelected ? "bg-mint-wash/60" : "hover:bg-wash",
               )}
             >
-              <td className="pl-4">
+              <td className={cn("relative pl-2", on && "shadow-[inset_2px_0_0_var(--mint)]")}>
                 <Check checked={isSelected} onChange={() => onToggle(f.id)} label={`Select ${f.merchant}`} onInk={on} />
               </td>
               <td className="px-3">
@@ -249,7 +246,7 @@ function Table({
                         e.stopPropagation();
                         onOpen(f.id);
                       }}
-                      className="truncate text-14 font-medium focus-visible:outline-offset-4"
+                      className="inline-flex min-h-6 max-w-full items-center truncate text-14 font-medium focus-visible:outline-offset-4"
                     >
                       {f.merchant}
                     </a>
@@ -268,7 +265,8 @@ function Table({
                 <RespondBy f={f} onInk={on} />
               </td>
               <td className="pl-3 pr-4">
-                <Pill label={status.label} tone={status.tone} />
+                {/* Only exceptions get a pill; "New" is the default state of every open row. */}
+                {status.label !== "New" && <Pill label={status.label} tone={status.tone} onInk={on} />}
               </td>
             </tr>
           );
@@ -294,7 +292,7 @@ function PhoneList({ rows, onOpen }: { rows: Finding[]; onOpen: (id: number) => 
                 e.preventDefault();
                 onOpen(f.id);
               }}
-              className="flex items-start gap-3 px-4 py-3.5 transition-colors active:bg-wash"
+              className="flex items-start gap-3 px-4 py-4 transition-colors active:bg-wash"
             >
               <VendorTile name={f.merchant} />
               <span className="flex min-w-0 flex-1 flex-col gap-1">
@@ -307,8 +305,18 @@ function PhoneList({ rows, onOpen }: { rows: Finding[]; onOpen: (id: number) => 
                     {LEAK_LABEL[f.leak_type]}
                     {reference && <span className="ref text-11"> · {reference}</span>}
                   </span>
-                  {f.stage === "todo" && f.days_left !== null && f.days_left >= 0 ? <DaysTag days={f.days_left} /> : <Pill label={status.label} tone={status.tone} />}
+                  {f.stage === "todo" && f.days_left !== null && f.days_left >= 0 ? (
+                    <DaysTag days={f.days_left} />
+                  ) : (
+                    status.label !== "New" && <Pill label={status.label} tone={status.tone} />
+                  )}
                 </span>
+                {/* Exceptions (needs review, draft ready) get their own line, so the type never truncates. */}
+                {f.stage === "todo" && f.days_left !== null && f.days_left >= 0 && status.label !== "New" && (
+                  <span className="flex">
+                    <Pill label={status.label} tone={status.tone} />
+                  </span>
+                )}
               </span>
             </a>
           </li>
@@ -505,7 +513,7 @@ export function Claims({ findings, params, onParams, onOpen, isBusy, onBulkDraft
 
       <section aria-label="Claims list" className="card overflow-hidden" aria-keyshortcuts="j k ArrowDown ArrowUp Enter x /">
         {params.tab === "closed" && rows.length > 0 && (
-          <p className="m-0 border-b border-line bg-wash px-4 py-2.5 text-13 text-dim">
+          <p className="m-0 border-b border-line bg-wash px-4 py-3 text-13 text-dim">
             The card dispute window has passed on these. The vendor can still refund you directly.
           </p>
         )}

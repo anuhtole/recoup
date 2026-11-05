@@ -38,6 +38,7 @@
   --amber: #f2b04b;
   --amber-ink: #8a5a00;
   --amber-wash: #fdf3e1;
+  --strip: #f8d49a; /* the announcement strip: warm, a step softer than amber so mint stays the loudest colour */
   --danger: #b4372e;
 
   --scrim: rgba(10, 11, 10, 0.44);
@@ -56,6 +57,13 @@
     --dim: #3a413c;
     --sub: #c9d1cc;
     --rule: #59615b;
+  }
+}
+
+/* Reduced transparency: the scrim behind sheets becomes solid. */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --scrim: #3b403d;
   }
 }
 
@@ -78,6 +86,7 @@
   --color-amber: var(--amber);
   --color-amber-ink: var(--amber-ink);
   --color-amber-wash: var(--amber-wash);
+  --color-strip: var(--strip);
   --color-danger: var(--danger);
   --color-scrim: var(--scrim);
 
