@@ -16,6 +16,9 @@ class VendorDirectory:
     def __iter__(self) -> Iterator[Vendor]:
         return iter(self._vendors)
 
+    def __len__(self) -> int:
+        return len(self._vendors)
+
     def for_merchant(self, merchant_norm: str) -> Vendor | None:
         return self._by_key.get(merchant_norm)
 

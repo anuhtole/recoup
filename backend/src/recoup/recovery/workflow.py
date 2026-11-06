@@ -19,6 +19,7 @@ from recoup.domain.types import Evidence, LeakType, Outcome, Transaction
 from recoup.domain.vendors import VendorDirectory
 from recoup.domain.workflow import AWAITING_MONEY, CLOSED, DRAFTABLE, Status
 from recoup.extract.schema import ReplyAssessment
+from recoup.ingest.company import DEFAULT_COMPANY_NAME
 from recoup.ingest.loader import row_to_transaction
 from recoup.recovery.drafting import Drafter
 from recoup.recovery.facts import CaseFacts
@@ -75,7 +76,11 @@ def _vendor_for(txns: Sequence[Transaction], vendors: VendorDirectory) -> Vendor
 
 
 def case_facts(
-    session: Session, row: FindingRow, vendors: VendorDirectory, as_of: date
+    session: Session,
+    row: FindingRow,
+    vendors: VendorDirectory,
+    as_of: date,
+    company: str = DEFAULT_COMPANY_NAME,
 ) -> CaseFacts:
     txns = finding_transactions(session, row)
     return CaseFacts(
@@ -90,6 +95,7 @@ def case_facts(
         evidence=tuple(Evidence.model_validate(e) for e in row.evidence),
         as_of=as_of,
         is_escalation=row.status == Status.VENDOR_DECLINED,
+        company=company,
     )
 
 
@@ -108,6 +114,7 @@ def create_draft(
     as_of: date,
     card_dispute_address: str,
     actor: str,
+    company: str = DEFAULT_COMPANY_NAME,
 ) -> DraftRow:
     status = Status(row.status)
     if status not in DRAFTABLE:
@@ -115,7 +122,7 @@ def create_draft(
     if row.outcome == Outcome.NOT_RECOVERABLE:
         raise TransitionError("This credit can no longer be claimed")
 
-    facts = case_facts(session, row, vendors, as_of)
+    facts = case_facts(session, row, vendors, as_of, company)
     channel, to_addr = channel_for(facts, card_dispute_address)
     content = drafter.draft(facts)
     draft = open_draft(session, row.id)

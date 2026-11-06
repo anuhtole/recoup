@@ -15,7 +15,9 @@ router = APIRouter(prefix="/api/demo")
 def advance_clock(body: AdvanceIn, session: SessionDep, context: ContextDep) -> AdvanceOut:
     if not context.settings.demo_mode:
         raise HTTPException(status_code=404, detail="Not found")
-    result = advance(session, context.settings, context.services, context.sources, body.days)
+    result = advance(
+        session, context.settings, context.services, context.sources_for(session), body.days
+    )
     return AdvanceOut(
         previous_as_of=result.previous_as_of,
         as_of=result.as_of,

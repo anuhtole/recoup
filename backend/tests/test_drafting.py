@@ -49,7 +49,7 @@ def test_claude_draft_is_used_when_it_keeps_every_fact() -> None:
 
     draft = ClaudeDrafter(_FakeLlm(body), TemplateDrafter()).draft(FACTS)
 
-    assert (draft.body, draft.drafter) == (body, "claude:claude-test:drafts/1")
+    assert (draft.body, draft.drafter) == (body, "claude:claude-test:drafts/2")
 
 
 def test_claude_draft_that_drops_a_fact_or_adds_an_address_falls_back() -> None:

@@ -44,7 +44,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
 
     app = FastAPI(title="Recoup", version="0.2.0", lifespan=lifespan)
     app.state.context = AppContext(
-        settings=settings, factory=factory, services=services, sources=sources, sync=background
+        settings=settings, factory=factory, services=services, base_sources=sources, sync=background
     )
 
     @app.get("/api/health")

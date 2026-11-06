@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from recoup.config import Settings
 from recoup.connectors.scheduler import BackgroundSync
+from recoup.ingest.company import company_sources
 from recoup.ingest.sources import Sources
 from recoup.services import Services
 
@@ -18,8 +19,13 @@ class AppContext:
     settings: Settings
     factory: sessionmaker[Session]
     services: Services
-    sources: Sources
+    base_sources: Sources
     sync: BackgroundSync
+
+    def sources_for(self, session: Session) -> Sources:
+        """The bundled sources plus what this company stored. Read per request, so a
+        vendor or contract added in the UI counts on the very next call."""
+        return company_sources(session, self.base_sources)
 
 
 def get_context(request: Request) -> AppContext:

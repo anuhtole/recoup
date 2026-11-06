@@ -21,6 +21,7 @@ from recoup.db.models import FindingRow
 from recoup.db.state import get_as_of
 from recoup.domain.types import Outcome
 from recoup.domain.workflow import STAGE_OF, Stage, Status
+from recoup.ingest.company import get_profile
 from recoup.pipeline.run import run_pipeline
 from recoup.recovery.workflow import TransitionError, create_draft, dismiss
 
@@ -121,21 +122,24 @@ def list_findings(
 @router.get("/findings/{finding_id}", response_model=FindingDetailOut)
 def get_finding(finding_id: int, session: SessionDep, context: ContextDep) -> FindingDetailOut:
     row = _get(session, finding_id)
-    return finding_detail(session, row, context.sources, get_as_of(session, context.settings))
+    sources = context.sources_for(session)
+    return finding_detail(session, row, sources, get_as_of(session, context.settings))
 
 
 @router.post("/findings/{finding_id}/draft", response_model=DraftOut)
 def draft_request(finding_id: int, session: SessionDep, context: ContextDep) -> DraftOut:
     row = _get(session, finding_id)
+    profile = get_profile(session, context.settings)
     try:
         draft = create_draft(
             session,
             row,
-            vendors=context.sources.vendors,
+            vendors=context.sources_for(session).vendors,
             drafter=context.services.drafter,
             as_of=get_as_of(session, context.settings),
-            card_dispute_address=context.settings.card_dispute_address,
+            card_dispute_address=profile.card_dispute_address,
             actor=REVIEWER,
+            company=profile.name,
         )
     except TransitionError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
@@ -158,5 +162,5 @@ def dismiss_case(
 
 @router.post("/pipeline/run", response_model=RunSummaryOut)
 def trigger_run(session: SessionDep, context: ContextDep) -> RunSummaryOut:
-    result = run_pipeline(session, context.settings, context.services, context.sources)
+    result = run_pipeline(session, context.settings, context.services, context.sources_for(session))
     return RunSummaryOut(**asdict(result))
