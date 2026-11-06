@@ -24,25 +24,40 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await page.goto("/");
     await expect(nav(page, "Overview")).toHaveAttribute("aria-current", "page");
     await expect(nav(page, "Claims")).toContainText("15");
-    await expect(page.getByRole("status").filter({ hasText: "Demo data" })).toContainText("As of Oct 1, 2026");
-    await expect(page.getByRole("region", { name: "Ready to claim" })).toContainText("$13,710.09");
-    await expect(page.getByRole("region", { name: "Ready to claim" })).toContainText("Chart fills in as money comes back");
-    await expect(page.getByRole("region", { name: "Totals" })).toContainText("Recovered");
-    const needs = page.getByRole("region", { name: "Needs action" });
-    await expect(needs.locator("[data-needs-id]")).toHaveCount(5);
-    await expect(needs.locator("[data-needs-id]").first()).toContainText("Figma");
-    await expect(needs.locator("[data-needs-id]").first()).toContainText("1 day");
-    await expect(page.getByRole("region", { name: "Where it comes from" })).toContainText("Duplicate charges");
+    await expect(page.getByRole("button", { name: /Acme Inc/ })).toContainText("Demo");
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Overview");
+    const hero = page.getByRole("region", { name: "Open claims" });
+    await expect(hero).toContainText("$13,710.09");
+    await expect(hero).toContainText("15 claims");
+    await expect(hero).toContainText("1 expires tomorrow");
+    await expect(page.locator("[data-totals]")).toContainText("Missed $1,432.73");
+    // No chart until there are two real points.
+    await expect(page.getByRole("figure", { name: /Recovered over time/ })).toHaveCount(0);
+    const soon = page.getByRole("region", { name: "Expiring soon" });
+    await expect(soon.locator("[data-needs-id]")).toHaveCount(5);
+    await expect(soon.locator("[data-needs-id]").first()).toContainText("Figma");
+    await expect(soon.locator("[data-needs-id]").first()).toContainText("1 day left");
+    await expect(page.getByRole("region", { name: "By type" })).toContainText("Duplicate charges");
     await expect(page.getByRole("region", { name: "Top vendors" })).toContainText("Amazon Web Services");
-    await expect(page.getByRole("region", { name: "Recently recovered" })).toContainText("will show here");
-    await expect(page.getByRole("region", { name: "Sources", exact: true })).toContainText("Status pages");
+    await expect(page.getByRole("region", { name: "Recently recovered" })).toHaveCount(0);
 
-    await needs.locator('[data-needs-id="2"]').click();
+    await soon.locator('[data-needs-id="2"]').click();
     await expect(page).toHaveURL(/#\/claims\/2$/);
     await expect(caseTitle(page)).toHaveText("Figma");
     await page.goBack();
-    await expect(page.getByRole("region", { name: "Needs action" })).toBeVisible();
-    await page.getByRole("button", { name: /^Review 15 claims/ }).click();
+    await expect(page.getByRole("region", { name: "Expiring soon" })).toBeVisible();
+
+    // ⌘K finds a case by its reference; Enter opens it.
+    await page.keyboard.press("ControlOrMeta+k");
+    const palette = page.getByRole("dialog", { name: "Search and commands" });
+    await expect(palette).toBeVisible();
+    await page.keyboard.type("FIG-202606");
+    await expect(palette.getByRole("option").first()).toContainText("Figma");
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/#\/claims\/2$/);
+    await page.goBack();
+
+    await page.getByRole("button", { name: /^Review claims/ }).click();
     await expect(page).toHaveURL(/#\/claims$/);
   });
 
@@ -165,12 +180,14 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
 
   await test.step("advance two weeks: notices, overview totals, recovered feed", async () => {
     await nav(page, "Overview").click();
-    const band = page.getByRole("region", { name: "Totals" });
-    const before = await band.innerText();
-    await page.getByRole("button", { name: "Advance 2 weeks" }).click();
+    const totals = page.locator("[data-totals]");
+    const before = await totals.innerText();
+    await page.getByRole("button", { name: /^Demo/ }).click();
+    await expect(page.getByRole("menu", { name: "Demo" })).toContainText("Viewing Oct 1, 2026");
+    await page.getByRole("menuitem", { name: "Advance 2 weeks" }).click();
     await expect(page.locator("[aria-live=polite] li").filter({ hasText: /credit posted/i })).toBeVisible();
-    await expect.poll(() => band.getByRole("img").getAttribute("aria-label")).not.toContain("$0.00 recovered");
-    await expect.poll(() => band.innerText()).not.toBe(before);
+    await expect.poll(() => totals.innerText()).not.toBe(before);
+    await expect(totals).toContainText(/Recovered \$/);
     await expect(page.getByRole("region", { name: "Recently recovered" })).toContainText("Figma");
     await nav(page, "Recovered").click();
     await expect(page).toHaveURL(/#\/recovered$/);
@@ -233,7 +250,7 @@ test("phone layout: top bar, tab bar, list and case", async ({ browser }) => {
   const width = await page.evaluate(() => document.documentElement.scrollWidth);
   expect(width, "no horizontal scroll").toBeLessThanOrEqual(390);
   await page.getByRole("button", { name: "Menu" }).click();
-  await expect(page.getByRole("dialog", { name: "Workspace" })).toContainText("Demo controls");
+  await expect(page.getByRole("dialog", { name: "Acme Inc." })).toContainText("Advance 2 weeks");
   await page.keyboard.press("Escape");
   await context.close();
 });
