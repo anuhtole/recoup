@@ -25,6 +25,28 @@ make dev     # API on :8000, UI on http://localhost:5173
 
 The data is synthetic and every send goes to a local outbox. Nothing leaves your machine.
 
+## Your company's data
+
+Recoup runs on any company's data, not just the demo. Open **Setup** in the app (`#/setup`) and work down five steps ([ADR 0012](docs/adr/0012-company-onboarding.md)):
+
+1. **Your company.** The name drafts are signed with, and where card disputes go.
+2. **Ledger.** Upload a CSV export from any card, bank or accounting tool. Recoup shows what it read and lets you fix the columns before importing. Detection runs on import, and importing the same file again adds nothing. Teams on Ramp can connect it instead (below).
+3. **Vendors.** Recoup lists merchants on your ledger it doesn't know yet, by spend. For each one, type the billing address to write to. Recoup never takes an address from an email.
+4. **Finance inbox.** With a Google OAuth client set on the server (steps 1 to 3 under Gmail below), **Connect Gmail** asks for read-only access and keeps the token on the server.
+5. **Contracts.** Upload an order form or MSA. Claude reads it, the grounding gate checks every term, and nothing is saved until you confirm. This step needs `ANTHROPIC_API_KEY`. You can also type terms in by hand.
+
+To try it on a clean database:
+
+```bash
+cd backend
+RECOUP_DATABASE_URL=sqlite:///./acme.db RECOUP_DATA_DIR=../data/empty uv run alembic upgrade head
+RECOUP_DATABASE_URL=sqlite:///./acme.db RECOUP_DATA_DIR=../data/empty uv run recoup serve
+```
+
+Then run `make web` and open Setup. `RECOUP_DATA_DIR` can be any folder without a `transactions.json`, even one that does not exist. The app then treats the data as live.
+
+The same steps are available over the API: `/api/company`, `/api/ledger/preview` and `/api/ledger/import`, `/api/vendors` and `/api/vendors/suggestions`, `/api/contracts` and `/api/contracts/read`, and `/api/connect/gmail`.
+
 ## Real data
 
 Three connectors replace synthetic inputs with real ones. All are read-only, and all share one interface, so adding a ledger or mailbox means adding one connector ([ADR 0009](docs/adr/0009-connector-interface.md)).
@@ -190,10 +212,13 @@ Without a key, everything still works on the keyword rules ([ADR 0007](docs/adr/
 ```
 backend/src/recoup/
   domain/      Money, transactions, emails, vendors, contracts, promises, workflow states
-  extract/     Claude + keyword extractors, prompts, and the validation gate
-  detectors/   duplicates, broken promises, outage credits: pure functions
+  ingest/      every way data gets in: CSV ledgers, Ramp, Gmail, status pages, the company's setup
+  connectors/  the one connector interface and the background sync scheduler
+  extract/     Claude + keyword extractors, prompts, the contract reader, and the validation gates
+  detectors/   duplicates, broken promises, outage credits, price overcharges: pure functions
   pipeline/    the fixed workflow: read inbox → detect → upsert → match recoveries
   recovery/    drafting, outbox, and the recovery state machine
+  db/          SQLAlchemy models and session; migrations in backend/migrations/
   api/         FastAPI routes, schemas, case timelines
   demo/        the simulated vendor inbox (only with RECOUP_DEMO_MODE=true)
   synth/       the seeded synthetic world and its answer key
@@ -201,7 +226,7 @@ backend/tests/ unit, integration, API, CLI, and red-team tests
 backend/evals/ scoring, quality gates, results
 frontend/      React + TypeScript review UI (Vite, Tailwind v4, Motion; glacier glass tokens in src/index.css)
 data/synthetic/ generated dataset
-docs/adr/      architecture decision records
+docs/adr/      architecture decision records, indexed in docs/adr/README.md
 ```
 
 ## Commands
