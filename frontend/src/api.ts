@@ -43,6 +43,8 @@ export interface Finding {
   source_refs: string[];
   next_action: NextAction;
   created_at: string;
+  /** When the credit posted, on the demo clock. Older APIs omit it. */
+  recovered_at?: string | null;
 }
 
 export type EvidenceKind = "transaction" | "email" | "contract" | "incident" | "rule" | "note";
@@ -120,6 +122,8 @@ export interface FindingDetail extends Finding {
   drafts: Draft[];
   timeline: TimelineEvent[];
   trace: AuditEvent[];
+  /** Where the next draft would go: the vendor, or the card issuer. Older APIs omit it. */
+  draft_channel?: "vendor_email" | "card_dispute";
 }
 
 export interface Summary {
@@ -129,6 +133,8 @@ export interface Summary {
   demo_mode: boolean;
   /** "demo" for the generated world, "live" for data that arrived by sync. Older APIs omit it. */
   data_mode?: "demo" | "live";
+  /** The company Recoup works for; letters are signed with it. Older APIs omit it. */
+  org_name?: string;
   claimable_minor: number;
   in_flight_minor: number;
   recovered_minor: number;

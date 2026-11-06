@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { api, type Finding, type Summary, type TimelineEvent } from "../api";
 import { Button } from "../components/Button";
 import { Money } from "../components/Money";
-import { Section } from "../components/Section";
+import { Section, SectionLink } from "../components/Section";
 import { VendorLogo } from "../components/VendorLogo";
 import { formatDate, formatMoney, plural } from "../format";
 import { vendorName } from "../lib/vendors";
@@ -19,7 +19,11 @@ interface Activity {
   kind: "recovered" | "reply" | "sent";
   title: string;
   detail: string | null;
+  /** The request this event belongs to went to the card issuer, not the vendor. */
+  viaIssuer: boolean;
 }
+
+const time = (iso: string) => new Date(iso).getTime();
 
 /** Each case's sent, reply and recovered events, fetched from the cases that have them. Existing data only. */
 function useActivity(findings: Finding[], version: number) {
@@ -35,9 +39,22 @@ function useActivity(findings: Finding[], version: number) {
         if (!isCurrent) return;
         const out: Activity[] = [];
         details.forEach((d, i) => {
+          const sent = d.drafts.filter((x) => x.status === "sent" && x.sent_at).sort((a, b) => time(a.sent_at as string) - time(b.sent_at as string));
+          // Which channel an event rode on: the last request sent at or before it.
+          const channelAt = (at: string) => sent.filter((x) => time(x.sent_at as string) <= time(at)).at(-1)?.channel;
           d.timeline
             .filter((e): e is TimelineEvent & { kind: Activity["kind"] } => !e.is_future && (e.kind === "recovered" || e.kind === "reply" || e.kind === "sent"))
-            .forEach((e, j) => out.push({ key: `${d.id}-${j}-${e.kind}`, at: e.at, finding: active[i], kind: e.kind, title: e.title, detail: e.detail }));
+            .forEach((e, j) =>
+              out.push({
+                key: `${d.id}-${j}-${e.kind}`,
+                at: e.at,
+                finding: { ...active[i], status: d.status },
+                kind: e.kind,
+                title: e.title,
+                detail: e.detail,
+                viaIssuer: channelAt(e.at) === "card_dispute",
+              }),
+            );
         });
         out.sort((a, b) => b.at.localeCompare(a.at) || (a.kind === "recovered" ? -1 : 1));
         setItems(out);
@@ -52,40 +69,43 @@ function useActivity(findings: Finding[], version: number) {
   return { items, error };
 }
 
+/**
+ * One line per event, in the words of who did it. A request that went to the card issuer reads as a
+ * dispute ("Dispute filed with your card issuer", "Card issuer issued a provisional credit"), not as the vendor.
+ */
 function headline(a: Activity): string {
   const vendor = vendorName(a.finding.merchant);
   if (a.kind === "recovered") return `${vendor} credit posted`;
-  if (a.kind === "sent") return `Request sent to ${vendor}`;
-  const verdict = /replied: (\w[\w ]*)/.exec(a.title)?.[1];
-  if (verdict === "agreed") return `${vendor} agreed to refund`;
-  if (verdict === "declined") return `${vendor} declined`;
-  if (verdict) return `${vendor} ${verdict.replace(/_/g, " ")}`;
-  return `${vendor} replied`;
+  if (a.kind === "sent") return a.viaIssuer ? "Dispute filed with your card issuer" : `Request sent to ${vendor}`;
+  const who = a.viaIssuer ? "Card issuer" : vendor;
+  if (/agreed/.test(a.title)) return a.viaIssuer ? "Card issuer issued a provisional credit" : `${vendor} agreed to refund`;
+  if (/declined/.test(a.title)) return `${who} declined`;
+  if (/more details|info/.test(a.title)) return `${who} asked for more details`;
+  return `${who} replied`;
 }
 
 function sub(a: Activity): string {
-  if (a.kind === "sent") return a.title.replace(/^Sent to /, "To ");
+  if (a.kind === "sent") return a.viaIssuer ? `${vendorName(a.finding.merchant)} · ${a.title.replace(/^Sent to /, "to ")}` : a.title.replace(/^Sent to /, "To ");
   if (a.kind === "recovered") return "Confirmed in your ledger";
   return a.detail ?? a.title;
 }
 
-const KIND_LABEL: Record<Activity["kind"], string> = { recovered: "Recovered", reply: "Reply", sent: "In flight" };
+const WAITING = new Set(["sent", "vendor_agreed", "info_requested"]);
+/** The right-hand label follows where the claim is now: a sent request is "In flight" only while it is. */
+function kindLabel(a: Activity): string {
+  if (a.kind === "recovered") return "Recovered";
+  if (a.kind === "reply") return "Reply";
+  return WAITING.has(a.finding.status) ? "In flight" : "Sent";
+}
 
-/** A total in the stat row: muted "—" when it is zero, so nothing reads as an empty box. */
+/** A total in the page's header row. Zero totals aren't shown at all. */
 function Stat({ label, minor, currency, note, tone }: { label: string; minor: number; currency: string; note?: string; tone?: "mint" }) {
   return (
     <div className="flex flex-col gap-1">
       <p className="m-0 text-13 text-dim">{label}</p>
-      {minor > 0 ? (
-        <p className={cn("m-0 text-28 font-semibold tracking-[-0.02em]", tone === "mint" && "text-mint-ink")}>
-          <Money minor={minor} currency={currency} roll={tone === "mint"} />
-        </p>
-      ) : (
-        <p className="m-0 flex h-8 items-center text-20 text-dim">
-          <span aria-hidden>—</span>
-          <span className="sr-only">None</span>
-        </p>
-      )}
+      <p className={cn("m-0 text-28 font-semibold tracking-[-0.02em]", tone === "mint" && "text-mint-ink")}>
+        <Money minor={minor} currency={currency} roll={tone === "mint"} />
+      </p>
       {note && <p className="m-0 text-13 text-dim">{note}</p>}
     </div>
   );
@@ -105,7 +125,11 @@ export function Recovered({ summary, findings, version, isAdvancing, onAdvance }
   const { currency } = summary;
   const agreed = findings.filter((f) => f.status === "vendor_agreed").reduce((s, f) => s + f.amount_minor, 0);
   const recoveredCount = findings.filter((f) => f.status === "recovered").length;
-  const hasTotals = summary.recovered_minor > 0 || agreed > 0 || summary.in_flight_minor > 0;
+  const totals = [
+    { label: "Recovered", minor: summary.recovered_minor, tone: "mint" as const, note: recoveredCount > 0 ? plural(recoveredCount, "claim") : undefined },
+    { label: "Vendor agreed", minor: agreed },
+    { label: "In flight", minor: summary.in_flight_minor },
+  ].filter((t) => t.minor > 0);
   const groups = useMemo(() => {
     const map = new Map<string, Activity[]>();
     for (const item of items ?? []) {
@@ -117,29 +141,34 @@ export function Recovered({ summary, findings, version, isAdvancing, onAdvance }
 
   return (
     <div className="flex flex-col gap-12">
-      {hasTotals && (
-        <section aria-label="Recovered totals" className="grid grid-cols-1 gap-6 sm:grid-cols-3">
-          <Stat label="Recovered" minor={summary.recovered_minor} currency={currency} tone="mint" note={recoveredCount > 0 ? plural(recoveredCount, "claim") : undefined} />
-          <Stat label="Vendor agreed" minor={agreed} currency={currency} />
-          <Stat label="In flight" minor={summary.in_flight_minor} currency={currency} />
+      {totals.length > 0 && (
+        <section aria-label="Recovered totals" className="flex flex-wrap gap-x-12 gap-y-6">
+          {totals.map((t) => (
+            <Stat key={t.label} {...t} currency={currency} />
+          ))}
         </section>
       )}
 
+      {items !== null && items.length === 0 && !error ? (
+        // Nothing yet: one quiet row where the feed will be, not a header over an empty hero.
+        <div className="flex flex-col items-start gap-3 border-y border-line py-5 sm:flex-row sm:items-center sm:justify-between">
+          <p className="m-0 text-14 text-dim">Requests you send and refunds that land show up here.</p>
+          <div className="flex flex-none items-center gap-3 text-14">
+            {summary.demo_mode && (
+              <Button size="sm" variant="ghost" onClick={onAdvance} isBusy={isAdvancing} busyLabel="Advancing…">
+                <FastForward aria-hidden className="size-3.5" strokeWidth={2} />
+                Advance 2 weeks
+              </Button>
+            )}
+            <SectionLink href="#/claims">Review claims</SectionLink>
+          </div>
+        </div>
+      ) : (
       <Section title="Activity">
         {error ? (
           <p className="m-0 py-10 text-center text-14 text-dim">Couldn't load the activity. Try again in a moment.</p>
         ) : items === null ? (
           <p className="m-0 py-10 text-center text-14 text-dim">Loading activity…</p>
-        ) : items.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-            <p className="m-0 text-14 text-dim">Nothing sent yet.</p>
-            {summary.demo_mode && (
-              <Button size="sm" onClick={onAdvance} isBusy={isAdvancing} busyLabel="Advancing…">
-                <FastForward aria-hidden className="size-3.5" strokeWidth={2} />
-                Advance 2 weeks
-              </Button>
-            )}
-          </div>
         ) : (
           <div className="flex flex-col">
             {groups.map(([day, rows]) => (
@@ -165,7 +194,7 @@ export function Recovered({ summary, findings, version, isAdvancing, onAdvance }
                               {a.kind === "recovered" ? "+" : ""}
                               {formatMoney(amount, a.finding.currency)}
                             </span>
-                            <span className="text-12 text-dim">{KIND_LABEL[a.kind]}</span>
+                            <span className="text-12 text-dim">{kindLabel(a)}</span>
                           </span>
                         </a>
                       </li>
@@ -177,6 +206,7 @@ export function Recovered({ summary, findings, version, isAdvancing, onAdvance }
           </div>
         )}
       </Section>
+      )}
     </div>
   );
 }

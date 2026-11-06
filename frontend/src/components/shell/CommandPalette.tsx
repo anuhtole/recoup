@@ -6,7 +6,7 @@ import type { Finding } from "../../api";
 import { formatMoney } from "../../format";
 import { useIsNarrow } from "../../hooks/useIsNarrow";
 import { referenceOf, rowsFor, tabOf } from "../../queue";
-import { LEAK_LABEL } from "../../theme";
+import { typeLabel } from "../../lib/claimTypes";
 import { vendorName } from "@/lib/vendors";
 import { cn } from "@/lib/utils";
 import { VendorLogo } from "../VendorLogo";
@@ -40,25 +40,33 @@ interface Props {
   onClose: () => void;
 }
 
-/**
- * How well `query` matches `text`: a prefix beats a word start beats a substring beats the letters in
- * order. -1 is no match.
- */
-function score(query: string, text: string): number {
-  if (!query) return 0;
-  const t = text.toLowerCase();
-  if (t.startsWith(query)) return 100 - Math.min(t.length - query.length, 40) / 4;
-  if (t.split(/[\s/·(),-]+/).some((word) => word.startsWith(query))) return 80;
-  if (t.includes(query)) return 60;
+/** The letters of `query` in order inside one word ("fgma" in "figma"), with fewer gaps scoring higher. */
+function inWord(query: string, word: string): number {
   let at = -1;
   let gaps = 0;
   for (const ch of query) {
-    const next = t.indexOf(ch, at + 1);
+    const next = word.indexOf(ch, at + 1);
     if (next < 0) return -1;
     if (at >= 0) gaps += next - at - 1;
     at = next;
   }
   return Math.max(1, 30 - gaps);
+}
+
+/**
+ * How well `query` matches `text`: a prefix beats a word start beats a substring beats letters in order
+ * within a single word. Letters scattered across words never match, so "fig" can't find "Billed after
+ * cancelling". -1 is no match.
+ */
+function score(query: string, text: string): number {
+  if (!query) return 0;
+  const t = text.toLowerCase();
+  if (t.startsWith(query)) return 100 - Math.min(t.length - query.length, 40) / 4;
+  const words = t.split(/[\s/·(),-]+/).filter(Boolean);
+  if (words.some((word) => word.startsWith(query))) return 80;
+  if (t.includes(query)) return 60;
+  if (query.length < 3 || /\s/.test(query)) return -1;
+  return Math.max(-1, ...words.map((word) => inWord(query, word)));
 }
 
 const bare = (text: string) => text.replace(/[$,]/g, "");
@@ -102,10 +110,10 @@ export function CommandPalette({ findings, commands, onOpenCase, onClose }: Prop
         id: `case-${f.id}`,
         group: "Claims",
         label: name,
-        detail: [LEAK_LABEL[f.leak_type], ref].filter(Boolean).join(" · "),
+        detail: [typeLabel(f.leak_type), ref].filter(Boolean).join(" · "),
         icon: <VendorLogo name={f.merchant} size={20} />,
         hint: <span className="figure text-13 text-ink">{amount}</span>,
-        haystack: [name, ref ?? "", amount, bare(amount), LEAK_LABEL[f.leak_type]],
+        haystack: [name, ref ?? "", amount, bare(amount), typeLabel(f.leak_type)],
         run: () => onOpenCase(f.id),
       };
     });
@@ -213,7 +221,7 @@ export function CommandPalette({ findings, commands, onOpenCase, onClose }: Prop
             spellCheck={false}
             className="h-full min-w-0 flex-1 bg-transparent text-16 text-ink outline-none placeholder:text-dim focus-visible:outline-none"
           />
-          <kbd className="kbd hidden sm:inline-grid">esc</kbd>
+          <kbd className="kbd hidden sm:inline-grid pointer-coarse:hidden">Esc</kbd>
         </div>
         <div ref={list} id={listId} role="listbox" aria-label="Results" className="min-h-0 flex-1 overflow-y-auto py-2">
           {items.length === 0 && <p className="m-0 px-4 py-8 text-center text-14 text-dim">Nothing matches “{query.trim()}”.</p>}
@@ -237,15 +245,16 @@ export function CommandPalette({ findings, commands, onOpenCase, onClose }: Prop
                       data-index={index}
                       onPointerMove={() => !isActive && setActive(index)}
                       onClick={() => runItem(item)}
-                      className={cn("mx-2 flex h-11 cursor-pointer items-center gap-3 rounded-sm px-2.5 text-14", isActive && "bg-ground")}
+                      className={cn("mx-2 flex min-h-11 cursor-pointer items-center gap-3 rounded-sm px-2.5 py-1.5 text-14", isActive && "bg-ground")}
                     >
                       <span className="grid size-5 flex-none place-items-center text-dim">{item.icon}</span>
-                      <span className="flex min-w-0 flex-1 items-baseline gap-2">
+                      {/* One line on wide screens; on phones the type drops to a second line so two Figma rows differ. */}
+                      <span className="flex min-w-0 flex-1 flex-col sm:flex-row sm:items-baseline sm:gap-2">
                         <span className="truncate font-medium">{item.label}</span>
-                        {item.detail && <span className="hidden truncate text-13 text-dim sm:inline">{item.detail}</span>}
+                        {item.detail && <span className="truncate text-13 text-dim">{item.detail}</span>}
                       </span>
                       {item.hint}
-                      <CornerDownLeft aria-hidden className={cn("size-3.5 flex-none text-dim", !isActive && "invisible")} strokeWidth={2} />
+                      <CornerDownLeft aria-hidden className={cn("size-3.5 flex-none text-dim pointer-coarse:hidden", !isActive && "invisible")} strokeWidth={2} />
                     </div>
                   );
                 })}
@@ -253,16 +262,16 @@ export function CommandPalette({ findings, commands, onOpenCase, onClose }: Prop
             );
           })}
         </div>
-        <div className="hidden flex-none items-center gap-4 border-t border-line px-4 py-2.5 text-12 text-dim sm:flex">
+        <div className="hidden flex-none items-center gap-4 border-t border-line px-4 py-2.5 text-12 text-dim sm:flex pointer-coarse:hidden">
           <span className="flex items-center gap-1.5">
             <kbd className="kbd">↑</kbd>
             <kbd className="kbd">↓</kbd> to move
           </span>
           <span className="flex items-center gap-1.5">
-            <kbd className="kbd">↵</kbd> to open
+            <kbd className="kbd">↵</kbd> to select
           </span>
           <span className="flex items-center gap-1.5">
-            <kbd className="kbd">esc</kbd> to close
+            <kbd className="kbd">Esc</kbd> to close
           </span>
         </div>
       </motion.div>

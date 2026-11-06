@@ -1,6 +1,7 @@
 import type { Finding } from "../api";
 import { referenceOf } from "../queue";
-import { LEAK_LABEL, statusOf } from "../theme";
+import { statusOf } from "../theme";
+import { typeLabel } from "./claimTypes";
 import { vendorName } from "./vendors";
 
 function cell(value: string | number | null): string {
@@ -8,15 +9,19 @@ function cell(value: string | number | null): string {
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
-/** The claims as CSV: one row per case, amounts as plain decimals so a spreadsheet can sum them. */
+/**
+ * The claims as CSV: one row per claim, amounts as plain decimals so a spreadsheet can sum them. "Amount"
+ * is what was claimed; "Recovered" is what came back, so a partial recovery shows both.
+ */
 export function claimsCsv(rows: Finding[]): string {
-  const header = ["Vendor", "Type", "Reference", "Amount", "Currency", "Respond by", "Days left", "Status", "Case"];
+  const header = ["Vendor", "Type", "Reference", "Amount", "Recovered", "Currency", "Respond by", "Days left", "Status", "Link"];
   const lines = rows.map((f) =>
     [
       vendorName(f.merchant),
-      LEAK_LABEL[f.leak_type],
+      typeLabel(f.leak_type),
       referenceOf(f.reason),
       (f.amount_minor / 100).toFixed(2),
+      f.status === "recovered" ? ((f.recovered_minor ?? f.amount_minor) / 100).toFixed(2) : null,
       f.currency,
       f.recover_by,
       f.days_left,
@@ -26,7 +31,7 @@ export function claimsCsv(rows: Finding[]): string {
       .map(cell)
       .join(","),
   );
-  return [header.join(","), ...lines].join("\n");
+  return `${[header.join(","), ...lines].join("\n")}\n`;
 }
 
 /** Builds the file in the browser and hands it to the viewer to save; nothing goes to the server. */

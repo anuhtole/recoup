@@ -24,6 +24,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "../Button";
 import { Sheet } from "../Sheet";
 import { configured, relativeTime, sourcesHealth, StatusDot } from "../Sources";
+import { vendorInitial, vendorTint } from "@/lib/vendors";
 import { type Command, CommandPalette } from "./CommandPalette";
 import { Menu, MenuItem, MenuNote, MenuSeparator } from "./Menu";
 import { TopBarSlot } from "./TopBarActions";
@@ -61,14 +62,16 @@ const NAV: NavItem[] = [
   { page: "sources", label: "Sources", icon: Plug },
 ];
 
-const ORG = "Acme Inc.";
+/** The org's name comes from the API (Settings.org_name, which also signs every letter); this is the fallback. */
+const DEFAULT_ORG = "Acme Inc.";
+const orgOf = (summary: Summary | null) => summary?.org_name ?? DEFAULT_ORG;
 const USER = { name: "Jackson", initials: "JG" };
 const IS_MAC = typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 const MOD = IS_MAC ? "⌘" : "Ctrl ";
 
 const SHORTCUTS: { keys: string[]; label: string }[] = [
   { keys: [`${MOD}K`], label: "Search and commands" },
-  { keys: ["/"], label: "Search claims" },
+  { keys: ["/"], label: "Filter claims" },
   { keys: ["J", "K"], label: "Next and previous claim" },
   { keys: ["↵"], label: "Open claim" },
   { keys: ["X"], label: "Select claim" },
@@ -78,10 +81,13 @@ const SHORTCUTS: { keys: string[]; label: string }[] = [
 
 const TYPING = new Set(["INPUT", "TEXTAREA", "SELECT"]);
 
-/** "Ledger synced · Oct 1": where the ledger stands, in one quiet line. */
+/**
+ * Where the data stands, in one quiet line. The demo runs on generated data, so it says so ("Demo data ·
+ * Oct 1") rather than claiming a ledger sync that Sources would contradict; live, "Ledger synced · 3 hours ago".
+ */
 function sourcesLine(summary: Summary | null, sources: Sources | null): string {
   if (!summary) return "Sources";
-  if (summary.data_mode !== "live") return `Ledger synced · ${formatDate(summary.as_of, "short")}`;
+  if (summary.data_mode !== "live") return `Demo data · ${formatDate(summary.as_of, "short")}`;
   const ledger = sources?.connectors.find((c) => c.kind === "ledger");
   if (!ledger?.configured) return "Ledger not connected";
   return ledger.last_sync ? `Ledger synced · ${relativeTime(ledger.last_sync.finished_at)}` : "Ledger not synced yet";
@@ -95,12 +101,28 @@ function DemoPill({ className }: { className?: string }) {
   );
 }
 
-function Mark({ size = 24 }: { size?: number }) {
-  return <img src="/brand/recoup-mark-180-ink.png" alt="" width={size} height={size} className="flex-none rounded-sm" style={{ width: size, height: size }} />;
+/** The Recoup product mark: small, in the sidebar footer. The org has its own tile above. */
+function Mark({ size = 16 }: { size?: number }) {
+  return <img src="/brand/recoup-mark-180-ink.png" alt="" width={size} height={size} className="flex-none rounded-xs" style={{ width: size, height: size }} />;
+}
+
+/** The org's tile: its initial on a soft tint, like any account avatar. */
+function OrgTile({ name, size = 24 }: { name: string; size?: number }) {
+  const tint = vendorTint(name);
+  return (
+    <span
+      aria-hidden
+      className="grid flex-none place-items-center rounded-sm font-semibold leading-none"
+      style={{ width: size, height: size, background: `var(--tint-${tint})`, color: `var(--tint-${tint}-ink)`, fontSize: Math.round(size * 0.5) }}
+    >
+      {vendorInitial(name)}
+    </span>
+  );
 }
 
 function OrgSwitcher({ summary }: { summary: Summary | null }) {
   const live = summary?.data_mode === "live";
+  const org = orgOf(summary);
   return (
     <Menu
       label="Organization"
@@ -109,8 +131,8 @@ function OrgSwitcher({ summary }: { summary: Summary | null }) {
       panelClassName="w-[216px]"
       trigger={
         <>
-          <Mark />
-          <span className="min-w-0 flex-1 truncate text-14 font-semibold text-white">{ORG}</span>
+          <OrgTile name={org} />
+          <span className="min-w-0 flex-1 truncate text-14 font-semibold text-white">{org}</span>
           {summary && !live && <DemoPill />}
           <ChevronsUpDown aria-hidden className="size-4 flex-none text-sub" strokeWidth={1.75} />
         </>
@@ -119,8 +141,8 @@ function OrgSwitcher({ summary }: { summary: Summary | null }) {
       {(close) => (
         <>
           <MenuNote className="pb-1 text-12 font-medium">Organization</MenuNote>
-          <MenuItem onSelect={close} hint={<Check aria-hidden className="size-4 text-ink" strokeWidth={2} />} icon={<Mark size={16} />}>
-            {ORG}
+          <MenuItem onSelect={close} hint={<Check aria-hidden className="size-4 text-ink" strokeWidth={2} />} icon={<OrgTile name={org} size={16} />}>
+            {org}
           </MenuItem>
           <MenuSeparator />
           <MenuNote className="flex items-center justify-between">
@@ -133,12 +155,30 @@ function OrgSwitcher({ summary }: { summary: Summary | null }) {
   );
 }
 
-function Sidebar({ page, claimsCount, summary, sources }: Pick<ShellProps, "page" | "claimsCount" | "summary" | "sources">) {
+/** ⌘K, as a full-width row under the org (Linear, Ramp): the one search trigger on wide screens. */
+function SearchRow({ onSearch }: { onSearch: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onSearch}
+      aria-keyshortcuts={IS_MAC ? "Meta+K" : "Control+K"}
+      className="flex h-9 w-full items-center gap-3 rounded-sm px-3 text-left text-14 text-sub transition-colors hover:bg-panel-2 hover:text-white"
+    >
+      <Search aria-hidden className="size-4 flex-none" strokeWidth={1.75} />
+      <span className="flex-1">Search</span>
+      <kbd className="kbd">{MOD}K</kbd>
+    </button>
+  );
+}
+
+function Sidebar({ page, claimsCount, summary, sources, onSearch }: Pick<ShellProps, "page" | "claimsCount" | "summary" | "sources"> & { onSearch: () => void }) {
   const health = sourcesHealth(sources);
+  const isDemo = summary !== null && summary.data_mode !== "live";
   return (
     <aside className="on-ink fixed inset-y-0 left-0 z-20 hidden w-58 flex-col bg-panel text-white md:flex">
-      <div className="px-3 pt-3 pb-5">
+      <div className="flex flex-col gap-1 px-3 pt-3 pb-4">
         <OrgSwitcher summary={summary} />
+        <SearchRow onSearch={onSearch} />
       </div>
       <nav aria-label="Pages" className="px-3">
         <ul className="m-0 flex flex-col gap-0.5 p-0">
@@ -152,7 +192,7 @@ function Sidebar({ page, claimsCount, summary, sources }: Pick<ShellProps, "page
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "flex h-9 items-center gap-3 rounded-sm px-3 text-14 transition-colors",
-                    active ? "bg-panel-2 font-medium text-white" : "text-sub hover:bg-panel-2 hover:text-white",
+                    active ? "bg-panel-active font-medium text-white" : "text-sub hover:bg-panel-2 hover:text-white",
                   )}
                 >
                   <Icon aria-hidden className="size-4 flex-none" strokeWidth={1.75} />
@@ -166,7 +206,7 @@ function Sidebar({ page, claimsCount, summary, sources }: Pick<ShellProps, "page
                   {item.page === "sources" && sources && (
                     <>
                       <StatusDot health={health} />
-                      <span className="sr-only">{health === "ok" ? "all synced" : health === "attention" ? "needs attention" : "not synced"}</span>
+                      <span className="sr-only">{isDemo ? "demo data" : health === "ok" ? "all synced" : health === "attention" ? "needs attention" : "not synced"}</span>
                     </>
                   )}
                 </a>
@@ -180,7 +220,10 @@ function Sidebar({ page, claimsCount, summary, sources }: Pick<ShellProps, "page
         className="mx-3 mt-auto mb-3 flex h-9 items-center gap-2 rounded-sm px-3 text-12 text-sub transition-colors hover:bg-panel-2 hover:text-white"
       >
         <StatusDot health={health} className="size-1.5" />
-        <span className="truncate">{sourcesLine(summary, sources)}</span>
+        <span className="min-w-0 flex-1 truncate">{sourcesLine(summary, sources)}</span>
+        <span className="flex flex-none items-center gap-1.5 opacity-70" title="Recoup">
+          <Mark size={14} />
+        </span>
       </a>
     </aside>
   );
@@ -303,7 +346,7 @@ function DemoMenu({ summary, isRunning, isAdvancing, onRun, onAdvance }: Pick<Sh
   );
 }
 
-function UserMenu({ onShortcuts }: { onShortcuts: () => void }) {
+function UserMenu({ org, onShortcuts }: { org: string; onShortcuts: () => void }) {
   return (
     <Menu
       label="Account"
@@ -320,7 +363,7 @@ function UserMenu({ onShortcuts }: { onShortcuts: () => void }) {
         <>
           <MenuNote>
             <span className="block text-14 font-medium text-ink">{USER.name}</span>
-            <span className="block">{ORG}</span>
+            <span className="block">{org}</span>
           </MenuNote>
           <MenuSeparator />
           <MenuItem
@@ -368,17 +411,7 @@ function TopBar(props: TopBarProps) {
           <h1 className="m-0 min-w-0 flex-1 truncate text-20 font-semibold tracking-[-0.01em]">{props.title}</h1>
         )}
         <div ref={props.slotRef} className="flex flex-none items-center gap-2 empty:hidden" />
-        <button
-          type="button"
-          onClick={props.onSearch}
-          aria-label="Search"
-          aria-keyshortcuts={IS_MAC ? "Meta+K" : "Control+K"}
-          className="hidden h-8 w-52 items-center gap-2 rounded-sm border border-line bg-paper pl-2.5 pr-1.5 text-13 text-dim transition-colors hover:border-line-strong md:flex"
-        >
-          <Search aria-hidden className="size-3.5" strokeWidth={2} />
-          <span className="flex-1 text-left">Search…</span>
-          <kbd className="kbd">{MOD}K</kbd>
-        </button>
+        {/* Wide screens search from the sidebar's row; phones keep this icon. */}
         <button
           type="button"
           onClick={props.onSearch}
@@ -390,7 +423,7 @@ function TopBar(props: TopBarProps) {
         <div className="hidden items-center gap-1 md:flex">
           <DemoMenu {...props} />
           <Help isOpen={props.isHelpOpen} onOpenChange={props.onHelp} />
-          <UserMenu onShortcuts={() => props.onHelp(true)} />
+          <UserMenu org={orgOf(props.summary)} onShortcuts={() => props.onHelp(true)} />
         </div>
       </div>
     </header>
@@ -402,8 +435,9 @@ type PhoneMenuProps = Pick<ShellProps, "summary" | "sources" | "isRunning" | "is
 /** The phone menu: the org, the demo controls, and where the sources stand. */
 function PhoneMenu({ summary, sources, isRunning, isAdvancing, onRun, onAdvance, onClose }: PhoneMenuProps) {
   const demo = Boolean(summary?.demo_mode);
+  const live = summary?.data_mode === "live";
   return (
-    <Sheet labelId="menu-title" title={ORG} subtitle={summary ? (summary.data_mode === "live" ? "Live data" : "Demo data") : undefined} onClose={onClose} tone="ink">
+    <Sheet labelId="menu-title" title={orgOf(summary)} subtitle={summary ? (summary.data_mode === "live" ? "Live data" : "Demo data") : undefined} onClose={onClose} tone="ink">
       <div className="flex flex-col gap-5 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2">
         {demo && summary && (
           <div className="flex flex-col gap-2">
@@ -441,7 +475,7 @@ function PhoneMenu({ summary, sources, isRunning, isAdvancing, onRun, onAdvance,
         <a href="#/sources" onClick={onClose} className="-mx-2 flex h-10 items-center gap-2 rounded-sm px-2 text-13 text-sub transition-colors hover:bg-panel-2 hover:text-white">
           <StatusDot health={sourcesHealth(sources)} />
           <span className="truncate">{sourcesLine(summary, sources)}</span>
-          {sources && <span className="ml-auto flex-none">{`${configured(sources).length} of ${sources.connectors.length} connected`}</span>}
+          {live && sources && <span className="ml-auto flex-none">{`${configured(sources).length} of ${sources.connectors.length} connected`}</span>}
         </a>
       </div>
     </Sheet>
@@ -466,7 +500,7 @@ function TabBar({ page, claimsCount }: Pick<ShellProps, "page" | "claimsCount">)
                 <span className="relative">
                   <Icon aria-hidden className="size-5" strokeWidth={1.75} />
                   {item.page === "claims" && claimsCount > 0 && (
-                    <span className="figure absolute -top-1 left-full ml-0.5 grid h-4 min-w-4 place-items-center rounded-xs bg-paper px-1 text-12 leading-none text-ink">
+                    <span className="figure absolute -top-1.5 left-full -ml-1 grid h-4 min-w-4 place-items-center rounded-full bg-paper px-1 text-12 font-semibold leading-none text-ink">
                       {claimsCount}
                     </span>
                   )}
@@ -526,7 +560,7 @@ export function Shell(props: ShellProps) {
     if (summary?.demo_mode) {
       list.push({ id: "advance", group: "Actions", label: "Advance 2 weeks", icon: icon(FastForward), keywords: "demo time clock", run: onAdvance });
     }
-    list.push({ id: "export", group: "Actions", label: "Export claims", icon: icon(Download), keywords: "csv download spreadsheet", run: onExport });
+    list.push({ id: "export", group: "Actions", label: "Export open claims", icon: icon(Download), keywords: "csv download spreadsheet", run: onExport });
     list.push({ id: "shortcuts", group: "Actions", label: "Keyboard shortcuts", icon: icon(Keyboard), keywords: "help keys", run: () => setIsHelpOpen(true) });
     return list;
   }, [summary?.demo_mode, onRun, onAdvance, onExport, onGo]);
@@ -534,7 +568,7 @@ export function Shell(props: ShellProps) {
   return (
     <TopBarSlot.Provider value={slot}>
       <div className="min-h-dvh bg-paper text-ink">
-        <Sidebar page={props.page} claimsCount={props.claimsCount} summary={summary} sources={props.sources} />
+        <Sidebar page={props.page} claimsCount={props.claimsCount} summary={summary} sources={props.sources} onSearch={() => setIsPaletteOpen(true)} />
         <div className="flex min-h-dvh min-w-0 flex-col md:pl-58">
           <TopBar
             {...props}
@@ -544,7 +578,15 @@ export function Shell(props: ShellProps) {
             isHelpOpen={isHelpOpen}
             onHelp={setIsHelpOpen}
           />
-          <main className="mx-auto flex w-full max-w-[1200px] min-w-0 flex-1 flex-col gap-6 px-4 pb-28 pt-6 md:px-8 md:pb-16 md:pt-8">{props.children}</main>
+          <main
+            className={cn(
+              "mx-auto flex w-full max-w-[1200px] min-w-0 flex-1 flex-col gap-6 px-4 pb-28 md:px-8 md:pb-16",
+              // Overview opens with a hero and gets room above it; lists start close to the top bar, as in Stripe.
+              props.page === "overview" ? "pt-6 md:pt-10" : props.isBreadcrumb ? "pt-6 md:pt-8" : props.page === "claims" ? "pt-3" : "pt-6",
+            )}
+          >
+            {props.children}
+          </main>
         </div>
         <TabBar page={props.page} claimsCount={props.claimsCount} />
       </div>

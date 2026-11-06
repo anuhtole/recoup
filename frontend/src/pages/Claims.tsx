@@ -6,22 +6,34 @@ import { Button } from "../components/Button";
 import { Menu, MenuItem, MenuSeparator } from "../components/shell/Menu";
 import { Pill, Tag } from "../components/ui";
 import { VendorLogo } from "../components/VendorLogo";
-import { formatDate, formatMoney, plural } from "../format";
+import { daysHint, formatDate, formatMoney, plural } from "../format";
+import { CLAIM_TYPES, typeGroup, typeLabel } from "../lib/claimTypes";
 import { vendorName } from "../lib/vendors";
 import { SPRING } from "../motion";
 import { countsFor, filterRows, referenceOf, rowsFor, type Tab, TABS } from "../queue";
-import { isUrgent, LEAK_CHIP, LEAK_LABEL, statusOf } from "../theme";
+import { isUrgent, statusOf } from "../theme";
 import { cn } from "@/lib/utils";
 
 const EMPTY: Record<Tab, string> = {
   todo: "Nothing to do right now.",
   waiting: "Nothing is waiting on a vendor.",
-  done: "Nothing recovered or dismissed yet.",
+  done: "Nothing recovered or marked not owed yet.",
   closed: "No claim windows have closed.",
 };
 
-const TYPES = Object.keys(LEAK_CHIP) as LeakType[];
+const TYPES = CLAIM_TYPES;
 const TYPING = new Set(["INPUT", "TEXTAREA", "SELECT"]);
+/** A text field has the keyboard; a checkbox or radio doesn't (Esc still clears the selection there). */
+function isTyping(target: HTMLElement | null): boolean {
+  if (!target) return false;
+  if (target.isContentEditable) return true;
+  if (target instanceof HTMLInputElement) return target.type !== "checkbox" && target.type !== "radio";
+  return TYPING.has(target.tagName);
+}
+/** A focused control that Enter (or x) already means something to: a link, a button, a tab, a checkbox. */
+function isControl(target: HTMLElement | null): boolean {
+  return Boolean(target?.closest('a[href], button, input, select, textarea, label, [role="tab"], [role="button"], [role="menuitem"]'));
+}
 
 export interface ClaimsParams {
   tab: Tab;
@@ -64,30 +76,43 @@ const canDraft = (f: Finding) => ["draft", "follow_up", "escalate"].includes(f.n
 const canDismiss = (f: Finding) => !["recovered", "dismissed", "expired"].includes(f.status);
 const shownAmount = (f: Finding) => (f.status === "recovered" ? (f.recovered_minor ?? f.amount_minor) : f.amount_minor);
 
-/** Under a respond-by date: "1 day left" while it is close, otherwise "29 days"; "Closed" once it has passed. */
-function daysLine(days: number | null): string | null {
-  if (days === null) return null;
-  if (days < 0) return "Closed";
-  if (days === 0) return "Last day";
-  if (days <= 3) return days === 1 ? "1 day left" : `${days} days left`;
-  return `${days} days`;
-}
+export const LIST_ID = "claims-list";
 
+/**
+ * Stage tabs, as the ARIA tab pattern: one Tab stop (the selected tab), arrows move between them, each
+ * controls the list. The selected tab has a real border, so it still shows in forced-colors mode.
+ */
 function Tabs({ tab, counts, onTab }: { tab: Tab; counts: Record<Tab, number>; onTab: (t: Tab) => void }) {
+  const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const onKey = (event: React.KeyboardEvent, index: number) => {
+    const to = event.key === "ArrowRight" ? index + 1 : event.key === "ArrowLeft" ? index - 1 : event.key === "Home" ? 0 : event.key === "End" ? TABS.length - 1 : null;
+    if (to === null) return;
+    event.preventDefault();
+    const next = (to + TABS.length) % TABS.length;
+    onTab(TABS[next].id);
+    refs.current[next]?.focus();
+  };
   return (
     <div role="tablist" aria-label="Claim stages" className="flex flex-none gap-6">
-      {TABS.map((t) => {
+      {TABS.map((t, index) => {
         const active = t.id === tab;
         return (
           <button
             key={t.id}
+            ref={(el) => {
+              refs.current[index] = el;
+            }}
+            id={`tab-${t.id}`}
             type="button"
             role="tab"
             aria-selected={active}
+            aria-controls={LIST_ID}
+            tabIndex={active ? 0 : -1}
             onClick={() => onTab(t.id)}
+            onKeyDown={(e) => onKey(e, index)}
             className={cn(
-              "flex h-11 flex-none items-center gap-1.5 whitespace-nowrap text-14 font-medium transition-[color,box-shadow] duration-150",
-              active ? "text-ink shadow-[inset_0_-2px_0_var(--ink)]" : "text-dim hover:text-ink",
+              "flex h-11 flex-none items-center gap-1.5 whitespace-nowrap border-b-2 pt-0.5 text-14 font-medium transition-colors duration-150",
+              active ? "border-ink text-ink" : "border-transparent text-dim hover:text-ink",
             )}
           >
             {t.label}
@@ -102,7 +127,7 @@ function Tabs({ tab, counts, onTab }: { tab: Tab; counts: Record<Tab, number>; o
 function SearchField({ value, onChange, inputRef }: { value: string; onChange: (v: string) => void; inputRef: React.RefObject<HTMLInputElement> }) {
   return (
     <label className="relative flex h-8 min-w-0 flex-1 items-center md:w-56 md:flex-none">
-      <span className="sr-only">Search vendors or references</span>
+      <span className="sr-only">Filter claims</span>
       <Search aria-hidden className="pointer-events-none absolute left-2.5 size-3.5 text-dim" strokeWidth={2} />
       <input
         ref={inputRef}
@@ -115,7 +140,7 @@ function SearchField({ value, onChange, inputRef }: { value: string; onChange: (
             e.currentTarget.blur();
           }
         }}
-        placeholder="Search"
+        placeholder="Filter claims"
         className="h-full w-full rounded-sm border border-line bg-paper pl-8 pr-3 text-13 md:pr-9 text-ink placeholder:text-dim transition-colors hover:border-line-strong focus-visible:border-ink focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden"
       />
       <kbd aria-hidden className="kbd pointer-events-none absolute right-1.5 max-md:hidden">
@@ -142,7 +167,7 @@ function TypeFilter({ type, onType }: { type: LeakType | null; onType: (t: LeakT
         trigger={
           type ? (
             <span className="whitespace-nowrap">
-              <span className="text-dim">Type:</span> <span className="font-medium text-ink">{LEAK_CHIP[type]}</span>
+              <span className="text-dim">Type:</span> <span className="font-medium text-ink">{typeGroup(type)}</span>
             </span>
           ) : (
             <>
@@ -160,7 +185,7 @@ function TypeFilter({ type, onType }: { type: LeakType | null; onType: (t: LeakT
             <MenuSeparator />
             {TYPES.map((t) => (
               <MenuItem key={t} checked={type === t} hint={type === t ? tick : undefined} onSelect={() => choose(close, t)}>
-                {LEAK_CHIP[t]}
+                {typeGroup(t)}
               </MenuItem>
             ))}
           </>
@@ -194,13 +219,30 @@ function Check({ checked, indeterminate, onChange, label }: { checked: boolean; 
   );
 }
 
-function RespondBy({ f }: { f: Finding }) {
+/** The respond-by date and, under it, the days left (amber at three or fewer). On Window closed, just the date. */
+function RespondBy({ f, closed }: { f: Finding; closed: boolean }) {
   if (!f.recover_by) return <span className="text-dim">—</span>;
-  const line = daysLine(f.days_left);
+  const line = closed ? null : daysHint(f.days_left);
   return (
     <span className="flex flex-col">
       <span className="figure text-14 leading-5">{formatDate(f.recover_by, "short")}</span>
       {line && <span className={cn("text-12", isUrgent(f.days_left) ? "font-medium text-amber-ink" : "text-dim")}>{line}</span>}
+    </span>
+  );
+}
+
+/** The second line under a vendor: "Duplicate charge · FIG-202606", the reference alone in mono. */
+function Subline({ f }: { f: Finding }) {
+  const reference = referenceOf(f.reason);
+  return (
+    <span className="truncate text-13 text-dim">
+      {typeLabel(f.leak_type)}
+      {reference && (
+        <>
+          {" · "}
+          <span className="ref text-12">{reference}</span>
+        </>
+      )}
     </span>
   );
 }
@@ -243,17 +285,18 @@ function Table({
 }) {
   const all = rows.length > 0 && rows.every((r) => selected.has(r.id));
   const some = rows.some((r) => selected.has(r.id));
-  // Status only where it varies: every To do row is open, so its exceptions ride inline instead.
-  const withStatus = tab !== "todo";
+  // Status only where it varies: every To do row is open (its exceptions ride inline) and every Window
+  // closed row is closed (the tab says so).
+  const withStatus = tab === "waiting" || tab === "done";
+  const closed = tab === "closed";
   return (
     <table className="w-full table-fixed border-collapse text-left">
       <colgroup>
         <col className="w-12" />
-        <col className="lg:w-[36%]" />
-        <col className="hidden lg:table-column" />
-        <col className="w-[136px]" />
-        {withStatus && <col className="w-[152px]" />}
-        <col className="w-[136px]" />
+        <col />
+        <col className="w-40" />
+        {withStatus && <col className="w-40" />}
+        <col className="w-35" />
       </colgroup>
       <thead>
         <tr className="h-10 border-b border-line text-12 text-dim">
@@ -263,11 +306,8 @@ function Table({
           <th scope="col" className="px-3 font-medium">
             Vendor
           </th>
-          <th scope="col" className="hidden px-3 font-medium lg:table-cell">
-            Type
-          </th>
           <th scope="col" className="px-3 font-medium">
-            Respond by
+            {closed ? "Closed" : "Respond by"}
           </th>
           {withStatus && (
             <th scope="col" className="px-3 font-medium">
@@ -283,7 +323,6 @@ function Table({
         {rows.map((f) => {
           const on = cursor === f.id;
           const isSelected = selected.has(f.id);
-          const reference = referenceOf(f.reason);
           const status = statusOf(f);
           return (
             <tr
@@ -293,7 +332,7 @@ function Table({
               aria-selected={isSelected}
               onClick={() => onOpen(f.id)}
               className={cn(
-                "h-13 cursor-pointer border-b border-line transition-colors duration-100",
+                "h-14 cursor-pointer border-b border-line transition-colors duration-100",
                 on ? "bg-wash" : isSelected ? "bg-ground/70" : "hover:bg-wash",
               )}
             >
@@ -318,19 +357,12 @@ function Table({
                       </a>
                       {tab === "todo" && <InlineStatus f={f} />}
                     </span>
-                    <span className="truncate text-12 text-dim">
-                      {reference && <span className="ref">{reference}</span>}
-                      <span className="lg:hidden">
-                        {reference && " · "}
-                        {LEAK_LABEL[f.leak_type]}
-                      </span>
-                    </span>
+                    <Subline f={f} />
                   </div>
                 </div>
               </td>
-              <td className="hidden truncate px-3 text-14 text-dim lg:table-cell">{LEAK_LABEL[f.leak_type]}</td>
               <td className="px-3">
-                <RespondBy f={f} />
+                <RespondBy f={f} closed={closed} />
               </td>
               {withStatus && (
                 <td className="px-3">
@@ -346,7 +378,7 @@ function Table({
       </tbody>
       <tfoot>
         <tr className="h-12">
-          <td colSpan={withStatus ? 6 : 5} className="pl-4 pr-4">
+          <td colSpan={withStatus ? 5 : 4} className="pl-4 pr-4">
             <Total rows={rows} />
           </td>
         </tr>
@@ -361,8 +393,7 @@ function PhoneList({ rows, tab, onOpen }: { rows: Finding[]; tab: Tab; onOpen: (
       <ul className="m-0 flex flex-col p-0">
         {rows.map((f) => {
           const status = statusOf(f);
-          const line = daysLine(f.days_left);
-          const reference = referenceOf(f.reason);
+          const line = daysHint(f.days_left);
           return (
             <li key={f.id} className="list-none border-b border-line">
               <a
@@ -386,13 +417,14 @@ function PhoneList({ rows, tab, onOpen }: { rows: Finding[]; tab: Tab; onOpen: (
                     </span>
                   </span>
                   <span className="flex items-baseline justify-between gap-3 text-13">
-                    <span className="min-w-0 truncate text-dim">
-                      {LEAK_LABEL[f.leak_type]}
-                      {reference && <span className="ref text-12"> · {reference}</span>}
-                    </span>
-                    {tab === "todo"
-                      ? line && <span className={cn("flex-none", isUrgent(f.days_left) ? "font-medium text-amber-ink" : "text-dim")}>{line}</span>
-                      : <Pill label={status.label} tone={status.tone} />}
+                    <Subline f={f} />
+                    {tab === "todo" ? (
+                      line && <span className={cn("flex-none", isUrgent(f.days_left) ? "font-medium text-amber-ink" : "text-dim")}>{line}</span>
+                    ) : tab === "closed" ? (
+                      f.recover_by && <span className="figure flex-none text-dim">{formatDate(f.recover_by, "short")}</span>
+                    ) : (
+                      <Pill label={status.label} tone={status.tone} />
+                    )}
                   </span>
                 </span>
               </a>
@@ -461,7 +493,7 @@ function BulkBar({
             className="mr-1 h-8 w-64 rounded-sm border border-rule bg-panel-2 px-3 text-13 text-white placeholder:text-sub focus-visible:border-mint focus-visible:outline-none"
           />
           <Button type="submit" size="sm" variant="primary" disabled={!reason.trim()} isBusy={isBusy}>
-            Dismiss {dismissable}
+            Mark {dismissable} not owed
           </Button>
           <Button size="sm" variant="ink-ghost" onClick={() => setIsDismissing(false)}>
             Cancel
@@ -484,7 +516,7 @@ function BulkBar({
             {draftable === 1 ? "request" : "requests"}
           </Button>
           <Button size="sm" variant="ink-ghost" disabled={dismissable === 0} onClick={() => setIsDismissing(true)}>
-            Dismiss…
+            Not owed…
           </Button>
           <button
             type="button"
@@ -533,7 +565,7 @@ export function Claims({ findings, params, onParams, onOpen, onExport, isBusy, o
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
-      if (target && (TYPING.has(target.tagName) || target.isContentEditable)) return;
+      if (isTyping(target)) return;
       if (event.metaKey || event.ctrlKey || event.altKey || event.defaultPrevented) return;
       if (event.key === "/") {
         event.preventDefault();
@@ -544,6 +576,8 @@ export function Claims({ findings, params, onParams, onOpen, onExport, isBusy, o
         setSelected(new Set());
         return;
       }
+      // Enter and x belong to the focused control (a row link, Export, a tab, a checkbox), not the cursor row.
+      if ((event.key === "Enter" || event.key === "x") && isControl(target)) return;
       if (rows.length === 0) return;
       const index = cursor === null ? -1 : rows.findIndex((r) => r.id === cursor);
       if (event.key === "j" || event.key === "ArrowDown") {
@@ -591,7 +625,7 @@ export function Claims({ findings, params, onParams, onOpen, onExport, isBusy, o
         </div>
       </div>
 
-      <section aria-label="Claims list" aria-keyshortcuts="j k ArrowDown ArrowUp Enter x /">
+      <section id={LIST_ID} role="tabpanel" aria-labelledby={`tab-${params.tab}`} aria-keyshortcuts="j k ArrowDown ArrowUp Enter x /">
         {params.tab === "closed" && rows.length > 0 && (
           <p className="m-0 border-b border-line py-3 text-13 text-dim">Too late for a card dispute. The vendor can still refund you directly.</p>
         )}
@@ -599,7 +633,7 @@ export function Claims({ findings, params, onParams, onOpen, onExport, isBusy, o
           <div className="flex flex-col items-center gap-3 px-6 py-20 text-center">
             <p className="m-0 max-w-[44ch] text-14 text-dim text-balance">
               {isFiltered
-                ? `No ${tabLabel.toLowerCase()} claims match${params.q ? ` “${params.q}”` : ""}${params.type ? ` in ${LEAK_CHIP[params.type].toLowerCase()}` : ""}.`
+                ? `Nothing in ${tabLabel} matches${params.q ? ` “${params.q}”` : ""}${params.type ? ` in ${typeGroup(params.type)}` : ""}.`
                 : EMPTY[params.tab]}
             </p>
             {isFiltered && (

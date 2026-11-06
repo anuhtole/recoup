@@ -27,7 +27,9 @@ export function Menu({ label, trigger, triggerClassName, triggerTitle, align = "
   const root = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const panel = useRef<HTMLDivElement>(null);
-  const focusFirst = useRef<"first" | "last">("first");
+  // Where focus lands on open: the first or last item when opened from the keyboard, the panel itself
+  // when opened with a pointer, so nothing (least of all a mutating action) looks pre-selected.
+  const focusFirst = useRef<"first" | "last" | "panel">("first");
   const id = useId();
 
   const close = useCallback((restore = true) => {
@@ -38,7 +40,7 @@ export function Menu({ label, trigger, triggerClassName, triggerTitle, align = "
   useEffect(() => {
     if (!isOpen) return;
     const items = panel.current?.querySelectorAll<HTMLElement>(ITEM);
-    const target = focusFirst.current === "last" ? items?.[items.length - 1] : items?.[0];
+    const target = focusFirst.current === "panel" ? null : focusFirst.current === "last" ? items?.[items.length - 1] : items?.[0];
     (target ?? panel.current)?.focus({ preventScroll: true });
     const onDown = (event: PointerEvent) => {
       if (root.current && !root.current.contains(event.target as Node)) close(false);
@@ -55,8 +57,9 @@ export function Menu({ label, trigger, triggerClassName, triggerTitle, align = "
       items[(to + items.length) % items.length]?.focus();
     };
     // Every key the menu handles stops here, so page shortcuts (j / k, Escape) don't also fire.
-    if (event.key === "ArrowDown") move(index + 1);
-    else if (event.key === "ArrowUp") move(index - 1);
+    // Opened by pointer, nothing is focused yet: the first arrow goes to the first (or last) item.
+    if (event.key === "ArrowDown") move(index < 0 ? 0 : index + 1);
+    else if (event.key === "ArrowUp") move(index < 0 ? items.length - 1 : index - 1);
     else if (event.key === "Home") move(0);
     else if (event.key === "End") move(items.length - 1);
     else if (event.key === "Escape") {
@@ -84,8 +87,9 @@ export function Menu({ label, trigger, triggerClassName, triggerTitle, align = "
         aria-haspopup="menu"
         aria-expanded={isOpen}
         aria-controls={isOpen ? id : undefined}
-        onClick={() => {
-          focusFirst.current = "first";
+        onClick={(event) => {
+          // Enter and Space click with detail 0; a mouse or touch click has detail ≥ 1.
+          focusFirst.current = event.detail === 0 ? "first" : "panel";
           setIsOpen((open) => !open);
         }}
         onKeyDown={onTriggerKey}

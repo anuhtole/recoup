@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { formatDate, formatMoney } from "../../format";
 import { SPRING } from "../../motion";
 import { titleCase } from "../../queue";
-import { type Citation, type CitedReason, type Source, splitIncident } from "./cite";
+import { type Citation, type CitedReason, incidentParts, type Source, splitIncident } from "./cite";
 
 const PREVIEW_WIDTH = 300;
 const GAP = 10;
@@ -53,11 +53,15 @@ function Preview({ source }: { source: Source }) {
         <>
           <p className="text-12 text-sub">Vendor status page</p>
           <ul className="mt-2 flex flex-col gap-2">
-            {source.items.map((item) => (
-              <li key={item.ref} className="text-14">
-                {splitIncident(item.detail).text}
-              </li>
-            ))}
+            {source.items.map((item) => {
+              const { name, when } = incidentParts(splitIncident(item.detail).text);
+              return (
+                <li key={item.ref} className="flex flex-col text-14">
+                  <span>{name}</span>
+                  {when && <span className="figure text-12 text-sub">{when}</span>}
+                </li>
+              );
+            })}
           </ul>
         </>
       );
@@ -98,12 +102,19 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
   useEffect(() => {
     if (!isOpen) return;
     const close = () => setIsOpen(false);
-    const onKey = (event: KeyboardEvent) => event.key === "Escape" && close();
+    // Capture phase, so it runs before the case page's own Escape (back to the list), which skips a
+    // handled key: Esc closes the preview and leaves you where you are (WCAG 1.4.13).
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      close();
+    };
     window.addEventListener("scroll", close, true);
-    window.addEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
     return () => {
       window.removeEventListener("scroll", close, true);
-      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keydown", onKey, true);
     };
   }, [isOpen]);
 

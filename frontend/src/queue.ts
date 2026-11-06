@@ -1,4 +1,5 @@
 import type { Finding, LeakType } from "./api";
+import { formatPercent } from "./format";
 import { vendorName } from "./lib/vendors";
 
 /** A case whose claim window has passed: kept, but out of the live lists. */
@@ -58,26 +59,54 @@ export function referenceOf(reason: string): string | null {
   return /reference ([A-Z0-9][A-Z0-9-]{3,})/.exec(reason)?.[1] ?? null;
 }
 
-const KEEP_UPPER = new Set(["US", "UK", "SF", "NY", "LA", "AWS", "SLA", "EU"]);
+const KEEP_UPPER = new Set(["US", "UK", "SF", "NY", "LA", "AWS", "SLA", "EU", "LLC", "INC", "LTD", "AMZN", "SQ", "TST", "API"]);
+// How brands write themselves, after title-casing a descriptor: "WEWORK" → "WeWork", "ZOOM.US" → "Zoom.us".
+const BRAND_CASE: [RegExp, string][] = [
+  [/\bWework\b/g, "WeWork"],
+  [/\bGithub\b/g, "GitHub"],
+  [/\bZoom\.US\b/g, "Zoom.us"],
+  [/\bPaypal\b/g, "PayPal"],
+];
 
-/** "FIGMA INC" → "Figma Inc": title-cases words written in all caps, leaving codes (FIG-202606) alone. */
+/**
+ * "JOE'S CATERING LLC" → "Joe's Catering LLC": title-cases a card descriptor, which banks print in all
+ * caps. Anything with a lowercase letter is already how someone wrote it ("AMZN Mktp US", "Increased API
+ * latency…") and is left alone. Codes (FIG-202606), legal suffixes and acronyms keep their caps.
+ */
 export function titleCase(text: string): string {
-  return text.replace(/\b[A-Z][A-Z']+\b/g, (word, offset: number, whole: string) => {
+  if (/[a-z]/.test(text)) return text;
+  let out = text.replace(/\b[A-Z][A-Z']+\b/g, (word, offset: number, whole: string) => {
     const next = whole[offset + word.length];
     if (KEEP_UPPER.has(word) || next === "-" || /\d/.test(word)) return word;
     return word.charAt(0) + word.slice(1).toLowerCase();
   });
+  for (const [pattern, brand] of BRAND_CASE) out = out.replace(pattern, brand);
+  return out;
 }
 
 /**
  * The reason sentence for display. Citations are numbered on this text, so it may change length:
- * an all-caps card descriptor at its start reads as the vendor's name ("SQ *JOES CATERING" → "Joes Catering"),
- * "3 more time(s)" reads "3 more times", and a date repeated for both charges is said once.
+ * - it starts with the vendor's name as the header shows it ("AMZN Mktp US charged" → "Amazon charged");
+ * - the shared reference, already in the header and the ledger, isn't said again;
+ * - "3 more time(s)" reads "3 more times", 99.90% reads 99.9%, a date repeated for both charges is said once;
+ * - older detector wording is brought in line ("a person should confirm", "(99.46% uptime)", "; claim by …").
  */
-export function displayReason(reason: string): string {
+export function displayReason(reason: string, merchant?: string): string {
   let text = reason;
-  const match = /^([^a-z]+?) (charged|confirmed|promised|ran|owed)\b/.exec(text);
-  if (match) text = vendorName(titleCase(match[1])) + text.slice(match[1].length);
+  if (merchant) {
+    const lead = /^([^$\d]{1,48}?) (charged|confirmed|promised|ran|owed)\b/.exec(text);
+    if (lead) text = vendorName(merchant) + text.slice(lead[1].length);
+  } else {
+    const match = /^([^a-z]+?) (charged|confirmed|promised|ran|owed)\b/.exec(text);
+    if (match) text = vendorName(titleCase(match[1])) + text.slice(match[1].length);
+  }
+  text = text
+    .replace(/, under the same reference [A-Z0-9][A-Z0-9-]{3,}\./, ".")
+    .replace(/There is no shared order reference to prove it was one purchase, so a person should confirm before we contact the vendor\./, "No shared order reference shows it was one purchase, so confirm it before you claim.")
+    .replace(/ \((\d+(?:\.\d+)?%) uptime\),/, ", when uptime was $1,")
+    .replace(/; claim by [A-Z][a-z]{2} \d{1,2}, \d{4}\./, ".")
+    .replace(/\b1 more time\(s\)/g, "once more");
+  text = formatPercent(text);
   text = text.replace(/\b(\d+) (more )?([a-z]+)\(s\)/g, (_, n: string, more: string | undefined, word: string) => `${n} ${more ?? ""}${n === "1" ? word : `${word}s`}`);
   return text.replace(/, on ([A-Z][a-z]{2} \d{1,2}, \d{4}) and \1,?/, " on $1,").replace(/ on ([A-Z][a-z]{2} \d{1,2}, \d{4}),\./, " on $1.");
 }

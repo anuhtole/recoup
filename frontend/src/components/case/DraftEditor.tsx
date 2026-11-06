@@ -19,7 +19,7 @@ export function DraftEditor({ draft, subject, body, onChange, isBusy, onSave }: 
   const isDirty = subject !== draft.subject || body !== draft.body;
   const isDispute = draft.channel === "card_dispute";
   return (
-    <Section title={isDispute ? "Draft dispute" : "Draft request"} meta="Not sent">
+    <Section title={isDispute ? "Card dispute" : "Request"} meta="Draft · not sent">
       <div className="flex flex-col gap-4 pt-4">
         <p className="m-0 flex items-baseline gap-3 text-14">
           <span className="w-16 flex-none text-13 text-dim">To</span>
@@ -47,7 +47,7 @@ export function DraftEditor({ draft, subject, body, onChange, isBusy, onSave }: 
           <Button size="sm" onClick={onSave} disabled={!isDirty} isBusy={isBusy}>
             Save edits
           </Button>
-          {isDirty && <span className="text-13 text-dim">Edits are saved when you send.</span>}
+          {isDirty && <span className="text-13 text-dim">Unsaved changes</span>}
         </div>
       </div>
     </Section>

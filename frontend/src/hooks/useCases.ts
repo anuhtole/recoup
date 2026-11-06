@@ -22,7 +22,7 @@ export function useCases(): CasesState {
       setFindings(nextFindings);
       setError(null);
     } catch {
-      setError("Could not reach the Recoup API. Is it running on port 8000?");
+      setError("Couldn't load your claims. Check your connection and try again.");
     } finally {
       setIsLoading(false);
     }

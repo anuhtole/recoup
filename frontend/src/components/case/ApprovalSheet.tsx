@@ -21,7 +21,7 @@ interface Props {
   onClose: () => void;
 }
 
-/** The letter, whole: it scrolls when it is longer than the box, with a fade and a hint so nothing reads as cut off. */
+/** The message, whole: it scrolls when it is longer than the box, with a fade so nothing reads as cut off. */
 function Letter({ subject, body }: { subject: string; body: string }) {
   const box = useRef<HTMLDivElement>(null);
   const [more, setMore] = useState(false);
@@ -36,16 +36,13 @@ function Letter({ subject, body }: { subject: string; body: string }) {
   }, [measure, body]);
   return (
     <div className="flex min-h-0 flex-col gap-2">
-      <div className="flex items-baseline justify-between gap-3">
-        <p className="m-0 text-13 text-dim">Letter</p>
-        {more && <p className="m-0 text-12 text-dim">Scroll to read it all</p>}
-      </div>
+      <p className="m-0 text-13 text-dim">Message</p>
       <div className="relative">
         <div
           ref={box}
           onScroll={measure}
           tabIndex={0}
-          aria-label="Letter preview"
+          aria-label="Message preview"
           className="max-h-[min(20rem,32dvh)] overflow-y-auto rounded-sm border border-line bg-wash px-4 py-3"
         >
           <p className="m-0 text-14 font-medium">{subject}</p>
@@ -93,7 +90,7 @@ export function ApprovalSheet({ draft, subject, body, amountMinor, currency, ref
           <Row label="Reference">
             <span className="ref">{reference ?? "—"}</span>
           </Row>
-          <Row label="Channel">{isDispute ? "Card dispute" : "Email"}</Row>
+          <Row label="Sent as">{isDispute ? "Card dispute" : "Email"}</Row>
         </dl>
         <Letter subject={subject} body={body} />
       </div>
@@ -102,7 +99,7 @@ export function ApprovalSheet({ draft, subject, body, amountMinor, currency, ref
         <p className="m-0 flex items-start gap-2 text-13 text-sub">
           <Lock aria-hidden className="mt-0.5 size-3.5 flex-none text-mint" strokeWidth={2} />
           <span>
-            <span className="font-medium text-white">This can't be edited after it's sent.</span> Nothing goes out without this approval.
+            <span className="font-medium text-white">This can't be edited after it's sent.</span>
           </span>
         </p>
         <SlideToConfirm
@@ -117,7 +114,6 @@ export function ApprovalSheet({ draft, subject, body, amountMinor, currency, ref
             window.setTimeout(onClose, CLOSE_AFTER_DONE_MS);
           }}
         />
-        <p className="m-0 text-center text-12 text-sub">Drag to the end, or press Enter twice.</p>
       </div>
     </Sheet>
   );

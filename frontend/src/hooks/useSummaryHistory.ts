@@ -1,60 +1,34 @@
-import { useEffect, useState } from "react";
-import type { Summary } from "../api";
+import { useMemo } from "react";
+import type { Finding, Summary } from "../api";
 
 export interface Snapshot {
+  /** A demo-clock date, YYYY-MM-DD. */
   as_of: string;
-  claimable: number;
-  in_flight: number;
+  /** Money back by that date, cumulative. */
   recovered: number;
-  expired: number;
-}
-
-const KEY = "recoup.summary-history";
-
-function read(): Snapshot[] {
-  try {
-    const raw = sessionStorage.getItem(KEY);
-    const parsed: unknown = raw ? JSON.parse(raw) : [];
-    return Array.isArray(parsed) ? (parsed as Snapshot[]) : [];
-  } catch {
-    return [];
-  }
-}
-
-function snapshot(summary: Summary): Snapshot {
-  return {
-    as_of: summary.as_of,
-    claimable: summary.claimable_minor,
-    in_flight: summary.in_flight_minor,
-    recovered: summary.recovered_minor,
-    expired: summary.expired_minor,
-  };
 }
 
 /**
- * One snapshot of the totals per demo date, kept for this browser session, so the tiles can draw
- * how each total moved with every "Advance 2 weeks". Same date: the latest totals replace the last
- * point. An earlier date (the demo was reset) starts the history again.
+ * Money back over time, from the server's own records: each recovered claim's credit date
+ * (`recovered_at`) and amount, summed by date, plus today's total on the as-of date. Every viewer and
+ * every tab sees the same line, and a fresh tab after "Advance 2 weeks" has it too.
  */
-export function useSummaryHistory(summary: Summary): Snapshot[] {
-  const [history, setHistory] = useState<Snapshot[]>(read);
+export function recoveryHistory(summary: Summary, findings: Finding[]): Snapshot[] {
+  const byDay = new Map<string, number>();
+  for (const f of findings) {
+    if (f.status !== "recovered" || !f.recovered_at) continue;
+    const day = f.recovered_at.slice(0, 10);
+    byDay.set(day, (byDay.get(day) ?? 0) + (f.recovered_minor ?? f.amount_minor));
+  }
+  let total = 0;
+  const points = [...byDay.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([as_of, amount]) => ({ as_of, recovered: (total += amount) }));
+  const last = points.at(-1);
+  if (last && summary.as_of > last.as_of) points.push({ as_of: summary.as_of, recovered: last.recovered });
+  return points;
+}
 
-  useEffect(() => {
-    setHistory((previous) => {
-      const next = snapshot(summary);
-      const last = previous[previous.length - 1];
-      let updated: Snapshot[];
-      if (!last || next.as_of < last.as_of) updated = [next];
-      else if (next.as_of === last.as_of) updated = [...previous.slice(0, -1), next];
-      else updated = [...previous, next];
-      try {
-        sessionStorage.setItem(KEY, JSON.stringify(updated));
-      } catch {
-        // Storage can be unavailable (private mode); the sparklines just start fresh.
-      }
-      return updated;
-    });
-  }, [summary]);
-
-  return history;
+export function useRecoveryHistory(summary: Summary, findings: Finding[]): Snapshot[] {
+  return useMemo(() => recoveryHistory(summary, findings), [summary, findings]);
 }

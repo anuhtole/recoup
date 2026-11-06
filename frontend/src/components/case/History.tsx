@@ -5,21 +5,20 @@ import { titleCase } from "../../queue";
 import { cn } from "@/lib/utils";
 
 const ACTION_LABEL: Record<string, string> = {
-  "finding.created": "Case opened",
-  "finding.updated": "Case updated",
+  "finding.created": "Claim opened",
+  "finding.updated": "Claim updated",
   "draft.created": "Request drafted",
   "draft.edited": "Draft edited",
   "message.sent": "Request sent",
   "vendor.replied": "Vendor replied",
   "recovery.confirmed": "Money confirmed in the ledger",
-  "case.dismissed": "Dismissed",
-  "email.rejected": "Email set aside",
+  "case.dismissed": "Marked not owed",
+  "email.rejected": "Email skipped",
 };
 
+/** Known actions in words; anything else is just "Updated", never an internal id like "finding.status_changed". */
 function actionLabel(action: string): string {
-  if (ACTION_LABEL[action]) return ACTION_LABEL[action];
-  const words = action.replace(/[._]/g, " ");
-  return words.charAt(0).toUpperCase() + words.slice(1);
+  return ACTION_LABEL[action] ?? "Updated";
 }
 
 function actorLabel(actor: string): string {
@@ -48,7 +47,7 @@ function EventDetail({ text }: { text: string }) {
 }
 
 /** The story of the case and its append-only record, in one disclosure that starts closed. */
-export function History({ events, trace }: { events: TimelineEvent[]; trace: AuditEvent[] }) {
+export function History({ events, trace, isDemo = false }: { events: TimelineEvent[]; trace: AuditEvent[]; isDemo?: boolean }) {
   return (
     <details className="group">
       <summary className="flex min-h-8 cursor-pointer select-none items-center justify-between gap-4 border-b border-line pb-2">
@@ -84,8 +83,11 @@ export function History({ events, trace }: { events: TimelineEvent[]; trace: Aud
         </ol>
         {trace.length > 0 && (
           <div className="flex flex-col gap-1.5">
-            {/* These are the server's wall-clock times, not the demo date the story above runs on. */}
-            <h3 className="m-0 text-13 font-medium text-dim">Audit log · server time</h3>
+            {/* The server's wall-clock times. In the demo they differ from the demo date the story above runs on. */}
+            <h3 className="m-0 flex items-baseline justify-between gap-4 text-13 font-medium text-dim">
+              <span>Audit log</span>
+              {isDemo && <span className="text-12 font-normal">Real times, not the demo date</span>}
+            </h3>
             <ul className="m-0 flex flex-col gap-1 p-0">
               {trace.map((event) => (
                 <li key={event.id} className="list-none text-13">

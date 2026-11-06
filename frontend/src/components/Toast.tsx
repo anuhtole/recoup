@@ -9,8 +9,10 @@ export interface Notice {
   body?: string;
   /** "money" marks a credit confirmed in the ledger; it is the only notice that uses the money colour. */
   tone: "info" | "money" | "error";
-  /** Advance results (replies, credits, new cases) stack; everything else is a routine notice, one at a time. */
+  /** Advance results (replies, credits, new claims) stack; everything else is a routine notice, one at a time. */
   isResult?: boolean;
+  /** A summary card's items, one per line. */
+  lines?: string[];
 }
 
 const RESULT_MS = 6_000;
@@ -47,6 +49,15 @@ function Card({ notice, onDismiss }: { notice: Notice; onDismiss: () => void }) 
       <div className="min-w-0 flex-1">
         <p className={cn("m-0 text-14 font-medium", notice.tone === "money" && "text-mint")}>{notice.title}</p>
         {notice.body && <p className="m-0 mt-1 text-13 text-sub">{notice.body}</p>}
+        {notice.lines && (
+          <ul className="m-0 mt-1.5 flex flex-col gap-0.5 p-0">
+            {notice.lines.map((line) => (
+              <li key={line} className="list-none text-13 text-sub">
+                {line}
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <button
         type="button"

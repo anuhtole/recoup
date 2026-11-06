@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Draft, Email, FindingDetail } from "../api";
 import { ApprovalSheet } from "../components/case/ApprovalSheet";
-import { CaseRail } from "../components/case/CaseRail";
+import { CaseRail, PhoneActionBar } from "../components/case/CaseRail";
 import { Reason } from "../components/case/Citations";
 import { citeReason, needsCustomerConfirmation, type VendorQuote } from "../components/case/cite";
 import { Correspondence } from "../components/case/Correspondence";
@@ -20,7 +20,8 @@ import { VendorLogo } from "../components/VendorLogo";
 import { useMediaQuery } from "../hooks/useIsNarrow";
 import { vendorName } from "../lib/vendors";
 import { displayReason, referenceOf } from "../queue";
-import { LEAK_LABEL, statusOf } from "../theme";
+import { typeLabel } from "../lib/claimTypes";
+import { statusOf } from "../theme";
 import { cn } from "@/lib/utils";
 
 export interface CaseActions {
@@ -32,6 +33,8 @@ export interface CaseActions {
 
 interface Props extends CaseActions {
   detail: FindingDetail;
+  /** Demo data: the audit log notes that its times are real, not the demo date. */
+  isDemo: boolean;
   isBusy: boolean;
   prevId: number | null;
   nextId: number | null;
@@ -58,11 +61,11 @@ function NavArrow({ id, label, onNavigate, children }: { id: number | null; labe
 }
 
 /** A case on its own route: a header, the reason and its evidence on the left, the deadline and the one action on the right. */
-export function CasePage({ detail, isBusy, prevId, nextId, position, onNavigate, onBack, onDraft, onDismiss, onSave, onSend }: Props) {
+export function CasePage({ detail, isDemo, isBusy, prevId, nextId, position, onNavigate, onBack, onDraft, onDismiss, onSave, onSend }: Props) {
   const [openEmail, setOpenEmail] = useState<{ email: Email; quote: VendorQuote } | null>(null);
   // Held here, not in the sheet, so the sheet can show "Sent" after the draft leaves the case.
   const [approving, setApproving] = useState<{ draft: Draft; subject: string; body: string } | null>(null);
-  const cited = useMemo(() => citeReason({ ...detail, reason: displayReason(detail.reason) }), [detail]);
+  const cited = useMemo(() => citeReason({ ...detail, reason: displayReason(detail.reason, detail.merchant) }), [detail]);
   const publicStatus = needsCustomerConfirmation(detail.leak_type, detail.reason);
   const openDraft = detail.drafts.find((d) => d.status === "draft");
   const [edits, setEdits] = useState({ subject: openDraft?.subject ?? "", body: openDraft?.body ?? "" });
@@ -71,8 +74,8 @@ export function CasePage({ detail, isBusy, prevId, nextId, position, onNavigate,
   const isRecovered = detail.status === "recovered";
   const status = statusOf(detail);
   const vendor = vendorName(detail.merchant);
-  // Two columns from 1280px; below that the rail follows the header.
-  const isWide = useMediaQuery("(min-width: 1280px)");
+  // Two columns from 1024px; below that the rail follows the header at full width.
+  const isWide = useMediaQuery("(min-width: 1024px)");
 
   useEffect(() => {
     setEdits({ subject: openDraft?.subject ?? "", body: openDraft?.body ?? "" });
@@ -104,12 +107,12 @@ export function CasePage({ detail, isBusy, prevId, nextId, position, onNavigate,
       onDraft={onDraft}
       onReview={review}
       onDismiss={onDismiss}
-      className={cn(isWide ? "sticky top-[88px]" : "md:max-w-md")}
+      className={cn(isWide && "sticky top-[88px]")}
     />
   );
 
   return (
-    <article aria-label={`${vendor} case`} className="flex flex-col">
+    <article aria-label={`${vendor} claim`} className="flex flex-col max-md:pb-20">
       <TopBarActions>
         <div className="flex items-center gap-1">
           {position && (
@@ -117,16 +120,16 @@ export function CasePage({ detail, isBusy, prevId, nextId, position, onNavigate,
               {position.index + 1} of {position.total}
             </span>
           )}
-          <NavArrow id={prevId} label="Previous case (k)" onNavigate={onNavigate}>
+          <NavArrow id={prevId} label="Previous claim (K)" onNavigate={onNavigate}>
             <ChevronLeft aria-hidden className="size-4" strokeWidth={1.75} />
           </NavArrow>
-          <NavArrow id={nextId} label="Next case (j)" onNavigate={onNavigate}>
+          <NavArrow id={nextId} label="Next claim (J)" onNavigate={onNavigate}>
             <ChevronRight aria-hidden className="size-4" strokeWidth={1.75} />
           </NavArrow>
         </div>
       </TopBarActions>
 
-      <div className="grid grid-cols-1 items-start gap-x-12 gap-y-8 xl:grid-cols-[minmax(0,1fr)_304px]">
+      <div className="grid grid-cols-1 items-start gap-x-8 gap-y-8 lg:grid-cols-[minmax(0,1fr)_280px] xl:gap-x-12">
         <div className="flex min-w-0 flex-col gap-10">
           <header data-case-header className="flex flex-col gap-5">
             <div className="flex items-center gap-3.5">
@@ -134,7 +137,7 @@ export function CasePage({ detail, isBusy, prevId, nextId, position, onNavigate,
               <div className="flex min-w-0 flex-col">
                 <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1">
                   <h1 className="m-0 truncate text-20 font-semibold tracking-[-0.01em]">{vendor}</h1>
-                  <Tag>{LEAK_LABEL[detail.leak_type]}</Tag>
+                  <Tag>{typeLabel(detail.leak_type)}</Tag>
                   {publicStatus && <Tag>Public status page</Tag>}
                 </div>
                 {reference && (
@@ -181,11 +184,13 @@ export function CasePage({ detail, isBusy, prevId, nextId, position, onNavigate,
           </Section>
 
           <Correspondence emails={detail.emails} drafts={detail.drafts} />
-          <History events={detail.timeline} trace={detail.trace} />
+          <History events={detail.timeline} trace={detail.trace} isDemo={isDemo} />
         </div>
 
         {isWide && rail}
       </div>
+
+      <PhoneActionBar detail={detail} openDraft={openDraft} isReviewing={approving !== null} isBusy={isBusy} onDraft={onDraft} onReview={review} />
 
       <AnimatePresence>
         {approving && (

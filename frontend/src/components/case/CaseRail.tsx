@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { type ReactNode, useState } from "react";
 import type { Draft, FindingDetail } from "../../api";
-import { formatDate } from "../../format";
+import { daysHint, formatDate } from "../../format";
 import { SPRING } from "../../motion";
 import { isUrgent } from "../../theme";
 import { cn } from "@/lib/utils";
@@ -26,7 +26,7 @@ function Standing({ detail }: { detail: FindingDetail }) {
     return (
       <Block label="Recovered">
         <p className="m-0 text-13 text-dim">Recovered</p>
-        <p className="figure m-0 text-20 font-semibold tracking-[-0.01em] text-mint-ink">{at ? formatDate(at) : "Money back"}</p>
+        <p className="figure m-0 text-20 font-semibold tracking-[-0.01em] text-mint-ink">{at ? formatDate(at) : "Recovered"}</p>
         <p className="m-0 text-13 text-dim">Confirmed in your ledger</p>
       </Block>
     );
@@ -35,28 +35,43 @@ function Standing({ detail }: { detail: FindingDetail }) {
   if (LIVE.has(detail.status) && detail.recover_by && detail.days_left !== null) {
     const days = detail.days_left;
     const closed = days < 0;
+    // One label everywhere ("Respond by"); once the date has passed, the label says so and the date stays.
     return (
-      <Block label="Respond by">
-        <p className="m-0 text-13 text-dim">{isSla ? "Claim by" : "Respond by"}</p>
+      <Block label={closed ? "Window closed" : "Respond by"}>
+        <p className="m-0 text-13 text-dim">{closed ? "Window closed" : "Respond by"}</p>
         <p className="figure m-0 text-20 font-semibold tracking-[-0.01em]">{formatDate(detail.recover_by)}</p>
-        <p className={cn("m-0 text-13", isUrgent(days) ? "font-medium text-amber-ink" : "text-dim")}>
-          {closed ? "Window closed" : days === 0 ? "Last day" : days === 1 ? "1 day left" : `${days} days left`}
-        </p>
-        {closed && !isSla && <p className="m-0 mt-2 text-13 text-dim">Too late for a card dispute. The vendor can still refund you directly.</p>}
+        {!closed && <p className={cn("m-0 text-13", isUrgent(days) ? "font-medium text-amber-ink" : "text-dim")}>{daysHint(days)}</p>}
+        {closed && !isSla && (
+          <p className="m-0 mt-2 text-13 text-dim">
+            {detail.draft_channel === "card_dispute"
+              ? "Too late for a card dispute, and there's no billing contact on file for this vendor."
+              : "Too late for a card dispute. The vendor can still refund you directly."}
+          </p>
+        )}
       </Block>
     );
   }
-  const waiting = detail.status === "sent" || detail.status === "vendor_agreed";
+  const reason = detail.timeline.find((e) => e.kind === "dismissed")?.detail;
+  const title =
+    detail.status === "vendor_agreed"
+      ? "Waiting for the credit"
+      : detail.status === "sent"
+        ? "Waiting on the vendor"
+        : detail.status === "dismissed"
+          ? "Not owed"
+          : "Window closed";
   return (
     <Block label="Status">
-      <p className="m-0 text-16 font-semibold">{waiting ? "Waiting on the vendor" : detail.status === "dismissed" ? "Dismissed" : "Window closed"}</p>
+      <p className="m-0 text-16 font-semibold">{title}</p>
       <p className="m-0 text-13 text-dim">
         {detail.status === "vendor_agreed"
           ? "They agreed to refund it. It closes when the credit posts."
           : detail.status === "sent"
             ? "Recoup watches the inbox and the ledger."
             : detail.status === "dismissed"
-              ? "The reason is in the history."
+              ? reason
+                ? `Not owed: ${reason.charAt(0).toLowerCase()}${reason.slice(1).replace(/\.$/, "")}`
+                : "Marked not owed."
               : detail.recover_by
                 ? `The claim window closed on ${formatDate(detail.recover_by)}.`
                 : "The claim window has closed."}
@@ -84,13 +99,12 @@ function Details({ detail }: { detail: FindingDetail }) {
       <dl className="m-0">
         {card && (
           <Detail label="Card">
-            <span aria-label={`Card ending ${card}`}>
-              <span aria-hidden className="tracking-[0.12em] text-dim">
-                ····
-              </span>{" "}
-              <span aria-hidden className="ref">
-                {card}
-              </span>
+            <span className="sr-only">Card ending {card}</span>
+            <span aria-hidden className="tracking-[0.12em] text-dim">
+              ····
+            </span>{" "}
+            <span aria-hidden className="ref">
+              {card}
             </span>
           </Detail>
         )}
@@ -108,11 +122,34 @@ const DRAFT_LABEL: Record<string, string> = {
   escalate: "Draft card dispute",
 };
 
+/** The draft button's words: it says "card dispute" whenever the draft will go to the card issuer. */
+function draftLabel(detail: FindingDetail): string | null {
+  const { kind } = detail.next_action;
+  if (!(kind in DRAFT_LABEL)) return null;
+  // The card issuer is the only channel and its window has closed: a dispute would be refused, so don't offer one.
+  if (detail.draft_channel === "card_dispute" && detail.days_left !== null && detail.days_left < 0) return null;
+  if (detail.draft_channel === "card_dispute" && kind !== "follow_up") return "Draft card dispute";
+  return DRAFT_LABEL[kind];
+}
+
+export interface PrimaryAction {
+  label: string;
+  run: () => void;
+  busyLabel?: string;
+}
+
+/** The one main action on a claim, shared by the rail and the phone's bottom bar. */
+export function primaryAction(props: Pick<ActionsProps, "detail" | "openDraft" | "onDraft" | "onReview">): PrimaryAction | null {
+  if (props.openDraft) return { label: "Review and send", run: props.onReview };
+  const label = draftLabel(props.detail);
+  return label ? { label, run: props.onDraft, busyLabel: "Drafting…" } : null;
+}
+
 /** A line above the action only where it stops a mistake. */
 function caution(detail: FindingDetail, hasDraft: boolean): string | null {
   if (hasDraft) return null;
   if (detail.next_action.kind === "draft" && needsCustomerConfirmation(detail.leak_type, detail.reason))
-    return "Check the outage hit you, and that your order form has these terms, before you ask.";
+    return "Before you ask, confirm the outage affected you and your order form has these terms.";
   if (detail.next_action.kind === "follow_up") return "The vendor needs more from you, or has gone quiet.";
   if (detail.next_action.kind === "escalate") return "The vendor said no. Your card issuer can still reverse the charge.";
   return null;
@@ -132,8 +169,8 @@ interface ActionsProps {
 function Actions({ detail, openDraft, isReviewing, isBusy, onDraft, onReview, onDismiss }: ActionsProps) {
   const [isDismissing, setIsDismissing] = useState(false);
   const [reason, setReason] = useState("");
-  const { kind } = detail.next_action;
-  const canDraft = !openDraft && kind in DRAFT_LABEL;
+  const label = draftLabel(detail);
+  const canDraft = !openDraft && label !== null;
   const canDismiss = !["recovered", "dismissed", "expired"].includes(detail.status);
   const note = caution(detail, Boolean(openDraft));
   if (!openDraft && !canDraft && !canDismiss) return null;
@@ -144,13 +181,14 @@ function Actions({ detail, openDraft, isReviewing, isBusy, onDraft, onReview, on
         <div className="flex flex-col gap-1">
           {openDraft && (
             // Hidden (not removed, so nothing jumps) while the approval sheet's slider is the send control.
-            <Button variant="primary" size="lg" onClick={onReview} className={cn("w-full", isReviewing && "invisible")}>
+            // On phones the bottom bar carries it, so it isn't on the page twice.
+            <Button variant="primary" size="lg" onClick={onReview} className={cn("w-full max-md:hidden", isReviewing && "invisible")}>
               Review and send
             </Button>
           )}
           {canDraft && (
-            <Button variant="primary" size="lg" onClick={onDraft} isBusy={isBusy} busyLabel="Drafting…" className="w-full">
-              {DRAFT_LABEL[kind]}
+            <Button variant="primary" size="lg" onClick={onDraft} isBusy={isBusy} busyLabel="Drafting…" className="w-full max-md:hidden">
+              {label}
             </Button>
           )}
           {canDismiss && (
@@ -194,7 +232,7 @@ function Actions({ detail, openDraft, isReviewing, isBusy, onDraft, onReview, on
             />
             <div className="flex gap-2">
               <Button type="submit" variant="primary" disabled={!reason.trim()} isBusy={isBusy} className="flex-1">
-                Dismiss case
+                Mark not owed
               </Button>
               <Button variant="ghost" onClick={() => setIsDismissing(false)}>
                 Cancel
@@ -207,10 +245,26 @@ function Actions({ detail, openDraft, isReviewing, isBusy, onDraft, onReview, on
   );
 }
 
+/**
+ * Phones (under 900px): the main action in a bar pinned just above the tab bar, so it is never buried
+ * mid-page. Hidden while the approval sheet is up (its slider is then the only send control).
+ */
+export function PhoneActionBar(props: Pick<ActionsProps, "detail" | "openDraft" | "isReviewing" | "isBusy" | "onDraft" | "onReview">) {
+  const action = primaryAction(props);
+  if (!action || props.isReviewing) return null;
+  return (
+    <div className="fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-20 border-t border-line bg-paper px-4 py-3 md:hidden">
+      <Button variant="primary" size="lg" onClick={action.run} isBusy={props.isBusy && !props.openDraft} busyLabel={action.busyLabel} className="w-full">
+        {action.label}
+      </Button>
+    </div>
+  );
+}
+
 /** The right rail: one bordered block with the deadline, the facts, and the one action. */
 export function CaseRail(props: ActionsProps & { className?: string }) {
   return (
-    <aside aria-label="Case sidebar" className={cn("flex min-w-0 flex-col rounded-md border border-line bg-paper", props.className)}>
+    <aside aria-label="Claim details" className={cn("flex min-w-0 flex-col rounded-md border border-line bg-paper", props.className)}>
       <Standing detail={props.detail} />
       <Details detail={props.detail} />
       <Actions {...props} />

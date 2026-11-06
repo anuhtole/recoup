@@ -29,14 +29,21 @@ type Busy = "case" | "run" | "advance" | "sync" | "bulk" | null;
 function errorText(error: unknown): string {
   if (error instanceof ApiError) return error.message;
   // fetch rejects with a TypeError when the server can't be reached at all.
-  if (error instanceof TypeError) return "Couldn't reach the Recoup server. Check that it's running and try again.";
-  return "Something went wrong on the server.";
+  if (error instanceof TypeError) return "Couldn't connect to Recoup. Try again in a moment.";
+  return "Something went wrong. Try again.";
 }
 
-/** One card per vendor reply and per credit the ledger confirmed while the clock moved. */
+/** How many results show as separate cards before they fold into one summary card. */
+const MAX_RESULT_CARDS = 3;
+
+/**
+ * What changed while the clock moved: one card per vendor reply, credit and closed window, the ones that
+ * need you (declined, asked for details) first. More than three fold into one summary card that lists
+ * them all, so nothing actionable is hidden behind newer cards.
+ */
 function advanceNotices(before: Finding[], after: Finding[], asOf: string): NoticeInput[] {
   const previous = new Map(before.map((f) => [f.id, f]));
-  const notices: NoticeInput[] = [];
+  const notices: (NoticeInput & { rank: number; short: string })[] = [];
   let created = 0;
   for (const f of after) {
     const was = previous.get(f.id);
@@ -45,23 +52,37 @@ function advanceNotices(before: Finding[], after: Finding[], asOf: string): Noti
       continue;
     }
     if (was.status === f.status) continue;
+    const vendor = vendorName(f.merchant);
     const amount = formatMoney(f.amount_minor, f.currency);
     if (f.status === "recovered") {
       const back = formatMoney(f.recovered_minor ?? f.amount_minor, f.currency);
-      notices.push({ tone: "money", title: `${vendorName(f.merchant)} credit posted`, body: `${back} is back, confirmed in your ledger.` });
+      notices.push({ rank: 2, short: "credit posted", tone: "money", title: `${vendor} credit posted`, body: `${back} is back, confirmed in your ledger.` });
     } else if (f.status === "vendor_agreed") {
-      notices.push({ tone: "info", title: `${vendorName(f.merchant)} agreed to refund ${amount}`, body: "It closes when the credit posts." });
+      notices.push({ rank: 3, short: "agreed", tone: "info", title: `${vendor} agreed to refund ${amount}`, body: "It closes when the credit posts." });
     } else if (f.status === "info_requested") {
-      notices.push({ tone: "info", title: `${vendorName(f.merchant)} asked for more details`, body: "It's back under To do." });
+      notices.push({ rank: 1, short: "asked for details", tone: "info", title: `${vendor} asked for more details`, body: "It's back under To do." });
     } else if (f.status === "vendor_declined") {
-      notices.push({ tone: "info", title: `${vendorName(f.merchant)} declined`, body: "It's back under To do." });
+      notices.push({ rank: 1, short: "declined", tone: "info", title: `${vendor} declined`, body: "It's back under To do." });
     } else if (f.status === "expired") {
-      notices.push({ tone: "info", title: `${vendorName(f.merchant)}: the claim window closed`, body: `${amount} moved to Missed.` });
+      notices.push({ rank: 4, short: "window closed", tone: "info", title: `${vendor}'s claim window closed`, body: `${amount} moved to Window closed.` });
     }
   }
-  if (created > 0) notices.push({ tone: "info", title: created === 1 ? "1 new case found" : `${created} new cases found` });
-  if (notices.length === 0) notices.push({ tone: "info", title: `Now ${formatDate(asOf)}`, body: "No replies or credits in those two weeks." });
-  return notices;
+  if (created > 0) notices.push({ rank: 5, short: "new", tone: "info", title: created === 1 ? "1 new claim found" : `${created} new claims found` });
+  if (notices.length === 0) return [{ tone: "info", title: `Moved to ${formatDate(asOf)}`, body: "No replies or credits in those two weeks." }];
+  notices.sort((a, b) => a.rank - b.rank);
+  if (notices.length <= MAX_RESULT_CARDS) return notices.map(({ rank: _rank, short: _short, ...n }) => n);
+  // "3 credits posted · 1 declined · 1 new claim", then every result on its own line, the ones that need you first.
+  const counts = new Map<string, number>();
+  for (const n of notices) counts.set(n.short, (counts.get(n.short) ?? 0) + (n.short === "new" ? created : 1));
+  const phrase = (short: string, n: number) =>
+    short === "credit posted" ? `${n} ${n === 1 ? "credit" : "credits"} posted` : short === "new" ? plural(n, "new claim") : `${n} ${short}`;
+  return [
+    {
+      tone: notices.some((n) => n.tone === "money") ? "money" : "info",
+      title: [...counts.entries()].map(([short, n]) => phrase(short, n)).join(" · "),
+      lines: notices.map((n) => n.title),
+    },
+  ];
 }
 
 export function App() {
@@ -186,7 +207,7 @@ export function App() {
       </div>
     );
   } else if (isLoading || !summary) {
-    page = <p className="m-0 text-14 text-dim">Loading cases…</p>;
+    page = <p className="m-0 text-14 text-dim">Loading claims…</p>;
   } else if (route.page === "overview") {
     page = (
       <Overview
@@ -205,11 +226,12 @@ export function App() {
         </a>
       </div>
     ) : !detail ? (
-      <p className="m-0 text-14 text-dim">Loading case…</p>
+      <p className="m-0 text-14 text-dim">Loading claim…</p>
     ) : (
       <CasePage
         key={detail.id}
         detail={detail}
+        isDemo={summary.data_mode !== "live"}
         isBusy={busy === "case"}
         prevId={navIndex > 0 ? navIds[navIndex - 1] : null}
         nextId={navIndex >= 0 && navIndex < navIds.length - 1 ? navIds[navIndex + 1] : null}
@@ -225,14 +247,14 @@ export function App() {
         onDismiss={(reason) =>
           void act("case", async () => {
             await api.dismiss(detail.id, reason);
-            return [{ tone: "info", title: "Case dismissed" }];
+            return [{ tone: "info", title: "Marked not owed" }];
           })
         }
         onSave={async (draftId, subject, body) => {
           const ok = await act("case", async () => {
             await api.editDraft(draftId, subject, body);
           });
-          if (!ok) throw new Error("Could not save the draft.");
+          if (!ok) throw new Error("Couldn't save the draft.");
         }}
         onSend={async (draftId) => {
           const ok = await act("case", async () => {
@@ -246,7 +268,7 @@ export function App() {
               },
             ];
           });
-          if (!ok) throw new Error("Could not send.");
+          if (!ok) throw new Error("Couldn't send.");
         }}
       />
     );
@@ -274,7 +296,7 @@ export function App() {
         onBulkDismiss={(ids, reason) =>
           act("bulk", async () => {
             await Promise.all(ids.map((id) => api.dismiss(id, reason)));
-            return [{ tone: "info", title: `${plural(ids.length, "case")} dismissed` }];
+            return [{ tone: "info", title: `${plural(ids.length, "claim")} marked not owed` }];
           })
         }
       />
@@ -304,7 +326,7 @@ export function App() {
           /
         </span>
         <span aria-current="page" className="truncate text-ink">
-          {caseMerchant ? vendorName(caseMerchant) : "Case"}
+          {caseMerchant ? vendorName(caseMerchant) : "Claim"}
         </span>
       </span>
     ) : (
@@ -332,7 +354,7 @@ export function App() {
             return [
               {
                 tone: "info",
-                title: run.created ? `${plural(run.created, "new case")} found` : "Nothing new found",
+                title: run.created ? `${plural(run.created, "new claim")} found` : "Nothing new found",
                 body: `Read ${plural(run.emails_read, "email")} and the ledger.`,
               },
             ];

@@ -8,7 +8,7 @@ const tab = (page: Page, label: string) => page.getByRole("tab", { name: new Reg
 const tabCount = async (page: Page, label: string) => Number((await tab(page, label).innerText()).replace(/\D+/g, ""));
 const row = (page: Page, id: number) => page.locator(`tr[data-case-id="${id}"]`);
 const caseTitle = (page: Page) => page.getByRole("article").getByRole("heading", { level: 1 });
-const sidebar = (page: Page) => page.getByRole("complementary", { name: "Case sidebar" });
+const sidebar = (page: Page) => page.getByRole("complementary", { name: "Claim details" });
 
 test.describe.configure({ mode: "serial" });
 
@@ -34,7 +34,9 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(hero).toContainText("$13,710.09");
     await expect(hero).toContainText("15 claims");
     await expect(hero).toContainText("1 expires tomorrow");
-    await expect(page.locator("[data-totals]")).toContainText("Missed $1,432.73");
+    await expect(page.locator("[data-totals]")).toContainText("Window closed $1,432.73");
+    // Zero totals aren't shown as placeholders.
+    await expect(page.locator("[data-totals]")).not.toContainText("In flight");
     // No chart until there are two real points.
     await expect(page.getByRole("figure", { name: /Recovered over time/ })).toHaveCount(0);
     const soon = page.getByRole("region", { name: "Expiring soon" });
@@ -77,23 +79,27 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     for (const label of ["Waiting", "Done", "Window closed", "To do"]) {
       await tab(page, label).click();
       await expect(tab(page, label)).toHaveAttribute("aria-selected", "true");
-      if (label === "Window closed") await expect(page.getByRole("columnheader", { name: "Status" })).toHaveCount(1);
+      // Every Window closed row is closed, so that tab has no Status column either (Waiting and Done do).
+      if (label === "Window closed") {
+        await expect(page.getByRole("columnheader", { name: "Status" })).toHaveCount(0);
+        await expect(page.getByRole("columnheader", { name: "Closed" })).toHaveCount(1);
+      }
     }
     // Export hands over a CSV built in the browser.
     const download = page.waitForEvent("download");
     await page.getByRole("button", { name: "Export" }).click();
     expect((await download).suggestedFilename()).toBe("recoup-claims-2026-10-01.csv");
-    await page.getByRole("searchbox", { name: "Search vendors or references" }).fill("FIG-202606");
+    await page.getByRole("searchbox", { name: "Filter claims" }).fill("FIG-202606");
     await expect(page).toHaveURL(/q=FIG-202606/);
     await expect(page.locator("tr[data-case-id]")).toHaveCount(1);
-    await page.getByRole("searchbox", { name: "Search vendors or references" }).fill("nothing like this");
-    await expect(page.getByText(/No to do claims match/)).toBeVisible();
+    await page.getByRole("searchbox", { name: "Filter claims" }).fill("nothing like this");
+    await expect(page.getByText(/Nothing in To do matches/)).toBeVisible();
     await page.getByRole("button", { name: "Clear filters" }).click();
     const typeFilter = page.getByRole("group", { name: "Filter by type" });
     await typeFilter.getByRole("button", { name: /^Type/ }).click();
-    await page.getByRole("menuitemradio", { name: "Outages" }).click();
+    await page.getByRole("menuitemradio", { name: "Outage credits" }).click();
     await expect(page).toHaveURL(/type=sla_credit/);
-    await expect(typeFilter).toContainText("Type: Outages");
+    await expect(typeFilter).toContainText("Type: Outage credits");
     await expect(page.locator("tr[data-case-id]")).toHaveCount(2);
     await page.reload();
     await expect(page.locator("tr[data-case-id]")).toHaveCount(2);
@@ -168,8 +174,20 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
 
     // A draft alone sends nothing.
     expect(sends, "drafting must not send").toEqual([]);
-    await sidebar(page).getByRole("button", { name: "Review and send" }).click();
+    // Holding Enter on "Review and send" opens the sheet and moves focus to the slider; the key's
+    // auto-repeat must not arm or confirm it. Never one keystroke.
+    await sidebar(page).getByRole("button", { name: "Review and send" }).focus();
+    await page.keyboard.down("Enter");
+    for (let i = 0; i < 12; i++) {
+      await page.waitForTimeout(33);
+      await page.keyboard.down("Enter"); // repeat: true
+    }
+    await page.keyboard.up("Enter");
     const sheet = page.getByRole("dialog", { name: "Approve this request" });
+    await expect(sheet).toBeVisible();
+    await page.waitForTimeout(500);
+    expect(sends, "a held Enter must not send").toEqual([]);
+    await expect(page.getByRole("button", { name: /^Slide to send/ })).toBeVisible();
     await expect(sheet).toContainText("billing@figma.com");
     await expect(sheet).toContainText("$480.00");
     await expect(sheet).toContainText("FIG-202606");
@@ -245,8 +263,8 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await row(page, 7).click(); // Lyft Ride
     await sidebar(page).getByRole("button", { name: "Not owed" }).click();
     await page.locator("#dismiss-reason").fill("Two separate rides that evening");
-    await page.getByRole("button", { name: "Dismiss case" }).click();
-    await expect(page.getByRole("region", { name: "Status" })).toContainText("Dismissed");
+    await page.getByRole("button", { name: "Mark not owed" }).click();
+    await expect(page.getByRole("region", { name: "Status" })).toContainText("Not owed: two separate rides that evening");
     await page.goto("/#/claims");
     await expect.poll(() => tabCount(page, "Done")).toBe(done + 1);
   });
@@ -266,9 +284,15 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(nav(page, "Sources")).toHaveAttribute("aria-current", "page");
     const list = page.getByRole("region", { name: "Data sources" });
     await expect(list).toContainText("Ramp transactions");
-    await expect(list).toContainText("Gmail vendor email");
-    await expect(list).toContainText("no credentials needed");
-    await expect(list).toContainText("recoup connect gmail");
+    await expect(list).toContainText("Gmail");
+    await expect(list).toContainText("Public incident feeds");
+    // Setup is server work, so it opens in a sheet rather than sitting on the page.
+    await expect(list).not.toContainText("recoup connect gmail");
+    await list.getByRole("button", { name: "Connect" }).nth(1).click();
+    const connect = page.getByRole("dialog", { name: "Connect Gmail" });
+    await expect(connect).toContainText("recoup connect gmail");
+    await page.keyboard.press("Escape");
+    await expect(connect).toHaveCount(0);
     await expect(page.getByRole("button", { name: "Sync now" })).toBeEnabled();
   });
 

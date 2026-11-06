@@ -5,7 +5,7 @@ import { formatDate, formatMoney } from "../../format";
 import { vendorName } from "../../lib/vendors";
 import { titleCase } from "../../queue";
 import { cn } from "@/lib/utils";
-import { type PriceComparison, type VendorQuote, parsePriceComparison, parseQuote, splitIncident } from "./cite";
+import { incidentParts, type PriceComparison, type VendorQuote, parsePriceComparison, parseQuote, splitIncident } from "./cite";
 
 interface Props {
   evidence: EvidenceItem[];
@@ -29,13 +29,31 @@ function Index({ n }: { n: number | undefined }) {
   );
 }
 
-function Block({ title, children }: { title: string; children: ReactNode }) {
+/** A group of records. When every record in it carries the same footnote, the number sits on the title once. */
+function Block({ title, n, children }: { title: string; n?: number; children: ReactNode }) {
   return (
     <div className="flex flex-col">
-      <h3 className="m-0 py-2 text-13 font-medium text-dim">{title}</h3>
+      <h3 className="m-0 py-2 text-13 font-medium text-dim">
+        {title}
+        {n !== undefined && (
+          <sup aria-label={`source ${n}`} className="figure ml-0.5 text-12 font-semibold text-dim">
+            {n}
+          </sup>
+        )}
+      </h3>
       {children}
     </div>
   );
+}
+
+/**
+ * Footnote numbers for a list of records: one number for the whole group when they all share it (it goes
+ * on the title), otherwise each row shows its number only where it changes, so "2, 2, 2" never appears.
+ */
+function groupNumbers(numbers: (number | undefined)[]): { shared: number | undefined; rows: (number | undefined)[] } {
+  const first = numbers[0];
+  if (numbers.length > 1 && first !== undefined && numbers.every((n) => n === first)) return { shared: first, rows: numbers.map(() => undefined) };
+  return { shared: undefined, rows: numbers.map((n, i) => (i > 0 && n === numbers[i - 1] ? undefined : n)) };
 }
 
 /** Contract price → charged → over by, for a price-above-contract case. */
@@ -43,13 +61,13 @@ function Comparison({ comparison, currency }: { comparison: PriceComparison; cur
   const money = (minor: number) => formatMoney(minor, currency);
   const { charges, contractMinor, lockedUntil } = comparison;
   const overs = charges.map((c) => c.chargedMinor - c.allowedMinor);
-  const total = overs.reduce((sum, o) => sum + o, 0);
   const sameEach = charges.every((c) => c.chargedMinor === charges[0].chargedMinor && c.allowedMinor === contractMinor);
   const months = charges.length === 1 ? "1 month" : `${charges.length} months`;
+  // The total over is the header's amount, so it isn't repeated here: the third tile is the monthly gap.
   const steps = [
     { label: "Contract price", value: `${money(contractMinor)}/mo`, note: lockedUntil ? `Fixed through ${lockedUntil}` : "Per the order form" },
-    { label: "Charged", value: sameEach ? money(charges[0].chargedMinor) : `${charges.length} charges`, note: sameEach ? "Each month" : "See the ledger" },
-    { label: "Over by", value: money(total), note: sameEach ? `${money(overs[0])} × ${months}` : `Across ${months}` },
+    { label: "Charged", value: sameEach ? `${money(charges[0].chargedMinor)}/mo` : `${charges.length} charges`, note: sameEach ? `For ${months}` : "See the ledger" },
+    { label: "Over by", value: sameEach ? `${money(overs[0])}/mo` : "Varies", note: sameEach ? `Each of ${months}` : `Across ${months}` },
   ];
   return (
     <div aria-label="Contract price compared with what was charged" role="group" className="grid grid-cols-1 border-b border-line sm:grid-cols-3">
@@ -65,14 +83,16 @@ function Comparison({ comparison, currency }: { comparison: PriceComparison; cur
 }
 
 function Ledger({ transactions, numberOf }: { transactions: Transaction[]; numberOf: Map<string, number> }) {
+  const { shared, rows } = groupNumbers(transactions.map((t) => numberOf.get(t.id)));
+  const indexed = rows.some((n) => n !== undefined);
   return (
-    <Block title="Ledger">
+    <Block title="Ledger" n={shared}>
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-left text-14">
           <thead>
             <tr className="border-y border-line text-12 text-dim">
               <th scope="col" className="py-2 pr-3 font-medium">
-                <span className="inline-block w-5" />
+                {indexed && <span className="inline-block w-5" />}
                 Date
               </th>
               <th scope="col" className="py-2 pr-3 font-medium">
@@ -87,10 +107,10 @@ function Ledger({ transactions, numberOf }: { transactions: Transaction[]; numbe
             </tr>
           </thead>
           <tbody>
-            {transactions.map((txn) => (
+            {transactions.map((txn, i) => (
               <tr key={txn.id} data-txn={txn.id} className="h-11 border-b border-line align-middle">
                 <td className="whitespace-nowrap pr-3">
-                  <Index n={numberOf.get(txn.id)} />
+                  {indexed && <Index n={rows[i]} />}
                   <span className="figure">{formatDate(txn.posted_at)}</span>
                 </td>
                 <td className="py-2.5 pr-3">
@@ -121,12 +141,6 @@ function Quote({ n, children, caption }: { n: number | undefined; children: Reac
       </div>
     </figure>
   );
-}
-
-/** "Elevated error rates…: 2026-08-11 16:05 to 18:15 UTC" → the name, and "Aug 11, 2026 · 16:05–18:15 UTC". */
-function incidentParts(text: string): { name: string; when: string | null } {
-  const m = /^(.*?):\s*(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) to (\d{2}:\d{2}) UTC$/.exec(text);
-  return m ? { name: m[1], when: `${formatDate(m[2])} · ${m[3]}–${m[4]} UTC` } : { name: text, when: null };
 }
 
 interface Part {
@@ -199,18 +213,20 @@ export function Evidence({ evidence, transactions, emails, numberOf, onOpenEmail
 
   const incidents = of("incident");
   if (incidents.length > 0) {
+    const numbers = groupNumbers(incidents.map((e) => numberOf.get(e.ref)));
+    const indexed = numbers.rows.some((n) => n !== undefined);
     parts.push({
       n: first(incidents.map((e) => e.ref)),
       i: parts.length,
       node: (
-        <Block key="incidents" title={isPublicStatus ? "Public status page" : "Status page"}>
+        <Block key="incidents" title={isPublicStatus ? "Public status page" : "Status page"} n={numbers.shared}>
           <ul className="m-0 flex flex-col p-0">
-            {incidents.map((item) => {
+            {incidents.map((item, index) => {
               const { text, url } = splitIncident(item.detail);
               const { name, when } = incidentParts(text);
               return (
                 <li key={item.ref} className="flex list-none items-start gap-0 border-t border-line py-3 text-14">
-                  <Index n={numberOf.get(item.ref)} />
+                  {indexed && <Index n={numbers.rows[index]} />}
                   <span className="flex min-w-0 flex-1 flex-col">
                     <span className="text-pretty [overflow-wrap:anywhere]">{name}</span>
                     {when && <span className="figure text-13 text-dim">{when}</span>}
@@ -230,9 +246,6 @@ export function Evidence({ evidence, transactions, emails, numberOf, onOpenEmail
               );
             })}
           </ul>
-          {isPublicStatus && (
-            <p className="m-0 border-t border-line py-3 pl-5 text-13 text-amber-ink">It shows the outage happened, not that it hit you. Check before you ask.</p>
-          )}
         </Block>
       ),
     });

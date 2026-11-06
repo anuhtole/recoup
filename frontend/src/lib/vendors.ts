@@ -22,15 +22,37 @@ import {
 // Card processors put their own prefix on the descriptor: "SQ *JOES CATERING", "TST* ZUNI", "PAYPAL *FOO".
 const PROCESSOR_PREFIX = /^(sq|tst|paypal|pp|sp)\s?\*\s*/i;
 
-/** "Sq *Joes Catering" → "Joes Catering". The vendor's name as people say it. */
+// Brands whose first word alone names them; the rest of a card descriptor is the product or the place:
+// "Lyft Ride" → Lyft, "Uber Trip" → Uber, "Marriott Union Square" → Marriott, "Slack Technologies" → Slack.
+const BRAND: Record<string, string> = {
+  figma: "Figma",
+  loom: "Loom",
+  lyft: "Lyft",
+  uber: "Uber",
+  marriott: "Marriott",
+  zoom: "Zoom",
+  notion: "Notion",
+  github: "GitHub",
+  calendly: "Calendly",
+  gmail: "Gmail",
+  slack: "Slack",
+  wework: "WeWork",
+};
+
+/**
+ * "Sq *Joes Catering" → "Joes Catering", "Uber Trip" → "Uber". The vendor's name as people say it;
+ * the raw card descriptor stays in the ledger's Description column.
+ */
 export function vendorName(merchant: string): string {
-  return merchant.replace(PROCESSOR_PREFIX, "").trim() || merchant;
+  const name = merchant.replace(PROCESSOR_PREFIX, "").trim() || merchant;
+  const first = name.split(/[\s.]+/)[0]?.toLowerCase() ?? "";
+  return BRAND[first] ?? name;
 }
 
 /**
  * Vendor display names → simple-icons (pinned in package.json; every import here is checked by tsc).
- * Slack, WeWork, Amazon, Amazon Web Services, Office Depot and Staples are not in simple-icons (removed or
- * never added at the brand's request), so they get a monogram.
+ * Slack, WeWork, Amazon, Amazon Web Services, Ramp and Office Depot are not in simple-icons, so they have
+ * local marks in public/logos (LOCAL below). Only true one-offs fall back to a monogram.
  */
 const BY_NAME: Record<string, SimpleIcon> = {
   figma: siFigma,
@@ -54,8 +76,44 @@ const BY_NAME: Record<string, SimpleIcon> = {
   gmail: siGmail,
 };
 
-// Brands whose first word alone is unambiguous: "Lyft Ride", "Uber Trip", "Marriott Union Square".
-const FIRST_WORD = new Set(["figma", "loom", "lyft", "uber", "marriott", "zoom", "notion", "github", "calendly", "gmail"]);
+/** How a mark sits on its tile. Most get padding on white; some need their own treatment. */
+export interface LogoStyle {
+  /** Share of the tile the mark fills. */
+  scale: number;
+  /** Fill the tile with the brand colour and draw the mark in white: wordmarks that are unreadable small. */
+  onBrand?: boolean;
+}
+
+const STYLE: Record<string, LogoStyle> = {
+  // The globe badge is already a filled circle: edge to edge, clipped to the tile's radius.
+  [siUnitedairlines.slug]: { scale: 1 },
+  // Wordmarks: white on the brand colour, about 70% wide, so they read at 20px.
+  [siUber.slug]: { scale: 0.7, onBrand: true },
+  [siZoom.slug]: { scale: 0.72, onBrand: true },
+};
+const DEFAULT_STYLE: LogoStyle = { scale: 0.56 };
+
+export function logoStyle(icon: SimpleIcon): LogoStyle {
+  return STYLE[icon.slug] ?? DEFAULT_STYLE;
+}
+
+/** Local marks for vendors simple-icons doesn't carry. `bleed`: the file paints its own background. */
+export interface LocalLogo {
+  src: string;
+  bleed: boolean;
+}
+
+const LOCAL: Record<string, LocalLogo> = {
+  slack: { src: "/logos/slack.svg", bleed: false },
+  "amazon web services": { src: "/logos/aws.svg", bleed: true },
+  aws: { src: "/logos/aws.svg", bleed: true },
+  amazon: { src: "/logos/amazon.svg", bleed: true },
+  "amzn mktp": { src: "/logos/amazon.svg", bleed: true },
+  amzn: { src: "/logos/amazon.svg", bleed: true },
+  wework: { src: "/logos/wework.svg", bleed: true },
+  ramp: { src: "/logos/ramp.svg", bleed: true },
+  "office depot": { src: "/logos/officedepot.svg", bleed: true },
+};
 
 function key(name: string): string {
   return vendorName(name)
@@ -68,10 +126,13 @@ function key(name: string): string {
 }
 
 export function vendorIcon(merchant: string): SimpleIcon | null {
-  const k = key(merchant);
-  if (BY_NAME[k]) return BY_NAME[k];
-  const first = k.split(" ")[0];
-  return FIRST_WORD.has(first) ? BY_NAME[first] : null;
+  // key() already reads "Lyft Ride" as "lyft" (vendorName), so an exact lookup is enough.
+  return BY_NAME[key(merchant)] ?? null;
+}
+
+/** A local mark (checked before simple-icons), or null. */
+export function localLogo(merchant: string): LocalLogo | null {
+  return LOCAL[key(merchant)] ?? null;
 }
 
 /** 1–6: the same vendor always gets the same monogram tint. */

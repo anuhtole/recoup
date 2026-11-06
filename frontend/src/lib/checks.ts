@@ -1,6 +1,6 @@
 import type { FindingDetail } from "../api";
 import { needsCustomerConfirmation, parseQuote } from "../components/case/cite";
-import { formatDate } from "../format";
+import { formatDate, formatPercent } from "../format";
 import { vendorName } from "./vendors";
 
 /**
@@ -19,9 +19,12 @@ export interface OwedCheck {
 const APART = ["on the same day", "one day apart", "two days apart", "three days apart"];
 const NUMBER = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine"];
 
-/** "99.90%" → "99.9%". */
-const pct = (text: string) => text.replace(/(\.\d*?)0+%$/, "$1%").replace(/\.%$/, "%");
+const pct = formatPercent;
 const day = (iso: string) => formatDate(iso);
+/** "Three", "Twelve": a count at the start of a sentence is spelled out. */
+const Count = (n: number) => (NUMBER[n] ? NUMBER[n].charAt(0).toUpperCase() + NUMBER[n].slice(1) : String(n));
+/** Whole calendar days between two postings, as the ledger dates them (UTC). */
+const calendarDays = (a: string, b: string) => Math.round(Math.abs(Date.parse(b.slice(0, 10)) - Date.parse(a.slice(0, 10))) / 86_400_000);
 
 function allCharges(n: number, verb: string): string {
   if (n === 1) return `The charge ${verb === "are" ? "is" : verb}`;
@@ -36,13 +39,16 @@ const posted = (detail: FindingDetail) => (detail.status === "recovered" || deta
 
 function duplicates(detail: FindingDetail, rule: string): OwedCheck[] {
   const out: OwedCheck[] = [];
-  const charges = chargesOf(detail);
+  const charges = [...chargesOf(detail)].sort((a, b) => a.posted_at.localeCompare(b.posted_at));
+  // Counted from the two charges' dates, never the rule's "1 day(s)", which older detectors measured in
+  // 24-hour spans (11pm and 1am the next day read "same day" against a ledger showing two dates).
   const gap = /(\d+) day\(s\) apart/.exec(rule);
-  const n = gap ? Number(gap[1]) : null;
+  const n = charges.length >= 2 ? calendarDays(charges[0].posted_at, charges[1].posted_at) : gap ? Number(gap[1]) : null;
   out.push({ text: `Same amount charged twice${n === null ? "" : `, ${APART[n] ?? `${n} days apart`}`}`, passed: true });
   const refs = [...new Set(charges.map((t) => t.reference).filter((r): r is string => Boolean(r)))];
   const shared = refs.length === 1 && charges.every((t) => t.reference === refs[0]);
-  if (shared) out.push({ text: `${allCharges(charges.length, "carry")} the same reference`, code: refs[0], passed: true });
+  // The reference itself is in the header and the ledger; here it is enough that they match.
+  if (shared) out.push({ text: `${allCharges(charges.length, "carry")} the same order reference`, passed: true });
   if (/no matching refund has posted/i.test(rule)) out.push({ text: `No refund ${posted(detail)}`, passed: true });
   out.push({ text: `${allCharges(charges.length, "are")} in your ledger`, passed: true });
   if (!shared) out.push({ text: "No shared order reference, so confirm it was one purchase", passed: false });
@@ -57,11 +63,14 @@ function promises(detail: FindingDetail, rule: string): OwedCheck[] {
   if (after) {
     const n = Number(after[1]);
     if (quoted) out.push({ text: `${vendor} confirmed the cancellation by email`, passed: true });
-    out.push({ text: `${n === 1 ? "A charge" : `${n} charges`} posted after it took effect on ${day(after[2])}`, passed: true });
+    out.push({ text: `${n === 1 ? "A charge" : `${Count(n)} charges`} posted after the cancellation took effect on ${day(after[2])}`, passed: true });
     out.push({ text: `${allCharges(chargesOf(detail).length, "are")} in your ledger`, passed: true });
     return out;
   }
-  if (quoted) out.push({ text: `${vendor} promised the ${detail.leak_type === "missing_refund" ? "refund" : "credit"} by email`, passed: true });
+  // The word the vendor used: Marriott promised a "credit", United a "refund".
+  const said = detail.evidence.map((e) => (e.kind === "email" ? (parseQuote(e.detail)?.quote ?? "") : "")).join(" ").toLowerCase();
+  const word = /\bcredit/.test(said) && !/\brefund/.test(said) ? "credit" : /\brefund/.test(said) ? "refund" : detail.leak_type === "missing_refund" ? "refund" : "credit";
+  if (quoted) out.push({ text: `${vendor} promised the ${word} by email`, passed: true });
   const due = /due by (\d{4}-\d{2}-\d{2})/.exec(rule);
   if (due) out.push({ text: `It was due by ${day(due[1])}`, passed: true });
   if (/none matches/.test(rule)) out.push({ text: `No matching credit ${posted(detail)}`, passed: true });
@@ -93,7 +102,7 @@ function pricing(detail: FindingDetail, rule: string): OwedCheck[] {
   const price = /contracted price \((\$[\d,]+\.\d{2}) through ([^)]+)\)/.exec(rule);
   if (price) out.push({ text: `The contract fixes the price at ${price[1]} through ${price[2]}`, passed: true });
   const over = detail.evidence.filter((e) => e.kind === "transaction" && /charged .*, contract allows/.test(e.detail)).length;
-  if (over > 0) out.push({ text: over === 1 ? "A charge came in above it" : `${over} charges came in above it`, passed: true });
+  if (over > 0) out.push({ text: over === 1 ? "A charge came in above it" : `${Count(over)} charges came in above it`, passed: true });
   if (/no credit for the difference has posted/i.test(rule)) out.push({ text: `No credit for the difference ${posted(detail)}`, passed: true });
   return out;
 }
@@ -119,6 +128,6 @@ export function owedChecks(detail: FindingDetail): OwedCheck[] {
   else if (family === "outages") out = outages(detail, text);
   else if (family === "pricing") out = pricing(detail, text);
   else out = generic(text);
-  if (detail.outcome === "needs_review" && !out.some((c) => !c.passed)) out.push({ text: "A person should confirm it before you claim", passed: false });
+  if (detail.outcome === "needs_review" && !out.some((c) => !c.passed)) out.push({ text: "Confirm it before you claim", passed: false });
   return out;
 }

@@ -1,33 +1,12 @@
 import type { Finding, LeakType } from "./api";
+import { CLAIM_TYPES, typeGroup, typeLabel } from "./lib/claimTypes";
 import { isWindowClosed } from "./queue";
 
 // Plain-language labels and the status vocabulary. Every colour, font and radius lives in index.css.
 
-export const LEAK_LABEL: Record<LeakType, string> = {
-  duplicate_charge: "Duplicate charge",
-  missing_refund: "Refund never arrived",
-  charged_after_cancellation: "Billed after cancelling",
-  sla_credit: "Outage credit",
-  price_overcharge: "Price above contract",
-};
-
-/** Plural headings for breakdowns. */
-export const LEAK_GROUP: Record<LeakType, string> = {
-  duplicate_charge: "Duplicate charges",
-  missing_refund: "Missed refunds",
-  charged_after_cancellation: "Billed after cancelling",
-  sla_credit: "Outage credits",
-  price_overcharge: "Price above contract",
-};
-
-/** Short names for the type filter chips. */
-export const LEAK_CHIP: Record<LeakType, string> = {
-  duplicate_charge: "Duplicates",
-  missing_refund: "Refunds",
-  charged_after_cancellation: "After cancelling",
-  sla_credit: "Outages",
-  price_overcharge: "Price",
-};
+/** The claim-type names live in lib/claimTypes.ts; these keep the older names working. */
+export const LEAK_LABEL: Record<LeakType, string> = Object.fromEntries(CLAIM_TYPES.map((t) => [t, typeLabel(t)])) as Record<LeakType, string>;
+export const LEAK_GROUP: Record<LeakType, string> = Object.fromEntries(CLAIM_TYPES.map((t) => [t, typeGroup(t)])) as Record<LeakType, string>;
 
 /**
  * One small, fixed status vocabulary on one scale: mint = money coming back, amber = needs you or
@@ -44,13 +23,13 @@ export function statusOf(finding: Pick<Finding, "status" | "outcome" | "days_lef
     case "sent":
       return { label: "Sent", tone: "neutral" };
     case "info_requested":
-      return { label: "Info requested", tone: "amber" };
+      return { label: "Needs info", tone: "amber" };
     case "vendor_declined":
       return { label: "Declined", tone: "amber" };
     case "dismissed":
-      return { label: "Dismissed", tone: "muted" };
+      return { label: "Not owed", tone: "muted" };
     case "expired":
-      return { label: "Expired", tone: "muted" };
+      return { label: "Window closed", tone: "muted" };
     case "drafted":
       return { label: "Draft ready", tone: "neutral" };
     case "open":

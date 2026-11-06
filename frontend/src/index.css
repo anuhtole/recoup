@@ -18,6 +18,7 @@
   --panel: #0e100f;
   --panel-2: #171a18;
   --rule: #2b302d;
+  --panel-active: rgba(255, 255, 255, 0.08); /* the current page's row in the sidebar */
 
   /* Paper: content */
   --paper: #ffffff;
@@ -87,6 +88,7 @@
   --color-panel: var(--panel);
   --color-panel-2: var(--panel-2);
   --color-rule: var(--rule);
+  --color-panel-active: var(--panel-active);
   --color-paper: var(--paper);
   --color-ground: var(--ground);
   --color-wash: var(--wash);

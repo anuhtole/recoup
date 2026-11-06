@@ -20,6 +20,7 @@ import {
   useTransform,
 } from "motion/react";
 import {
+  type KeyboardEvent,
   type MouseEvent,
   type PointerEvent,
   type RefObject,
@@ -44,6 +45,11 @@ const FLICK_FROM = 0.45;
 const OVERDRAG = 8;
 /** A press that moves less than this is a tap. */
 const TAP_SLOP = 4;
+/**
+ * Key presses this soon after mounting are ignored: the key that opened the sheet (focus lands on the
+ * thumb while it is still down) must never count as the first of the two presses.
+ */
+const KEY_GUARD_MS = 300;
 
 type Phase = "idle" | "dragging" | "confirming" | "done";
 
@@ -104,6 +110,9 @@ export default function SlideToConfirm({
   const trackRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef({ pointer: 0, from: 0, moved: false });
   const runRef = useRef(0);
+  const mountedAt = useRef(0);
+  // True between a handled keydown and its keyup: one physical press counts once, however long it is held.
+  const keyDownRef = useRef(false);
   const confirmRef = useRef(onConfirm);
   confirmRef.current = onConfirm;
 
@@ -145,12 +154,12 @@ export default function SlideToConfirm({
     return () => observer.disconnect();
   }, [width, x]);
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    mountedAt.current = performance.now();
+    return () => {
       runRef.current += 1;
-    },
-    []
-  );
+    };
+  }, []);
 
   const spring = (velocity = 0) =>
     reduceMotion
@@ -262,20 +271,59 @@ export default function SlideToConfirm({
     }
   };
 
+  // The non-pointer path: the first press arms (the label asks again), the second confirms.
+  const activateByKey = () => {
+    if (disabled || phase !== "idle") {
+      return;
+    }
+    if (keyArmed) {
+      setKeyArmed(false);
+      commit(0, true);
+    } else {
+      // The thumb stays put so the question stays readable; the arrow leans forward.
+      setKeyArmed(true);
+      setArmed(true);
+    }
+  };
+
+  // Enter and Space are handled here, not by the browser's click: auto-repeat from a held key
+  // (event.repeat), a key still down from before the sheet opened, or a second keydown without a keyup
+  // in between can never arm or confirm. Only two separate, deliberate presses send.
+  const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "Escape" && keyArmed) {
+      event.stopPropagation();
+      setKeyArmed(false);
+      settleBack();
+      return;
+    }
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+    event.preventDefault();
+    if (event.repeat || keyDownRef.current) {
+      return;
+    }
+    if (performance.now() - mountedAt.current < KEY_GUARD_MS) {
+      return;
+    }
+    keyDownRef.current = true;
+    activateByKey();
+  };
+
+  const onKeyUp = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      keyDownRef.current = false;
+    }
+  };
+
   const onClick = async (event: MouseEvent<HTMLButtonElement>) => {
     if (disabled || phase !== "idle") {
       return;
     }
-    // Enter and Space click with no pointer: the first arms, the second confirms.
+    // A click with no pointer and no key we handled: assistive tech activating the button. Same two steps.
     if (event.detail === 0) {
-      if (keyArmed) {
-        setKeyArmed(false);
-        commit(0, true);
-      } else {
-        // The thumb stays put so the question stays readable; the arrow leans forward.
-        setKeyArmed(true);
-        setArmed(true);
-      }
+      activateByKey();
       return;
     }
     if (dragRef.current.moved || reduceMotion) {
@@ -368,19 +416,15 @@ export default function SlideToConfirm({
             phase === "dragging" && "cursor-grabbing"
           )}
           onBlur={() => {
+            keyDownRef.current = false;
             if (keyArmed) {
               setKeyArmed(false);
               settleBack();
             }
           }}
           onClick={onClick}
-          onKeyDown={(event) => {
-            if (event.key === "Escape" && keyArmed) {
-              event.stopPropagation();
-              setKeyArmed(false);
-              settleBack();
-            }
-          }}
+          onKeyDown={onKeyDown}
+          onKeyUp={onKeyUp}
           onPointerCancel={onPointerUp}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
