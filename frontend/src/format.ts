@@ -64,6 +64,15 @@ export function daysLeftLabel(days: number | null): string | null {
   return `${days} days left`;
 }
 
+/** Under a respond-by date: "1 day left" while it is close (three days or fewer), otherwise just "29 days". */
+export function daysHint(days: number | null): string | null {
+  if (days === null) return null;
+  if (days < 0) return "Window closed";
+  if (days === 0) return "Last day";
+  if (days <= 3) return days === 1 ? "1 day left" : `${days} days left`;
+  return `${days} days`;
+}
+
 /** "1 day", "12 days", "Today" — the countdown in the case sidebar and tags. */
 export function daysWord(days: number): string {
   if (days === 0) return "Today";

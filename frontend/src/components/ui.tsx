@@ -3,6 +3,7 @@ import { type ReactNode, useEffect } from "react";
 import { daysWord, formatMoney, formatShortDate } from "../format";
 import { isUrgent, type Tone } from "../theme";
 import { cn } from "@/lib/utils";
+import { TopBarActions } from "./shell/TopBarActions";
 
 /** Spade's mono record label. */
 export function Label({ children, className, as: As = "p" }: { children: ReactNode; className?: string; as?: "p" | "span" | "dt" | "h2" | "h3" }) {
@@ -68,54 +69,20 @@ export function MonoDate({ iso, className }: { iso: string; className?: string }
   return <span className={cn("ref uppercase", className)}>{formatShortDate(iso)}</span>;
 }
 
-/** A titled module on paper: Stripe's overview building block. */
-export function Module({
-  title,
-  aside,
-  children,
-  className,
-  bodyClassName,
-}: {
-  title: string;
-  aside?: ReactNode;
-  children: ReactNode;
-  className?: string;
-  bodyClassName?: string;
-}) {
+/**
+ * What is left of the v1 page header: the title and breadcrumb now live in the top bar, so this keeps a
+ * page's meta line in place and moves its actions into the top bar. `crumbs` and `title` are ignored.
+ */
+export function PageHeader({ actions, meta }: { crumbs?: ReactNode; title?: ReactNode; actions?: ReactNode; meta?: ReactNode }) {
   return (
-    <section aria-label={title} className={cn("card flex min-w-0 flex-col", className)}>
-      <header className="flex min-h-12 items-center justify-between gap-4 border-b border-line px-5">
-        <h2 className="m-0 text-14 font-semibold tracking-[-0.01em]">{title}</h2>
-        {aside && <div className="flex-none text-13 text-dim">{aside}</div>}
-      </header>
-      <div className={cn("flex flex-col px-5 py-4", bodyClassName)}>{children}</div>
-    </section>
-  );
-}
-
-export function Empty({ children, action }: { children: ReactNode; action?: ReactNode }) {
-  return (
-    <div className="field-box flex flex-col items-start gap-3 px-4 py-4 text-14 text-dim">
-      <p className="m-0">{children}</p>
-      {action}
-    </div>
-  );
-}
-
-/** Page header: mono breadcrumb, title, right-aligned page actions. */
-export function PageHeader({ crumbs, title, actions, meta }: { crumbs: ReactNode; title: ReactNode; actions?: ReactNode; meta?: ReactNode }) {
-  return (
-    <header className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-      <div className="flex min-w-0 flex-col gap-2">
-        <nav aria-label="Breadcrumb" className="label flex min-w-0 items-center gap-2 text-dim">
-          {crumbs}
-        </nav>
-        <h1 className="m-0 truncate text-28 font-semibold tracking-[-0.03em]">{title}</h1>
-        {meta}
-      </div>
-      {/* Lined up with the title, not the bottom of the meta line under it. */}
-      {actions && <div className="flex flex-none flex-wrap items-center gap-2 md:mt-5">{actions}</div>}
-    </header>
+    <>
+      {actions && (
+        <TopBarActions>
+          <div className="flex items-center gap-2">{actions}</div>
+        </TopBarActions>
+      )}
+      {meta}
+    </>
   );
 }
 

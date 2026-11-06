@@ -1,35 +1,26 @@
 import { motion } from "motion/react";
 import type { Snapshot } from "../hooks/useSummaryHistory";
-import { formatMoney, formatShortDate } from "../format";
+import { formatDate, formatMoney } from "../format";
 
 const H = 64;
 const W = 1000;
 
+/** True when there is a line worth drawing: two or more demo dates and some money back. */
+export function hasRecoveryChart(history: Snapshot[]): boolean {
+  return history.length >= 2 && history.some((s) => s.recovered > 0);
+}
+
 /**
- * Money back over time, one point per demo date: a stepped line (money lands on a date, it does not
- * drift in) with a soft wash under it and no gridlines.
- * With one point, or nothing back yet, it is a flat dashed baseline that says it will fill in.
+ * Money back over time, one point per demo date: a stepped mint line (money lands on a date, it does
+ * not drift in) with a soft wash under it and no gridlines. With fewer than two real points it is
+ * absent: no placeholder.
  */
 export function RecoveryChart({ history, currency }: { history: Snapshot[]; currency: string }) {
+  if (!hasRecoveryChart(history)) return null;
   const points = history.map((s) => ({ at: s.as_of, v: s.recovered }));
-  const max = Math.max(...points.map((p) => p.v), 0);
-  const isFlat = points.length < 2 || max === 0;
+  const max = Math.max(...points.map((p) => p.v));
   const first = points[0];
   const last = points[points.length - 1];
-
-  if (isFlat || !first || !last) {
-    return (
-      <figure className="m-0 flex flex-col gap-2" aria-label="Recovered over time">
-        <svg viewBox={`0 0 ${W} 8`} preserveAspectRatio="none" className="h-2 w-full" aria-hidden>
-          <line x1="0" x2={W} y1="7" y2="7" stroke="var(--line-strong)" strokeDasharray="4 6" vectorEffect="non-scaling-stroke" />
-        </svg>
-        <figcaption className="flex items-center justify-between gap-4 text-13 text-dim">
-          <span>Chart fills in as money comes back.</span>
-          {last && <span className="ref text-11 uppercase">{formatShortDate(last.at)}</span>}
-        </figcaption>
-      </figure>
-    );
-  }
 
   const x = (i: number) => (i / (points.length - 1)) * W;
   const y = (v: number) => H - 4 - (v / max) * (H - 12);
@@ -40,7 +31,7 @@ export function RecoveryChart({ history, currency }: { history: Snapshot[]; curr
   return (
     <figure
       className="m-0 flex flex-col gap-2"
-      aria-label={`Recovered over time: ${formatMoney(first.v, currency)} on ${formatShortDate(first.at)}, ${formatMoney(last.v, currency)} on ${formatShortDate(last.at)}`}
+      aria-label={`Recovered over time: ${formatMoney(first.v, currency)} on ${formatDate(first.at)}, ${formatMoney(last.v, currency)} on ${formatDate(last.at)}`}
     >
       <div className="relative">
         <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="h-16 w-full overflow-visible" aria-hidden>
@@ -63,7 +54,6 @@ export function RecoveryChart({ history, currency }: { history: Snapshot[]; curr
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, ease: "easeOut" }}
           />
-          <line x1="0" x2={W} y1={H - 0.5} y2={H - 0.5} stroke="var(--line)" vectorEffect="non-scaling-stroke" />
         </svg>
         <span
           aria-hidden
@@ -71,9 +61,9 @@ export function RecoveryChart({ history, currency }: { history: Snapshot[]; curr
           style={{ left: "100%", top: `${(y(last.v) / H) * 100}%` }}
         />
       </div>
-      <figcaption className="ref flex items-center justify-between gap-4 text-11 uppercase text-dim">
-        <span>{formatShortDate(first.at)}</span>
-        <span>{formatShortDate(last.at)}</span>
+      <figcaption className="figure flex items-center justify-between gap-4 text-12 text-dim">
+        <span>{formatDate(first.at, "short")}</span>
+        <span>{formatDate(last.at, "short")}</span>
       </figcaption>
     </figure>
   );
