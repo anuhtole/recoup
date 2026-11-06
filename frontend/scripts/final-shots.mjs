@@ -5,7 +5,7 @@ import { chromium } from "@playwright/test";
 import { mkdirSync } from "node:fs";
 
 const out = process.argv[2] ?? "shots";
-const base = "http://localhost:5173";
+const base = "http://localhost:5174";
 mkdirSync(out, { recursive: true });
 
 const browser = await chromium.launch({ channel: "chrome" });

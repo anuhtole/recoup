@@ -20,7 +20,7 @@ for (const size of sizes) {
   page.on("console", (m) => m.type() === "error" && errors.push(`${size.name} ${m.text()}`));
   page.on("pageerror", (e) => errors.push(`${size.name} ${e}`));
   for (const route of routes) {
-    await page.goto(`http://localhost:5173/#/${route}`);
+    await page.goto(`http://localhost:5174/#/${route}`);
     await page.waitForLoadState("networkidle");
     await page.waitForTimeout(900);
     const file = `${out}/${route.replace(/\//g, "-")}-${size.name}.png`;
