@@ -32,6 +32,8 @@ export interface ShellProps {
   page: Page;
   /** The top bar title; pages don't repeat it below. */
   title: ReactNode;
+  /** The title is a trail ("Claims / Figma") on a detail page, whose own header holds the h1. */
+  isBreadcrumb?: boolean;
   claimsCount: number;
   summary: Summary | null;
   sources: Sources | null;
@@ -358,7 +360,13 @@ function TopBar(props: TopBarProps) {
         >
           <MenuIcon aria-hidden className="size-5" strokeWidth={1.75} />
         </button>
-        <h1 className="m-0 min-w-0 flex-1 truncate text-20 font-semibold tracking-[-0.01em]">{props.title}</h1>
+        {props.isBreadcrumb ? (
+          <nav aria-label="Breadcrumb" className="flex min-w-0 flex-1 text-14 font-medium">
+            {props.title}
+          </nav>
+        ) : (
+          <h1 className="m-0 min-w-0 flex-1 truncate text-20 font-semibold tracking-[-0.01em]">{props.title}</h1>
+        )}
         <div ref={props.slotRef} className="flex flex-none items-center gap-2 empty:hidden" />
         <button
           type="button"

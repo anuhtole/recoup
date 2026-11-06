@@ -1,19 +1,22 @@
 import { AnimatePresence, motion } from "motion/react";
-import { Search, X } from "lucide-react";
+import { Check as CheckIcon, ChevronDown, Download, Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Finding, LeakType } from "../api";
 import { Button } from "../components/Button";
-import { DaysTag, MonoDate, PageHeader, Pill, VendorTile } from "../components/ui";
-import { formatMoney, plural } from "../format";
+import { Menu, MenuItem, MenuSeparator } from "../components/shell/Menu";
+import { Pill, Tag } from "../components/ui";
+import { VendorLogo } from "../components/VendorLogo";
+import { formatDate, formatMoney, plural } from "../format";
+import { vendorName } from "../lib/vendors";
 import { SPRING } from "../motion";
 import { countsFor, filterRows, referenceOf, rowsFor, type Tab, TABS } from "../queue";
 import { isUrgent, LEAK_CHIP, LEAK_LABEL, statusOf } from "../theme";
 import { cn } from "@/lib/utils";
 
 const EMPTY: Record<Tab, string> = {
-  todo: "Nothing needs you right now. New cases show up here after Run detection.",
-  waiting: "Requests you send wait here until the vendor replies or the money lands.",
-  done: "Recovered and dismissed cases collect here.",
+  todo: "Nothing to do right now.",
+  waiting: "Nothing is waiting on a vendor.",
+  done: "Nothing recovered or dismissed yet.",
   closed: "No claim windows have closed.",
 };
 
@@ -50,6 +53,8 @@ interface Props {
   params: ClaimsParams;
   onParams: (next: ClaimsParams) => void;
   onOpen: (id: number) => void;
+  /** Downloads the rows on screen as CSV. */
+  onExport: (rows: Finding[]) => void;
   isBusy: boolean;
   onBulkDraft: (ids: number[]) => Promise<boolean>;
   onBulkDismiss: (ids: number[], reason: string) => Promise<boolean>;
@@ -57,11 +62,20 @@ interface Props {
 
 const canDraft = (f: Finding) => ["draft", "follow_up", "escalate"].includes(f.next_action.kind);
 const canDismiss = (f: Finding) => !["recovered", "dismissed", "expired"].includes(f.status);
+const shownAmount = (f: Finding) => (f.status === "recovered" ? (f.recovered_minor ?? f.amount_minor) : f.amount_minor);
+
+/** Under a respond-by date: "1 day left" while it is close, otherwise "29 days"; "Closed" once it has passed. */
+function daysLine(days: number | null): string | null {
+  if (days === null) return null;
+  if (days < 0) return "Closed";
+  if (days === 0) return "Last day";
+  if (days <= 3) return days === 1 ? "1 day left" : `${days} days left`;
+  return `${days} days`;
+}
 
 function Tabs({ tab, counts, onTab }: { tab: Tab; counts: Record<Tab, number>; onTab: (t: Tab) => void }) {
   return (
-    <div role="tablist" aria-label="Claim stages" className="-mx-4 flex overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:px-0">
-      <div className="flex flex-none gap-1 rounded-sm border border-line bg-paper p-1">
+    <div role="tablist" aria-label="Claim stages" className="flex flex-none gap-6">
       {TABS.map((t) => {
         const active = t.id === tab;
         return (
@@ -72,26 +86,24 @@ function Tabs({ tab, counts, onTab }: { tab: Tab; counts: Record<Tab, number>; o
             aria-selected={active}
             onClick={() => onTab(t.id)}
             className={cn(
-              "relative flex h-8 flex-none items-center justify-center gap-2 whitespace-nowrap rounded-xs px-3 text-13 font-medium transition-colors",
-              active ? "text-white" : "text-dim hover:bg-wash hover:text-ink",
+              "flex h-11 flex-none items-center gap-1.5 whitespace-nowrap text-14 font-medium transition-[color,box-shadow] duration-150",
+              active ? "text-ink shadow-[inset_0_-2px_0_var(--ink)]" : "text-dim hover:text-ink",
             )}
           >
-            {active && <motion.span layoutId="claims-tab" transition={SPRING} aria-hidden className="absolute inset-0 rounded-xs bg-panel" />}
-            <span className="relative">{t.label}</span>
-            <span className={cn("ref relative text-11", active ? "text-mint" : "text-dim")}>{counts[t.id]}</span>
+            {t.label}
+            <span className={cn("figure text-13 font-normal", active ? "text-ink" : "text-dim")}>{counts[t.id]}</span>
           </button>
         );
       })}
-      </div>
     </div>
   );
 }
 
 function SearchField({ value, onChange, inputRef }: { value: string; onChange: (v: string) => void; inputRef: React.RefObject<HTMLInputElement> }) {
   return (
-    <label className="relative flex h-9 w-full items-center md:w-72">
+    <label className="relative flex h-8 min-w-0 flex-1 items-center md:w-56 md:flex-none">
       <span className="sr-only">Search vendors or references</span>
-      <Search aria-hidden className="pointer-events-none absolute left-3 size-4 text-dim" strokeWidth={1.75} />
+      <Search aria-hidden className="pointer-events-none absolute left-2.5 size-3.5 text-dim" strokeWidth={2} />
       <input
         ref={inputRef}
         type="search"
@@ -103,72 +115,110 @@ function SearchField({ value, onChange, inputRef }: { value: string; onChange: (
             e.currentTarget.blur();
           }
         }}
-        placeholder="Search vendors or references"
-        className="h-full w-full rounded-sm border border-line bg-paper pl-9 pr-10 text-14 text-ink placeholder:text-dim transition-colors hover:border-line-strong focus-visible:border-ink focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden"
+        placeholder="Search"
+        className="h-full w-full rounded-sm border border-line bg-paper pl-8 pr-3 text-13 md:pr-9 text-ink placeholder:text-dim transition-colors hover:border-line-strong focus-visible:border-ink focus-visible:outline-none [&::-webkit-search-cancel-button]:hidden"
       />
-      <kbd aria-hidden className="ref pointer-events-none absolute right-2 grid h-5 min-w-5 place-items-center rounded-xs border border-line px-1 text-11 text-dim">
+      <kbd aria-hidden className="kbd pointer-events-none absolute right-1.5 max-md:hidden">
         /
       </kbd>
     </label>
   );
 }
 
-function TypeChips({ type, onType }: { type: LeakType | null; onType: (t: LeakType | null) => void }) {
-  const chip = (active: boolean) =>
-    cn(
-      "h-8 flex-none whitespace-nowrap rounded-xs border px-3 text-13 transition-colors",
-      active
-        ? "border-ink bg-paper font-medium text-ink underline decoration-2 underline-offset-[6px]"
-        : "border-line bg-paper text-dim hover:border-line-strong hover:text-ink",
-    );
+/** The type filter: a chip that opens a menu; once set it reads "Type: Duplicates" with an × to clear it. */
+function TypeFilter({ type, onType }: { type: LeakType | null; onType: (t: LeakType | null) => void }) {
+  const chip = "flex h-8 items-center gap-1.5 border border-line bg-paper px-2.5 text-13 transition-colors hover:border-line-strong hover:bg-wash";
+  const tick = <CheckIcon aria-hidden className="size-4 text-ink" strokeWidth={2} />;
+  const choose = (close: () => void, next: LeakType | null) => {
+    close();
+    onType(next);
+  };
   return (
-    <div role="group" aria-label="Filter by type" className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none] md:mx-0 md:flex-wrap md:px-0">
-      <button type="button" aria-pressed={type === null} onClick={() => onType(null)} className={chip(type === null)}>
-        All types
-      </button>
-      {TYPES.map((t) => (
-        <button key={t} type="button" aria-pressed={type === t} onClick={() => onType(type === t ? null : t)} className={chip(type === t)}>
-          {LEAK_CHIP[t]}
+    <div role="group" aria-label="Filter by type" className="flex flex-none">
+      <Menu
+        label="Type"
+        align="start"
+        triggerClassName={cn(chip, type ? "rounded-l-sm" : "rounded-sm text-dim")}
+        trigger={
+          type ? (
+            <span className="whitespace-nowrap">
+              <span className="text-dim">Type:</span> <span className="font-medium text-ink">{LEAK_CHIP[type]}</span>
+            </span>
+          ) : (
+            <>
+              <span>Type</span>
+              <ChevronDown aria-hidden className="size-3.5" strokeWidth={2} />
+            </>
+          )
+        }
+      >
+        {(close) => (
+          <>
+            <MenuItem checked={type === null} hint={type === null ? tick : undefined} onSelect={() => choose(close, null)}>
+              All types
+            </MenuItem>
+            <MenuSeparator />
+            {TYPES.map((t) => (
+              <MenuItem key={t} checked={type === t} hint={type === t ? tick : undefined} onSelect={() => choose(close, t)}>
+                {LEAK_CHIP[t]}
+              </MenuItem>
+            ))}
+          </>
+        )}
+      </Menu>
+      {type && (
+        <button
+          type="button"
+          onClick={() => onType(null)}
+          aria-label="Clear type filter"
+          title="Clear type filter"
+          className={cn(chip, "-ml-px rounded-r-sm px-1.5 text-dim hover:text-ink")}
+        >
+          <X aria-hidden className="size-3.5" strokeWidth={2} />
         </button>
-      ))}
+      )}
     </div>
   );
 }
 
 /** A checkbox with a 40px hit area, so a near miss selects instead of opening the case. */
-function Check({ checked, indeterminate, onChange, label, onInk }: { checked: boolean; indeterminate?: boolean; onChange: () => void; label: string; onInk?: boolean }) {
+function Check({ checked, indeterminate, onChange, label }: { checked: boolean; indeterminate?: boolean; onChange: () => void; label: string }) {
   const ref = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (ref.current) ref.current.indeterminate = Boolean(indeterminate);
   }, [indeterminate]);
   return (
     <label className="grid size-10 cursor-pointer place-items-center" onClick={(e) => e.stopPropagation()}>
-      <input
-        ref={ref}
-        type="checkbox"
-        aria-label={label}
-        checked={checked}
-        onChange={onChange}
-        className={cn("size-4 cursor-pointer rounded-xs", onInk ? "accent-mint" : "accent-ink")}
-      />
+      <input ref={ref} type="checkbox" aria-label={label} checked={checked} onChange={onChange} className="size-4 cursor-pointer rounded-xs accent-ink" />
     </label>
   );
 }
 
-function RespondBy({ f, onInk }: { f: Finding; onInk: boolean }) {
-  if (!f.recover_by) return <span className={onInk ? "text-sub" : "text-dim"}>—</span>;
-  const closed = f.days_left !== null && f.days_left < 0;
-  const urgent = isUrgent(f.days_left);
+function RespondBy({ f }: { f: Finding }) {
+  if (!f.recover_by) return <span className="text-dim">—</span>;
+  const line = daysLine(f.days_left);
   return (
-    <span className="flex flex-col leading-tight">
-      <MonoDate iso={f.recover_by} className={cn("text-13", onInk ? "text-white" : "text-ink")} />
-      <span
-        className={cn(
-          "ref text-11",
-          closed ? (onInk ? "text-sub" : "text-dim") : urgent ? (onInk ? "text-amber" : "text-amber-ink") : onInk ? "text-sub" : "text-dim",
-        )}
-      >
-        {closed ? "Closed" : f.days_left === 0 ? "Today" : f.days_left === 1 ? "1 day left" : `${f.days_left} days left`}
+    <span className="flex flex-col">
+      <span className="figure text-14 leading-5">{formatDate(f.recover_by, "short")}</span>
+      {line && <span className={cn("text-12", isUrgent(f.days_left) ? "font-medium text-amber-ink" : "text-dim")}>{line}</span>}
+    </span>
+  );
+}
+
+/** The exception a To do row carries beside its vendor: "Needs review", "Draft ready", "Declined". */
+function InlineStatus({ f }: { f: Finding }) {
+  const status = statusOf(f);
+  if (status.label === "New") return null;
+  return <Tag tone={status.tone === "amber" ? "amber" : "neutral"}>{status.label}</Tag>;
+}
+
+function Total({ rows }: { rows: Finding[] }) {
+  const total = rows.reduce((sum, f) => sum + shownAmount(f), 0);
+  return (
+    <span className="flex items-center justify-between gap-4 text-13 text-dim">
+      <span>{plural(rows.length, "claim")}</span>
+      <span>
+        Total <span className="figure ml-1 text-14 font-medium text-ink">{formatMoney(total, rows[0]?.currency ?? "USD")}</span>
       </span>
     </span>
   );
@@ -176,6 +226,7 @@ function RespondBy({ f, onInk }: { f: Finding; onInk: boolean }) {
 
 function Table({
   rows,
+  tab,
   cursor,
   selected,
   onToggle,
@@ -183,6 +234,7 @@ function Table({
   onOpen,
 }: {
   rows: Finding[];
+  tab: Tab;
   cursor: number | null;
   selected: Set<number>;
   onToggle: (id: number) => void;
@@ -191,26 +243,40 @@ function Table({
 }) {
   const all = rows.length > 0 && rows.every((r) => selected.has(r.id));
   const some = rows.some((r) => selected.has(r.id));
+  // Status only where it varies: every To do row is open, so its exceptions ride inline instead.
+  const withStatus = tab !== "todo";
   return (
     <table className="w-full table-fixed border-collapse text-left">
       <colgroup>
-        <col className="w-14" />
+        <col className="w-12" />
         <col className="lg:w-[36%]" />
         <col className="hidden lg:table-column" />
         <col className="w-[136px]" />
+        {withStatus && <col className="w-[152px]" />}
         <col className="w-[136px]" />
-        <col className="w-[160px]" />
       </colgroup>
       <thead>
-        <tr className="h-10 border-b border-line">
-          <th scope="col" className="pl-2">
+        <tr className="h-10 border-b border-line text-12 text-dim">
+          <th scope="col" className="pl-1">
             <Check checked={all} indeterminate={!all && some} onChange={onToggleAll} label="Select all" />
           </th>
-          <th scope="col" className="label px-3 font-medium text-dim">Vendor</th>
-          <th scope="col" className="label hidden px-3 font-medium text-dim lg:table-cell">Type</th>
-          <th scope="col" className="label px-3 text-right font-medium text-dim">Amount</th>
-          <th scope="col" className="label px-3 font-medium text-dim">Respond by</th>
-          <th scope="col" className="label pl-3 pr-4 font-medium text-dim">Status</th>
+          <th scope="col" className="px-3 font-medium">
+            Vendor
+          </th>
+          <th scope="col" className="hidden px-3 font-medium lg:table-cell">
+            Type
+          </th>
+          <th scope="col" className="px-3 font-medium">
+            Respond by
+          </th>
+          {withStatus && (
+            <th scope="col" className="px-3 font-medium">
+              Status
+            </th>
+          )}
+          <th scope="col" className="pl-3 pr-4 text-right font-medium">
+            Amount
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -219,7 +285,6 @@ function Table({
           const isSelected = selected.has(f.id);
           const reference = referenceOf(f.reason);
           const status = statusOf(f);
-          const amount = f.status === "recovered" ? (f.recovered_minor ?? f.amount_minor) : f.amount_minor;
           return (
             <tr
               key={f.id}
@@ -228,101 +293,117 @@ function Table({
               aria-selected={isSelected}
               onClick={() => onOpen(f.id)}
               className={cn(
-                "h-14 cursor-pointer border-b border-line transition-colors duration-100 last:border-b-0",
-                on ? "on-ink bg-panel text-white" : isSelected ? "bg-mint-wash/60" : "hover:bg-wash",
+                "h-13 cursor-pointer border-b border-line transition-colors duration-100",
+                on ? "bg-wash" : isSelected ? "bg-ground/70" : "hover:bg-wash",
               )}
             >
-              <td className={cn("relative pl-2", on && "shadow-[inset_2px_0_0_var(--mint)]")}>
-                <Check checked={isSelected} onChange={() => onToggle(f.id)} label={`Select ${f.merchant}`} onInk={on} />
+              <td className={cn("pl-1", on && "shadow-[inset_2px_0_0_var(--ink)]")}>
+                <Check checked={isSelected} onChange={() => onToggle(f.id)} label={`Select ${vendorName(f.merchant)}`} />
               </td>
               <td className="px-3">
                 <div className="flex min-w-0 items-center gap-3">
-                  <VendorTile name={f.merchant} className={on ? "bg-panel-2 text-mint" : undefined} />
-                  <div className="flex min-w-0 flex-col leading-tight">
-                    <a
-                      href={`#/claims/${f.id}`}
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        onOpen(f.id);
-                      }}
-                      className="inline-flex min-h-6 max-w-full items-center truncate text-14 font-medium focus-visible:outline-offset-4"
-                    >
-                      {f.merchant}
-                    </a>
-                    <span className={cn("ref truncate text-11", on ? "text-sub" : "text-dim")}>
-                      {reference ?? `CASE-${String(f.id).padStart(4, "0")}`}
-                      <span className="lg:hidden"> · {LEAK_LABEL[f.leak_type]}</span>
+                  <VendorLogo name={f.merchant} />
+                  <div className="flex min-w-0 flex-col">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <a
+                        href={`#/claims/${f.id}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          onOpen(f.id);
+                        }}
+                        className="min-w-0 truncate text-14 font-medium leading-5 focus-visible:outline-offset-4"
+                      >
+                        {vendorName(f.merchant)}
+                      </a>
+                      {tab === "todo" && <InlineStatus f={f} />}
+                    </span>
+                    <span className="truncate text-12 text-dim">
+                      {reference && <span className="ref">{reference}</span>}
+                      <span className="lg:hidden">
+                        {reference && " · "}
+                        {LEAK_LABEL[f.leak_type]}
+                      </span>
                     </span>
                   </div>
                 </div>
               </td>
-              <td className={cn("hidden truncate px-3 text-13 lg:table-cell", on ? "text-sub" : "text-dim")}>{LEAK_LABEL[f.leak_type]}</td>
-              <td className={cn("figure px-3 text-right text-14 font-medium", on ? "text-mint" : f.status === "recovered" && "text-mint-ink")}>
-                {formatMoney(amount, f.currency)}
-              </td>
+              <td className="hidden truncate px-3 text-14 text-dim lg:table-cell">{LEAK_LABEL[f.leak_type]}</td>
               <td className="px-3">
-                <RespondBy f={f} onInk={on} />
+                <RespondBy f={f} />
               </td>
-              <td className="pl-3 pr-4">
-                {/* Only exceptions get a pill; "New" is the default state of every open row. */}
-                {status.label !== "New" && <Pill label={status.label} tone={status.tone} onInk={on} />}
+              {withStatus && (
+                <td className="px-3">
+                  <Pill label={status.label} tone={status.tone} />
+                </td>
+              )}
+              <td className={cn("figure pl-3 pr-4 text-right text-14 font-medium", f.status === "recovered" && "text-mint-ink")}>
+                {formatMoney(shownAmount(f), f.currency)}
               </td>
             </tr>
           );
         })}
       </tbody>
+      <tfoot>
+        <tr className="h-12">
+          <td colSpan={withStatus ? 6 : 5} className="pl-4 pr-4">
+            <Total rows={rows} />
+          </td>
+        </tr>
+      </tfoot>
     </table>
   );
 }
 
-function PhoneList({ rows, onOpen }: { rows: Finding[]; onOpen: (id: number) => void }) {
+function PhoneList({ rows, tab, onOpen }: { rows: Finding[]; tab: Tab; onOpen: (id: number) => void }) {
   return (
-    <ul className="m-0 flex flex-col p-0">
-      {rows.map((f) => {
-        const status = statusOf(f);
-        const amount = f.status === "recovered" ? (f.recovered_minor ?? f.amount_minor) : f.amount_minor;
-        const reference = referenceOf(f.reason);
-        return (
-          <li key={f.id} className="list-none border-b border-line last:border-b-0">
-            <a
-              href={`#/claims/${f.id}`}
-              data-case-id={f.id}
-              onClick={(e) => {
-                e.preventDefault();
-                onOpen(f.id);
-              }}
-              className="flex items-start gap-3 px-4 py-4 transition-colors active:bg-wash"
-            >
-              <VendorTile name={f.merchant} />
-              <span className="flex min-w-0 flex-1 flex-col gap-1">
-                <span className="flex items-baseline justify-between gap-3">
-                  <span className="truncate text-14 font-medium">{f.merchant}</span>
-                  <span className={cn("figure flex-none text-14 font-medium", f.status === "recovered" && "text-mint-ink")}>{formatMoney(amount, f.currency)}</span>
-                </span>
-                <span className="flex items-center justify-between gap-3">
-                  <span className="min-w-0 truncate text-13 text-dim">
-                    {LEAK_LABEL[f.leak_type]}
-                    {reference && <span className="ref text-11"> · {reference}</span>}
+    <>
+      <ul className="m-0 flex flex-col p-0">
+        {rows.map((f) => {
+          const status = statusOf(f);
+          const line = daysLine(f.days_left);
+          const reference = referenceOf(f.reason);
+          return (
+            <li key={f.id} className="list-none border-b border-line">
+              <a
+                href={`#/claims/${f.id}`}
+                data-case-id={f.id}
+                onClick={(e) => {
+                  e.preventDefault();
+                  onOpen(f.id);
+                }}
+                className="-mx-4 flex items-start gap-3 px-4 py-3.5 transition-colors active:bg-wash"
+              >
+                <VendorLogo name={f.merchant} className="mt-0.5" />
+                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className="flex items-baseline justify-between gap-3">
+                    <span className="flex min-w-0 items-center gap-2">
+                      <span className="truncate text-14 font-medium">{vendorName(f.merchant)}</span>
+                      {tab === "todo" && <InlineStatus f={f} />}
+                    </span>
+                    <span className={cn("figure flex-none text-14 font-medium", f.status === "recovered" && "text-mint-ink")}>
+                      {formatMoney(shownAmount(f), f.currency)}
+                    </span>
                   </span>
-                  {f.stage === "todo" && f.days_left !== null && f.days_left >= 0 ? (
-                    <DaysTag days={f.days_left} />
-                  ) : (
-                    status.label !== "New" && <Pill label={status.label} tone={status.tone} />
-                  )}
-                </span>
-                {/* Exceptions (needs review, draft ready) get their own line, so the type never truncates. */}
-                {f.stage === "todo" && f.days_left !== null && f.days_left >= 0 && status.label !== "New" && (
-                  <span className="flex">
-                    <Pill label={status.label} tone={status.tone} />
+                  <span className="flex items-baseline justify-between gap-3 text-13">
+                    <span className="min-w-0 truncate text-dim">
+                      {LEAK_LABEL[f.leak_type]}
+                      {reference && <span className="ref text-12"> · {reference}</span>}
+                    </span>
+                    {tab === "todo"
+                      ? line && <span className={cn("flex-none", isUrgent(f.days_left) ? "font-medium text-amber-ink" : "text-dim")}>{line}</span>
+                      : <Pill label={status.label} tone={status.tone} />}
                   </span>
-                )}
-              </span>
-            </a>
-          </li>
-        );
-      })}
-    </ul>
+                </span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+      <div className="py-3">
+        <Total rows={rows} />
+      </div>
+    </>
   );
 }
 
@@ -347,22 +428,22 @@ function BulkBar({
     <motion.div
       role="region"
       aria-label="Bulk actions"
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 24 }}
+      exit={{ opacity: 0, y: 16 }}
       transition={SPRING}
-      className="on-ink float fixed bottom-20 left-4 right-4 z-30 flex flex-wrap items-center gap-2 rounded-md border border-rule bg-panel p-2 pl-4 text-white md:bottom-6 md:left-[calc(50%+120px)] md:right-auto md:-translate-x-1/2"
+      className="on-ink float fixed inset-x-4 bottom-20 z-30 mx-auto flex w-fit max-w-[calc(100vw-2rem)] flex-wrap items-center justify-center gap-1 rounded-md bg-panel p-1.5 pl-3.5 text-white md:bottom-6 md:left-58 md:right-0"
     >
       {isDismissing ? (
         <form
-          className="flex flex-wrap items-center gap-2"
+          className="flex flex-wrap items-center gap-1"
           onSubmit={(e) => {
             e.preventDefault();
             if (reason.trim()) onDismiss(reason.trim());
           }}
         >
-          <label htmlFor="bulk-reason" className="text-13 text-sub">
-            Why are these {dismissable} not owed?
+          <label htmlFor="bulk-reason" className="sr-only">
+            Why {dismissable === 1 ? "it isn't" : "they aren't"} owed
           </label>
           <input
             id="bulk-reason"
@@ -376,10 +457,10 @@ function BulkBar({
               }
             }}
             maxLength={500}
-            placeholder="One reason, kept in each history"
-            className="h-8 w-64 rounded-xs border border-rule bg-panel-2 px-3 text-13 text-white placeholder:text-sub focus-visible:border-mint focus-visible:outline-none"
+            placeholder={dismissable === 1 ? "Why isn't it owed?" : `Why aren't these ${dismissable} owed?`}
+            className="mr-1 h-8 w-64 rounded-sm border border-rule bg-panel-2 px-3 text-13 text-white placeholder:text-sub focus-visible:border-mint focus-visible:outline-none"
           />
-          <Button type="submit" size="sm" variant="ink" disabled={!reason.trim()} isBusy={isBusy}>
+          <Button type="submit" size="sm" variant="primary" disabled={!reason.trim()} isBusy={isBusy}>
             Dismiss {dismissable}
           </Button>
           <Button size="sm" variant="ink-ghost" onClick={() => setIsDismissing(false)}>
@@ -388,27 +469,28 @@ function BulkBar({
         </form>
       ) : (
         <>
-          <span className="ref pr-2 text-13">
-            <span className="text-mint">{rows.length}</span> selected
+          <span className="figure pr-2 text-13 text-sub">
+            <span className="font-medium text-white">{rows.length}</span> selected
           </span>
-          <span aria-hidden className="h-5 w-px bg-rule" />
           <Button
             size="sm"
             variant="primary"
             disabled={draftable === 0}
             isBusy={isBusy}
             onClick={onDraft}
-            title="Creates drafts only. Each one is still reviewed and sent on its own."
+            title="Drafts only. Each one is still reviewed and sent on its own."
           >
-            Draft {draftable > 0 && draftable !== rows.length ? `${draftable} ` : ""}requests
+            Draft {draftable > 0 && draftable !== rows.length ? `${draftable} ` : ""}
+            {draftable === 1 ? "request" : "requests"}
           </Button>
-          <Button size="sm" variant="ink" disabled={dismissable === 0} onClick={() => setIsDismissing(true)}>
+          <Button size="sm" variant="ink-ghost" disabled={dismissable === 0} onClick={() => setIsDismissing(true)}>
             Dismiss…
           </Button>
           <button
             type="button"
             onClick={onClear}
             aria-label="Clear selection"
+            title="Clear selection (Esc)"
             className="grid size-8 place-items-center rounded-sm text-sub transition-colors hover:bg-panel-2 hover:text-white"
           >
             <X aria-hidden className="size-4" strokeWidth={1.75} />
@@ -419,8 +501,8 @@ function BulkBar({
   );
 }
 
-/** The full claims list: stage tabs, search and type in the hash, a keyboard-driven table, a bulk bar. */
-export function Claims({ findings, params, onParams, onOpen, isBusy, onBulkDraft, onBulkDismiss }: Props) {
+/** The full claims list: stage tabs, type and search in the hash, a keyboard-driven table, a bulk bar. */
+export function Claims({ findings, params, onParams, onOpen, onExport, isBusy, onBulkDraft, onBulkDismiss }: Props) {
   const counts = useMemo(() => countsFor(findings), [findings]);
   const tabRows = useMemo(() => rowsFor(findings, params.tab), [findings, params.tab]);
   const rows = useMemo(() => filterRows(tabRows, params.q, params.type), [tabRows, params.q, params.type]);
@@ -490,38 +572,33 @@ export function Claims({ findings, params, onParams, onOpen, isBusy, onBulkDraft
 
   const selectedRows = rows.filter((r) => selected.has(r.id));
   const set = (patch: Partial<ClaimsParams>) => onParams({ ...params, ...patch });
+  const tabLabel = TABS.find((t) => t.id === params.tab)?.label ?? "";
 
   return (
-    <>
-      <PageHeader
-        crumbs={<span>Recoup / Claims</span>}
-        title="Claims"
-        meta={
-          <p className="m-0 text-14 text-dim">
-            <span className="figure font-medium text-ink">{formatMoney(rowsFor(findings, "todo").reduce((s, f) => s + f.amount_minor, 0))}</span> open to claim across{" "}
-            {plural(counts.todo, "case")}, the most urgent first.
-          </p>
-        }
-      />
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-3 md:gap-0">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6 md:border-b md:border-line">
+        <div className="-mx-4 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:overflow-visible md:border-0 md:px-0">
           <Tabs tab={params.tab} counts={counts} onTab={(tab) => set({ tab })} />
-          <SearchField value={params.q} onChange={(q) => set({ q })} inputRef={search} />
         </div>
-        <TypeChips type={params.type} onType={(type) => set({ type })} />
+        <div className="flex min-w-0 items-center gap-2">
+          <TypeFilter type={params.type} onType={(type) => set({ type })} />
+          <SearchField value={params.q} onChange={(q) => set({ q })} inputRef={search} />
+          <Button size="sm" onClick={() => onExport(rows)} disabled={rows.length === 0} title="Download these claims as a CSV file" aria-label="Export">
+            <Download aria-hidden className="size-3.5" strokeWidth={2} />
+            <span className="hidden sm:inline">Export</span>
+          </Button>
+        </div>
       </div>
 
-      <section aria-label="Claims list" className="card overflow-hidden" aria-keyshortcuts="j k ArrowDown ArrowUp Enter x /">
+      <section aria-label="Claims list" aria-keyshortcuts="j k ArrowDown ArrowUp Enter x /">
         {params.tab === "closed" && rows.length > 0 && (
-          <p className="m-0 border-b border-line bg-wash px-4 py-3 text-13 text-dim">
-            The card dispute window has passed on these. The vendor can still refund you directly.
-          </p>
+          <p className="m-0 border-b border-line py-3 text-13 text-dim">Too late for a card dispute. The vendor can still refund you directly.</p>
         )}
         {rows.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
+          <div className="flex flex-col items-center gap-3 px-6 py-20 text-center">
             <p className="m-0 max-w-[44ch] text-14 text-dim text-balance">
               {isFiltered
-                ? `No ${TABS.find((t) => t.id === params.tab)?.label.toLowerCase()} claims match${params.q ? ` “${params.q}”` : ""}${params.type ? ` in ${LEAK_CHIP[params.type].toLowerCase()}` : ""}.`
+                ? `No ${tabLabel.toLowerCase()} claims match${params.q ? ` “${params.q}”` : ""}${params.type ? ` in ${LEAK_CHIP[params.type].toLowerCase()}` : ""}.`
                 : EMPTY[params.tab]}
             </p>
             {isFiltered && (
@@ -535,6 +612,7 @@ export function Claims({ findings, params, onParams, onOpen, isBusy, onBulkDraft
             <div className="hidden md:block">
               <Table
                 rows={rows}
+                tab={params.tab}
                 cursor={cursor}
                 selected={selected}
                 onToggle={toggle}
@@ -543,14 +621,11 @@ export function Claims({ findings, params, onParams, onOpen, isBusy, onBulkDraft
               />
             </div>
             <div className="md:hidden">
-              <PhoneList rows={rows} onOpen={onOpen} />
+              <PhoneList rows={rows} tab={params.tab} onOpen={onOpen} />
             </div>
           </>
         )}
       </section>
-      <p className="label m-0 hidden text-dim md:block">
-        J / K to move · Enter to open · X to select · / to search
-      </p>
 
       <AnimatePresence>
         {selectedRows.length > 0 && (
@@ -564,6 +639,6 @@ export function Claims({ findings, params, onParams, onOpen, isBusy, onBulkDraft
           />
         )}
       </AnimatePresence>
-    </>
+    </div>
   );
 }

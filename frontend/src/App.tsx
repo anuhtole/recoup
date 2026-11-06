@@ -149,12 +149,15 @@ export function App() {
   const backToList = useCallback(() => go({ page: "claims", params: writeParams(listParams.current) }), [go]);
   const navigateCase = useCallback((id: number) => replace({ page: "claims", caseId: id }), [replace]);
 
-  // Export: the open claims (To do), as CSV built in the browser.
-  const exportClaims = useCallback(() => {
-    const rows = rowsFor(findings, "todo");
-    downloadClaims(rows, summary?.as_of ?? new Date().toISOString().slice(0, 10));
-    notify([{ tone: "info", title: `Exported ${plural(rows.length, "open claim")}`, body: "Saved as a CSV file." }]);
-  }, [findings, summary?.as_of, notify]);
+  // Export: CSV built in the browser. The top bar and ⌘K export the open claims; Claims exports what it shows.
+  const exportRows = useCallback(
+    (rows: Finding[], noun = "claim") => {
+      downloadClaims(rows, summary?.as_of ?? new Date().toISOString().slice(0, 10));
+      notify([{ tone: "info", title: `Exported ${plural(rows.length, noun)}` }]);
+    },
+    [summary?.as_of, notify],
+  );
+  const exportClaims = useCallback(() => exportRows(rowsFor(findings, "todo"), "open claim"), [exportRows, findings]);
   const goPage = useCallback((page: Page) => go({ page, params: {} }), [go]);
 
   const sync = () =>
@@ -247,6 +250,7 @@ export function App() {
         params={claimsParams}
         onParams={(next) => replace({ page: "claims", params: writeParams(next) })}
         onOpen={openCase}
+        onExport={(rows) => exportRows(rows)}
         isBusy={busy === "bulk"}
         onBulkDraft={(ids) =>
           act("bulk", async () => {
@@ -278,14 +282,23 @@ export function App() {
   const caseMerchant = caseId !== null ? (detail?.id === caseId ? detail.merchant : findings.find((f) => f.id === caseId)?.merchant) : undefined;
   const title =
     caseId !== null ? (
-      <span className="flex min-w-0 items-baseline gap-2">
-        <a href={hrefFor({ page: "claims", params: writeParams(listParams.current) })} className="flex-none text-dim transition-colors hover:text-ink">
+      <span className="flex min-w-0 items-center gap-2">
+        <a
+          href={hrefFor({ page: "claims", params: writeParams(listParams.current) })}
+          onClick={(e) => {
+            e.preventDefault();
+            backToList();
+          }}
+          className="flex-none rounded-xs text-dim transition-colors hover:text-ink"
+        >
           Claims
         </a>
         <span aria-hidden className="flex-none text-line-strong">
           /
         </span>
-        <span className="truncate">{caseMerchant ? vendorName(caseMerchant) : "Case"}</span>
+        <span aria-current="page" className="truncate text-ink">
+          {caseMerchant ? vendorName(caseMerchant) : "Case"}
+        </span>
       </span>
     ) : (
       PAGE_TITLE[route.page]
@@ -296,6 +309,7 @@ export function App() {
       <Shell
         page={route.page}
         title={title}
+        isBreadcrumb={caseId !== null}
         claimsCount={counts.todo}
         summary={summary}
         sources={sources}

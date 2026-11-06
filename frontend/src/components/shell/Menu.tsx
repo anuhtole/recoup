@@ -2,7 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { type KeyboardEvent, type ReactNode, useCallback, useEffect, useId, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
-const ITEM = '[role="menuitem"]:not([aria-disabled="true"])';
+const ITEM = '[role^="menuitem"]:not([aria-disabled="true"])';
 
 interface MenuProps {
   /** Accessible name of the menu, e.g. "Demo". */
@@ -126,10 +126,13 @@ export function MenuItem({
   disabled,
   hint,
   icon,
+  checked,
 }: {
   children: ReactNode;
   onSelect: () => void;
   disabled?: boolean;
+  /** Set for a choice among options (a filter): the row becomes a menuitemradio. */
+  checked?: boolean;
   /** Right-aligned detail: a keyboard hint or a check. */
   hint?: ReactNode;
   icon?: ReactNode;
@@ -137,7 +140,8 @@ export function MenuItem({
   return (
     <button
       type="button"
-      role="menuitem"
+      role={checked === undefined ? "menuitem" : "menuitemradio"}
+      aria-checked={checked}
       tabIndex={-1}
       aria-disabled={disabled || undefined}
       onClick={() => !disabled && onSelect()}

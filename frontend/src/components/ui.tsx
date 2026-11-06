@@ -47,6 +47,22 @@ export function Pill({ label, tone, className, onInk }: { label: string; tone: T
   );
 }
 
+const TAG: Record<Tone, string> = {
+  mint: "bg-mint-wash text-mint-ink",
+  amber: "bg-amber-wash text-amber-ink",
+  neutral: "bg-ground text-dim",
+  muted: "bg-wash text-dim",
+};
+
+/** A small inline tag with no dot: a case's type, or "Needs review" beside a vendor name. */
+export function Tag({ children, tone = "neutral", className }: { children: ReactNode; tone?: Tone; className?: string }) {
+  return (
+    <span className={cn("inline-flex h-5 flex-none items-center whitespace-nowrap rounded-xs px-1.5 text-12 font-medium", TAG[tone], className)}>
+      {children}
+    </span>
+  );
+}
+
 /** A days-left tag: mono, amber when three days or fewer. */
 export function DaysTag({ days, className }: { days: number | null; className?: string }) {
   if (days === null) return null;
