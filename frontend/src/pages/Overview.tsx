@@ -1,230 +1,225 @@
-import { ArrowRight } from "lucide-react";
-import type { Finding, LeakType, Sources, Summary } from "../api";
+import { ArrowRight, Download } from "lucide-react";
+import type { Finding, LeakType, Summary } from "../api";
 import { Button } from "../components/Button";
-import { RecoveryChart } from "../components/RecoveryChart";
-import { configured, relativeTime, sourcesHealth, StatusDot } from "../components/Sources";
-import { DaysTag, Empty, Label, Module, PageHeader, RollingMoney, VendorTile } from "../components/ui";
-import { formatMoney, formatShortDate, plural } from "../format";
+import { Money } from "../components/Money";
+import { hasRecoveryChart, RecoveryChart } from "../components/RecoveryChart";
+import { Section, SectionLink } from "../components/Section";
+import { TopBarActions } from "../components/shell/TopBarActions";
+import { VendorLogo } from "../components/VendorLogo";
+import { daysHint, formatDate, formatMoney, plural } from "../format";
 import { useSummaryHistory } from "../hooks/useSummaryHistory";
+import { vendorName } from "../lib/vendors";
 import { rowsFor } from "../queue";
-import { LEAK_GROUP, LEAK_LABEL } from "../theme";
+import { isUrgent, LEAK_GROUP, LEAK_LABEL } from "../theme";
 import { cn } from "@/lib/utils";
 
 interface Props {
   summary: Summary;
   findings: Finding[];
-  sources: Sources | null;
-  isSyncing: boolean;
-  onSync: () => void;
   onReview: () => void;
+  onExport: () => void;
 }
 
-/** The second line of the hero: the most urgent thing, in plain words. */
-function urgency(live: Finding[]): { text: string; urgent: boolean } {
+/** The most urgent deadline, in plain words, or null when nothing is close. */
+function urgency(live: Finding[]): string | null {
   const days = live.map((f) => f.days_left).filter((d): d is number => d !== null && d >= 0);
-  if (days.length === 0) return { text: live.length > 0 ? "No deadline coming up" : "Nothing is waiting on you", urgent: false };
-  const today = days.filter((d) => d === 0).length;
-  if (today) return { text: today === 1 ? "1 claim expires today" : `${today} claims expire today`, urgent: true };
-  const tomorrow = days.filter((d) => d === 1).length;
-  if (tomorrow) return { text: tomorrow === 1 ? "1 claim expires tomorrow" : `${tomorrow} claims expire tomorrow`, urgent: true };
-  const week = days.filter((d) => d <= 7).length;
-  if (week) return { text: week === 1 ? "1 claim expires this week" : `${week} claims expire this week`, urgent: true };
-  return { text: `Next deadline in ${Math.min(...days)} days`, urgent: false };
+  const count = (pred: (d: number) => boolean) => days.filter(pred).length;
+  const today = count((d) => d === 0);
+  if (today) return today === 1 ? "1 expires today" : `${today} expire today`;
+  const tomorrow = count((d) => d === 1);
+  if (tomorrow) return tomorrow === 1 ? "1 expires tomorrow" : `${tomorrow} expire tomorrow`;
+  const week = count((d) => d <= 7);
+  if (week) return week === 1 ? "1 expires this week" : `${week} expire this week`;
+  return null;
 }
 
-function Hero({ summary, ready, live, onReview }: { summary: Summary; ready: number; live: Finding[]; onReview: () => void }) {
+/** A figure in the stat line: muted "—" for zero, so nothing reads as an empty box. */
+function Stat({ label, minor, currency, tone }: { label: string; minor: number; currency: string; tone?: "mint" }) {
+  return (
+    <span className="whitespace-nowrap">
+      <span className="text-dim">{label}</span>{" "}
+      {minor > 0 ? (
+        <span className={cn("figure font-medium", tone === "mint" ? "text-mint-ink" : "text-ink")}>{formatMoney(minor, currency)}</span>
+      ) : (
+        <>
+          <span aria-hidden className="text-dim">
+            —
+          </span>
+          <span className="sr-only">none</span>
+        </>
+      )}
+    </span>
+  );
+}
+
+function Hero({ summary, live, ready, missed, onReview }: { summary: Summary; live: Finding[]; ready: number; missed: number; onReview: () => void }) {
   const history = useSummaryHistory(summary);
   const soon = urgency(live);
   const { currency } = summary;
-  const first = history[0];
-  const delta = first ? summary.recovered_minor - first.recovered : 0;
-  const since = first && history.length > 1 ? formatShortDate(first.as_of) : null;
   return (
-    <section aria-label="Ready to claim" className="card relative overflow-hidden">
-      <div aria-hidden className="ticks absolute inset-y-0 left-0 w-3" />
-      <div className="flex flex-col gap-5 py-6 pl-10 pr-5 md:pl-12 md:pr-8">
-        <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
-          <div className="flex min-w-0 flex-col">
-            <Label>Ready to claim</Label>
-            <p className="m-0 mt-2 text-44 font-semibold tracking-[-0.035em] md:text-64">
-              <RollingMoney minor={ready} currency={currency} />
+    <section aria-labelledby="hero-label" className="flex flex-col gap-6">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex min-w-0 flex-col">
+          <h2 id="hero-label" className="m-0 text-13 font-medium text-dim">
+            Open claims
+          </h2>
+          {ready > 0 ? (
+            <p className="m-0 mt-1 text-44 font-semibold tracking-[-0.02em] md:text-56">
+              <Money minor={ready} currency={currency} roll />
             </p>
-            <p className="m-0 mt-3 text-14">
-              {delta > 0 ? (
-                <>
-                  <span className="figure font-medium text-mint-ink">+{formatMoney(delta, currency)}</span>{" "}
-                  <span className="text-dim">recovered {since ? `since ${since}` : "so far"}</span>
-                </>
-              ) : summary.recovered_minor > 0 ? (
-                <>
-                  <span className="figure font-medium text-mint-ink">{formatMoney(summary.recovered_minor, currency)}</span>{" "}
-                  <span className="text-dim">recovered so far</span>
-                </>
-              ) : (
-                <span className="text-dim">Nothing back yet. Send a request and it lands here.</span>
-              )}
-            </p>
-          </div>
-          <div className="flex flex-col gap-2 lg:items-end">
-            <p className={cn("label m-0", soon.urgent ? "text-amber-ink" : "text-dim")}>{soon.text}</p>
-            {live.length > 0 && (
-              <Button variant="primary" size="lg" onClick={onReview} className="w-full lg:w-auto">
-                Review {plural(live.length, "claim")}
-                <ArrowRight aria-hidden className="size-4" strokeWidth={2} />
-              </Button>
+          ) : (
+            <p className="m-0 mt-1 text-28 font-semibold text-dim">—</p>
+          )}
+          <p className="m-0 mt-2 flex flex-wrap items-center gap-x-2 text-14">
+            <span>{live.length > 0 ? plural(live.length, "claim") : "Nothing to claim right now"}</span>
+            {soon && (
+              <>
+                <span aria-hidden className="text-line-strong">
+                  ·
+                </span>
+                <span className="inline-flex items-center gap-1.5 font-medium text-amber-ink">
+                  <span aria-hidden className="size-1.5 rounded-full bg-amber" />
+                  {soon}
+                </span>
+              </>
             )}
-          </div>
+          </p>
         </div>
-        <RecoveryChart history={history} currency={currency} />
+        {live.length > 0 && (
+          <Button variant="primary" size="lg" onClick={onReview} className="w-full sm:w-auto">
+            Review claims
+            <ArrowRight aria-hidden className="size-4" strokeWidth={2} />
+          </Button>
+        )}
       </div>
+      <p className="m-0 flex flex-wrap gap-x-3 gap-y-1 text-13">
+        <Stat label="In flight" minor={summary.in_flight_minor} currency={currency} />
+        <span aria-hidden className="text-line-strong">
+          ·
+        </span>
+        <Stat label="Recovered" minor={summary.recovered_minor} currency={currency} tone="mint" />
+        <span aria-hidden className="text-line-strong">
+          ·
+        </span>
+        <Stat label="Missed" minor={missed} currency={currency} />
+      </p>
+      {hasRecoveryChart(history) && <RecoveryChart history={history} currency={currency} />}
     </section>
   );
 }
 
-/** The ink data band: the four totals and how much of everything found is back or on its way. */
-function Band({ summary, ready, missed }: { summary: Summary; ready: number; missed: number }) {
-  const { in_flight_minor: inFlight, recovered_minor: recovered, currency } = summary;
-  const total = ready + inFlight + recovered + missed;
-  const pct = (v: number) => (total > 0 ? (v / total) * 100 : 0);
-  const cells = [
-    { label: "Ready", value: ready, className: "text-white" },
-    { label: "In flight", value: inFlight, className: "text-white" },
-    { label: "Recovered", value: recovered, className: "text-mint" },
-    { label: "Missed", value: missed, className: "text-sub" },
-  ];
+/** Under a respond-by date: days left, amber while it is three days or fewer. */
+function Days({ days }: { days: number | null }) {
+  const hint = daysHint(days);
+  if (!hint) return null;
+  return <span className={cn("block text-12", isUrgent(days) ? "font-medium text-amber-ink" : "text-dim")}>{hint}</span>;
+}
+
+function ExpiringSoon({ live }: { live: Finding[] }) {
+  const rows = live.filter((f) => f.recover_by !== null).slice(0, 5);
+  if (rows.length === 0) return null;
   return (
-    <section aria-label="Totals" className="on-ink overflow-hidden rounded-md bg-panel text-white">
-      <dl className="m-0 grid grid-cols-2 lg:grid-cols-4">
-        {cells.map((cell, i) => (
-          <div
-            key={cell.label}
-            className={cn(
-              "flex flex-col gap-2 px-5 py-5",
-              i % 2 === 1 && "border-l border-rule",
-              i >= 2 && "border-t border-rule lg:border-t-0",
-              i === 2 && "lg:border-l",
-            )}
-          >
-            <dt className="label text-sub">{cell.label}</dt>
-            <dd className="m-0 text-20 font-semibold tracking-[-0.02em] md:text-28">
-              <RollingMoney minor={cell.value} currency={currency} className={cell.className} />
-            </dd>
-          </div>
-        ))}
-      </dl>
-      <div className="flex flex-col gap-2 border-t border-rule px-5 py-4">
-        <div
-          role="img"
-          aria-label={`${formatMoney(recovered, currency)} recovered and ${formatMoney(inFlight, currency)} in flight out of ${formatMoney(total, currency)} found`}
-          className="flex h-1.5 gap-0.5 overflow-hidden rounded-xs bg-rule"
-        >
-          <span className="h-full bg-mint transition-[width] duration-700" style={{ width: `${pct(recovered)}%` }} />
-          <span className="h-full bg-mint/40 transition-[width] duration-700" style={{ width: `${pct(inFlight)}%` }} />
-        </div>
-        <p className="label m-0 flex flex-wrap justify-between gap-x-4 text-sub">
-          <span>
-            <span className="text-mint">{Math.round(pct(recovered))}% back</span> · {Math.round(pct(inFlight))}% in flight
-          </span>
-          <span className="figure">{formatMoney(total, currency)} found</span>
-        </p>
-      </div>
-    </section>
+    <Section title="Expiring soon" meta={<SectionLink href="#/claims">View all</SectionLink>}>
+      <table className="w-full table-fixed border-collapse text-14">
+        <thead>
+          <tr className="text-left text-12 text-dim">
+            <th scope="col" className="py-2.5 pr-3 font-medium">
+              Vendor
+            </th>
+            <th scope="col" className="hidden w-[30%] py-2.5 pr-3 font-medium sm:table-cell">
+              Type
+            </th>
+            <th scope="col" className="w-24 py-2.5 pr-3 font-medium">
+              Respond by
+            </th>
+            <th scope="col" className="w-28 py-2.5 text-right font-medium">
+              Amount
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((f) => (
+            <tr
+              key={f.id}
+              data-needs-id={f.id}
+              onClick={() => (window.location.hash = `#/claims/${f.id}`)}
+              className="cursor-pointer border-t border-line transition-colors hover:bg-wash"
+            >
+              <td className="py-2.5 pr-3">
+                <a href={`#/claims/${f.id}`} className="flex min-w-0 items-center gap-3 font-medium" onClick={(e) => e.stopPropagation()}>
+                  <VendorLogo name={f.merchant} />
+                  <span className="truncate">{vendorName(f.merchant)}</span>
+                </a>
+              </td>
+              <td className="hidden truncate py-2.5 pr-3 text-dim sm:table-cell">{LEAK_LABEL[f.leak_type]}</td>
+              <td className="py-2.5 pr-3">
+                <span className="figure block text-13">{formatDate(f.recover_by as string, "short")}</span>
+                <Days days={f.days_left} />
+              </td>
+              <td className="figure py-2.5 text-right font-medium">{formatMoney(f.amount_minor, f.currency)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Section>
   );
 }
 
-// Ink steps for the breakdown, darkest for the largest share. Mint stays reserved for money back.
-const SHADES = ["var(--ink)", "#4a524d", "#7d8680", "#aab2ac", "#d3d8d4"];
-
-function ByType({ todo, currency }: { todo: Finding[]; currency: string }) {
+function ByType({ live, currency }: { live: Finding[]; currency: string }) {
   const sums = new Map<LeakType, { amount: number; count: number }>();
-  for (const f of todo) {
+  for (const f of live) {
     const entry = sums.get(f.leak_type) ?? { amount: 0, count: 0 };
     sums.set(f.leak_type, { amount: entry.amount + f.amount_minor, count: entry.count + 1 });
   }
   const rows = [...sums.entries()].sort((a, b) => b[1].amount - a[1].amount);
   const total = rows.reduce((sum, [, r]) => sum + r.amount, 0);
-  if (rows.length === 0 || total === 0) return <Empty>Nothing is ready to claim right now.</Empty>;
-  const share = (amount: number) => (amount / total) * 100;
+  if (rows.length === 0 || total === 0) return null;
   return (
-    <div className="flex flex-col gap-4">
-      <div aria-hidden className="flex h-2 gap-0.5 overflow-hidden rounded-xs">
-        {rows.map(([type, { amount }], i) => (
-          <span key={type} className="h-full" style={{ width: `max(${share(amount)}%, 6px)`, background: SHADES[i] }} />
-        ))}
-      </div>
-      <ul className="m-0 flex flex-col p-0">
-        {rows.map(([type, { amount, count }], i) => (
-          <li key={type} className="grid list-none grid-cols-[8px_minmax(0,1fr)_auto_44px] items-center gap-x-3 border-b border-line py-3 text-14 last:border-b-0">
-            <span aria-hidden className="size-2 rounded-xs" style={{ background: SHADES[i] }} />
-            <span className="min-w-0 truncate">
-              {LEAK_GROUP[type]} <span className="ref text-13 text-dim">· {count}</span>
-            </span>
-            <span className="figure text-right font-medium">{formatMoney(amount, currency)}</span>
-            <span className="ref text-right text-13 text-dim">{Math.round(share(amount))}%</span>
-          </li>
-        ))}
+    <Section title="By type">
+      <ul className="m-0 flex flex-col p-0 pt-1">
+        {rows.map(([type, { amount, count }]) => {
+          const share = (amount / total) * 100;
+          return (
+            <li key={type} className="grid list-none grid-cols-[minmax(0,1fr)_56px_20px_96px] items-center gap-x-3 py-2.5 text-14 sm:grid-cols-[minmax(0,1fr)_80px_24px_104px]">
+              <span className="min-w-0 truncate">{LEAK_GROUP[type]}</span>
+              <span role="img" aria-label={`${Math.round(share)}% of open claims`} className="h-1 overflow-hidden rounded-xs bg-ground">
+                <span className="block h-full rounded-xs bg-ink" style={{ width: `${Math.max(3, share)}%` }} />
+              </span>
+              <span className="figure text-right text-13 text-dim">
+                {count}
+                <span className="sr-only"> {count === 1 ? "claim" : "claims"}</span>
+              </span>
+              <span className="figure text-right font-medium">{formatMoney(amount, currency)}</span>
+            </li>
+          );
+        })}
       </ul>
-    </div>
+    </Section>
   );
 }
 
-function TopVendors({ todo, currency }: { todo: Finding[]; currency: string }) {
-  const byVendor = new Map<string, { amount: number; count: number }>();
-  for (const f of todo) {
-    const entry = byVendor.get(f.merchant) ?? { amount: 0, count: 0 };
-    byVendor.set(f.merchant, { amount: entry.amount + f.amount_minor, count: entry.count + 1 });
+function TopVendors({ live, currency }: { live: Finding[]; currency: string }) {
+  const byVendor = new Map<string, { merchant: string; amount: number; count: number }>();
+  for (const f of live) {
+    const name = vendorName(f.merchant);
+    const entry = byVendor.get(name) ?? { merchant: f.merchant, amount: 0, count: 0 };
+    byVendor.set(name, { ...entry, amount: entry.amount + f.amount_minor, count: entry.count + 1 });
   }
   const rows = [...byVendor.entries()].sort((a, b) => b[1].amount - a[1].amount).slice(0, 5);
-  if (rows.length === 0) return <Empty>Vendors that owe you money will be ranked here.</Empty>;
-  const largest = rows[0][1].amount;
+  if (rows.length === 0) return null;
   return (
-    <ol className="m-0 flex flex-col p-0">
-      {rows.map(([vendor, { amount, count }]) => (
-        <li key={vendor} className="flex list-none items-center gap-3 border-b border-line py-3 last:border-b-0">
-          <VendorTile name={vendor} />
-          <div className="flex min-w-0 flex-1 flex-col gap-2">
-            <div className="flex items-start justify-between gap-4 text-14 sm:items-baseline">
-              <span className="flex min-w-0 flex-col gap-0.5 sm:flex-row sm:items-baseline sm:gap-1">
-                <span className="truncate font-medium">{vendor}</span>
-                <span className="ref flex-none text-11 font-normal text-dim sm:text-13">
-                  <span className="hidden sm:inline">· </span>
-                  {plural(count, "case")}
-                </span>
-              </span>
-              <span className="figure font-medium">{formatMoney(amount, currency)}</span>
-            </div>
-            <span aria-hidden className="h-1 rounded-xs bg-ground">
-              <span className="block h-full rounded-xs bg-ink" style={{ width: `${Math.max(2, (amount / largest) * 100)}%` }} />
-            </span>
-          </div>
-        </li>
-      ))}
-    </ol>
-  );
-}
-
-function NeedsAction({ live }: { live: Finding[] }) {
-  const rows = live.filter((f) => f.days_left !== null).slice(0, 5);
-  if (rows.length === 0) return <Empty>Claims with a deadline will be listed here, the most urgent first.</Empty>;
-  return (
-    <ul className="-mx-5 m-0 flex flex-col p-0">
-      {rows.map((f) => (
-        <li key={f.id} className="list-none border-b border-line last:border-b-0">
-          <a
-            href={`#/claims/${f.id}`}
-            data-needs-id={f.id}
-            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-0.5 px-5 py-3 transition-colors hover:bg-wash"
-          >
-            <span className="min-w-0 truncate text-14 font-medium">{f.merchant}</span>
-            <span className="figure text-right text-14 font-medium">{formatMoney(f.amount_minor, f.currency)}</span>
-            <span className="min-w-0 truncate text-13 text-dim">{LEAK_LABEL[f.leak_type]}</span>
-            <span className="text-right">
-              <DaysTag days={f.days_left} />
-            </span>
-          </a>
-        </li>
-      ))}
-    </ul>
+    <Section title="Top vendors">
+      <ol className="m-0 flex flex-col p-0 pt-1">
+        {rows.map(([name, { merchant, amount, count }]) => (
+          <li key={name} className="flex list-none items-center gap-3 py-2 text-14">
+            <VendorLogo name={merchant} />
+            <span className="min-w-0 flex-1 truncate font-medium">{name}</span>
+            {count > 1 && <span className="flex-none text-13 text-dim">{plural(count, "claim")}</span>}
+            <span className="figure w-24 flex-none text-right font-medium">{formatMoney(amount, currency)}</span>
+          </li>
+        ))}
+      </ol>
+    </Section>
   );
 }
 
@@ -234,53 +229,27 @@ function RecentlyRecovered({ findings }: { findings: Finding[] }) {
     .filter((f) => f.status === "recovered")
     .sort((a, b) => b.created_at.localeCompare(a.created_at) || b.id - a.id)
     .slice(0, 4);
-  if (rows.length === 0) return <Empty>Money confirmed back in your ledger will show here.</Empty>;
+  if (rows.length === 0) return null;
   return (
-    <ul className="-mx-5 m-0 flex flex-col p-0">
-      {rows.map((f) => (
-        <li key={f.id} className="list-none border-b border-line last:border-b-0">
-          <a href={`#/claims/${f.id}`} className="flex items-center justify-between gap-4 px-5 py-3 text-14 transition-colors hover:bg-wash">
-            <span className="min-w-0 truncate font-medium">{f.merchant}</span>
-            <span className="figure font-medium text-mint-ink">+{formatMoney(f.recovered_minor ?? f.amount_minor, f.currency)}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-function SourcesModule({ sources, isSyncing, onSync }: { sources: Sources | null; isSyncing: boolean; onSync: () => void }) {
-  const on = sources ? configured(sources) : [];
-  return (
-    <Module title="Sources" aside={<a href="#/sources" className="inline-flex min-h-6 items-center font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-current">Manage</a>}>
-      <ul className="m-0 flex flex-col gap-2 p-0">
-        {(sources?.connectors ?? []).map((c) => (
-          <li key={c.key} className="flex list-none items-center justify-between gap-3 text-14">
-            <span className="flex min-w-0 items-center gap-2">
-              <StatusDot health={!c.configured ? "none" : c.last_sync && !c.last_sync.ok ? "attention" : c.last_sync ? "ok" : "none"} className={c.configured && c.last_sync?.ok ? "bg-mint-ink" : undefined} />
-              <span className="truncate">{c.key === "ramp" ? "Ramp" : c.key === "gmail" ? "Gmail" : "Status pages"}</span>
-            </span>
-            <span className="ref text-13 text-dim">{!c.configured ? "Not connected" : c.last_sync ? relativeTime(c.last_sync.finished_at) : "Connected, never synced"}</span>
+    <Section title="Recently recovered" meta={<SectionLink href="#/recovered">All activity</SectionLink>}>
+      <ul className="m-0 flex flex-col p-0 pt-1">
+        {rows.map((f) => (
+          <li key={f.id} className="list-none">
+            <a href={`#/claims/${f.id}`} className="-mx-2 flex items-center gap-3 rounded-sm px-2 py-2 text-14 transition-colors hover:bg-wash">
+              <VendorLogo name={f.merchant} />
+              <span className="min-w-0 flex-1 truncate font-medium">{vendorName(f.merchant)}</span>
+              <span className="figure font-medium text-mint-ink">+{formatMoney(f.recovered_minor ?? f.amount_minor, f.currency)}</span>
+            </a>
           </li>
         ))}
-        {!sources && <li className="list-none text-14 text-dim">Loading sources…</li>}
       </ul>
-      <div className="mt-4 flex items-center justify-between gap-3 border-t border-line pt-4">
-        <span className="flex items-center gap-2 text-13 text-dim">
-          <StatusDot health={sourcesHealth(sources)} className={sourcesHealth(sources) === "ok" ? "bg-mint-ink" : undefined} />
-          {sources ? `${on.length} of ${sources.connectors.length} connected` : "—"}
-        </span>
-        <Button size="sm" onClick={onSync} isBusy={isSyncing} busyLabel="Syncing…">
-          Sync now
-        </Button>
-      </div>
-    </Module>
+    </Section>
   );
 }
 
-/** The landing page: what is owed, what expires first, where it comes from, and what has come back. */
-export function Overview({ summary, findings, sources, isSyncing, onSync, onReview }: Props) {
-  // Ready means a claim you can still make: open and inside its window. Closed windows count as missed,
+/** The landing page: what is open, what expires first, where it comes from. Each figure appears once. */
+export function Overview({ summary, findings, onReview, onExport }: Props) {
+  // Open means a claim you can still make: inside its window. Closed windows count as missed,
   // matching the Claims list and its "Window closed" tab.
   const live = rowsFor(findings, "todo");
   const ready = live.reduce((sum, f) => sum + f.amount_minor, 0);
@@ -289,33 +258,22 @@ export function Overview({ summary, findings, sources, isSyncing, onSync, onRevi
     .reduce((sum, f) => sum + f.amount_minor, 0);
   const missed = summary.expired_minor + closedOpen;
   return (
-    <>
-      <PageHeader crumbs={<span>Recoup / Overview</span>} title="Overview" />
-      <Hero summary={summary} ready={ready} live={live} onReview={onReview} />
-      <Band summary={summary} ready={ready} missed={missed} />
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <div className="flex min-w-0 flex-col gap-6">
-          <Module title="Where it comes from" aside={<span className="figure">{formatMoney(ready, summary.currency)}</span>}>
-            <ByType todo={live} currency={summary.currency} />
-          </Module>
-          <Module title="Top vendors" aside="Ready to claim" bodyClassName="py-1">
-            <TopVendors todo={live} currency={summary.currency} />
-          </Module>
-        </div>
-        <div className="flex min-w-0 flex-col gap-6">
-          <Module title="Needs action" aside="Fewest days left" bodyClassName="py-0">
-            <NeedsAction live={live} />
-          </Module>
-          <Module
-            title="Recently recovered"
-            aside={<a href="#/recovered" className="inline-flex min-h-6 items-center font-medium text-ink underline decoration-line-strong underline-offset-4 hover:decoration-current">All activity</a>}
-            bodyClassName={findings.some((f) => f.status === "recovered") ? "py-0" : undefined}
-          >
-            <RecentlyRecovered findings={findings} />
-          </Module>
-          <SourcesModule sources={sources} isSyncing={isSyncing} onSync={onSync} />
+    <div className="flex flex-col gap-12">
+      <TopBarActions>
+        <Button size="sm" onClick={onExport} disabled={live.length === 0} title="Download the open claims as a CSV file">
+          <Download aria-hidden className="size-3.5" strokeWidth={2} />
+          Export
+        </Button>
+      </TopBarActions>
+      <Hero summary={summary} live={live} ready={ready} missed={missed} onReview={onReview} />
+      <div className="grid grid-cols-1 items-start gap-x-12 gap-y-12 lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <ExpiringSoon live={live} />
+        <div className="flex min-w-0 flex-col gap-10">
+          <ByType live={live} currency={summary.currency} />
+          <TopVendors live={live} currency={summary.currency} />
+          <RecentlyRecovered findings={findings} />
         </div>
       </div>
-    </>
+    </div>
   );
 }
