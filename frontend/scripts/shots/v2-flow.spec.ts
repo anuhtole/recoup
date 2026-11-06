@@ -8,7 +8,7 @@ const out = process.env.SHOTS_OUT ?? "../.pipeline/v2/build";
 test.use({ deviceScaleFactor: 2 });
 
 test("v2 flow shots", async ({ page }) => {
-  const sidebar = page.getByRole("complementary", { name: "Case sidebar" });
+  const sidebar = page.getByRole("complementary", { name: "Claim details" });
   const settle = () => page.waitForTimeout(700);
 
   await page.goto("/#/claims");
@@ -41,7 +41,16 @@ test("v2 flow shots", async ({ page }) => {
   await settle();
   await page.screenshot({ path: `${out}/overview-after-advance-1440.png` });
 
+  // A second advance, so the recovery chart has more than one date to draw.
+  await page.goto("/#/overview");
+  await page.reload();
+  await page.getByRole("button", { name: /^Demo/ }).click();
+  await page.getByRole("menuitem", { name: "Advance 2 weeks" }).click();
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: `${out}/overview-after-second-advance-notices-1440.png` });
+
   for (const [route, name] of [
+    ["overview", "overview-after-advance"],
     ["recovered", "recovered-after-advance"],
     ["claims/2", "case-recovered"],
     ["claims?tab=done", "claims-done"],
