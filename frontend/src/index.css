@@ -24,7 +24,7 @@
   --ground: #f3f5f3;
   --wash: #f7f8f7; /* hover tint on paper */
   --line: #e2e5e2;
-  --line-strong: #c4cbc6; /* field edges and dashed record boxes */
+  --line-strong: #c4cbc6; /* field edges and stronger hairlines */
   --dim: #5f6862;
   --sub: #9aa59f;
 
@@ -127,11 +127,6 @@
   --text-44--line-height: 48px;
   --text-56: 56px;
   --text-56--line-height: 60px;
-  /* Legacy v1 steps, kept only until the pages still on them move to 12 and 56. */
-  --text-11: 11px;
-  --text-11--line-height: 16px;
-  --text-64: 64px;
-  --text-64--line-height: 64px;
 
   /* Radii: 2 chips and fields, 4 buttons and rows, 6 cards and panels */
   --radius-xs: 2px;
@@ -196,12 +191,6 @@
 }
 
 @layer components {
-  /* A label above or beside a value: small sans, sentence case. Colour comes from where it is used. */
-  .label {
-    font-size: 12px;
-    line-height: 16px;
-    font-weight: 500;
-  }
   /* Money, dates and counts keep their width. */
   .figure {
     font-variant-numeric: tabular-nums;
@@ -254,10 +243,5 @@
     border-color: var(--rule);
     background: var(--panel-2);
     color: var(--sub);
-  }
-  /* A raw record field: dashed box, as in a ledger printout. */
-  .field-box {
-    border: 1px dashed var(--line-strong);
-    border-radius: var(--radius-xs);
   }
 }

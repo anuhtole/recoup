@@ -30,7 +30,7 @@ function errorText(error: unknown): string {
   if (error instanceof ApiError) return error.message;
   // fetch rejects with a TypeError when the server can't be reached at all.
   if (error instanceof TypeError) return "Couldn't reach the Recoup server. Check that it's running and try again.";
-  return "Something went wrong. Check the API logs.";
+  return "Something went wrong on the server.";
 }
 
 /** One card per vendor reply and per credit the ledger confirmed while the clock moved. */
@@ -48,19 +48,19 @@ function advanceNotices(before: Finding[], after: Finding[], asOf: string): Noti
     const amount = formatMoney(f.amount_minor, f.currency);
     if (f.status === "recovered") {
       const back = formatMoney(f.recovered_minor ?? f.amount_minor, f.currency);
-      notices.push({ tone: "money", title: `${f.merchant} credit posted`, body: `${back} is back, confirmed in your ledger.` });
+      notices.push({ tone: "money", title: `${vendorName(f.merchant)} credit posted`, body: `${back} is back, confirmed in your ledger.` });
     } else if (f.status === "vendor_agreed") {
-      notices.push({ tone: "info", title: `${f.merchant} agreed to refund ${amount}`, body: "Recoup closes it when the credit posts." });
+      notices.push({ tone: "info", title: `${vendorName(f.merchant)} agreed to refund ${amount}`, body: "It closes when the credit posts." });
     } else if (f.status === "info_requested") {
-      notices.push({ tone: "info", title: `${f.merchant} asked for more details`, body: "It is back under To do." });
+      notices.push({ tone: "info", title: `${vendorName(f.merchant)} asked for more details`, body: "It's back under To do." });
     } else if (f.status === "vendor_declined") {
-      notices.push({ tone: "info", title: `${f.merchant} declined`, body: "It is back under To do with what you can do next." });
+      notices.push({ tone: "info", title: `${vendorName(f.merchant)} declined`, body: "It's back under To do." });
     } else if (f.status === "expired") {
-      notices.push({ tone: "info", title: `${f.merchant}: the claim window closed`, body: `${amount} moved to Missed.` });
+      notices.push({ tone: "info", title: `${vendorName(f.merchant)}: the claim window closed`, body: `${amount} moved to Missed.` });
     }
   }
   if (created > 0) notices.push({ tone: "info", title: created === 1 ? "1 new case found" : `${created} new cases found` });
-  if (notices.length === 0) notices.push({ tone: "info", title: `Now ${formatDate(asOf)}`, body: "No vendor replies or credits in these two weeks." });
+  if (notices.length === 0) notices.push({ tone: "info", title: `Now ${formatDate(asOf)}`, body: "No replies or credits in those two weeks." });
   return notices;
 }
 
@@ -132,7 +132,7 @@ export function App() {
       return true;
     } catch (err) {
       await refresh().catch(() => undefined);
-      notify([{ tone: "error", title: kind === "sync" ? "Sync didn't finish" : "That did not go through", body: errorText(err) }]);
+      notify([{ tone: "error", title: kind === "sync" ? "Sync didn't finish" : "That didn't go through", body: errorText(err) }]);
       return false;
     } finally {
       setBusy(null);
@@ -225,7 +225,7 @@ export function App() {
         onDismiss={(reason) =>
           void act("case", async () => {
             await api.dismiss(detail.id, reason);
-            return [{ tone: "info", title: "Case dismissed", body: "The reason is kept in its history." }];
+            return [{ tone: "info", title: "Case dismissed" }];
           })
         }
         onSave={async (draftId, subject, body) => {
@@ -242,7 +242,7 @@ export function App() {
                 tone: "info",
                 isResult: true,
                 title: `${sent.channel === "card_dispute" ? "Dispute" : "Request"} sent to ${sent.to_addr}`,
-                body: "The case is now under Waiting until the vendor replies.",
+                body: "It's under Waiting until the vendor replies.",
               },
             ];
           });
@@ -266,7 +266,7 @@ export function App() {
               {
                 tone: "info",
                 title: ids.length === 1 ? "1 draft ready" : `${ids.length} drafts ready`,
-                body: "Nothing was sent. Open each case to review and approve it.",
+                body: "Nothing was sent. Review each one before it goes.",
               },
             ];
           })
@@ -274,7 +274,7 @@ export function App() {
         onBulkDismiss={(ids, reason) =>
           act("bulk", async () => {
             await Promise.all(ids.map((id) => api.dismiss(id, reason)));
-            return [{ tone: "info", title: `${plural(ids.length, "case")} dismissed`, body: "The reason is kept in each history." }];
+            return [{ tone: "info", title: `${plural(ids.length, "case")} dismissed` }];
           })
         }
       />
@@ -333,7 +333,7 @@ export function App() {
               {
                 tone: "info",
                 title: run.created ? `${plural(run.created, "new case")} found` : "Nothing new found",
-                body: `Read ${run.emails_read} emails and the ledger.`,
+                body: `Read ${plural(run.emails_read, "email")} and the ledger.`,
               },
             ];
           })
