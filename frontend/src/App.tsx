@@ -4,6 +4,7 @@ import { api, ApiError, type Finding, type Stage } from "./api";
 import { CaseView } from "./components/case/CaseView";
 import { Overview } from "./components/Overview";
 import { Queue } from "./components/Queue";
+import { Setup } from "./components/setup/Setup";
 import { type Notice, Notifications } from "./components/Toast";
 import { TopBar } from "./components/TopBar";
 import { formatDate, formatMoney } from "./format";
@@ -295,7 +296,16 @@ export function App() {
             </div>
           )}
 
-          {!isClaims && summary && !isLoading && (
+          {route.page === "setup" && (
+            <Setup
+              onDataChanged={() => {
+                void reload();
+                void reloadSources();
+              }}
+            />
+          )}
+
+          {route.page === "overview" && summary && !isLoading && (
             <Overview
               summary={summary}
               findings={findings}
@@ -309,7 +319,7 @@ export function App() {
           )}
 
           {isLoading ? (
-            <p className="text-14 text-dim">Loading cases…</p>
+            route.page !== "setup" && <p className="text-14 text-dim">Loading cases…</p>
           ) : (
             isClaims && <div className="grid grid-cols-1 items-start gap-6 min-[900px]:grid-cols-[minmax(320px,400px)_minmax(0,1fr)]">
               {showQueue && (

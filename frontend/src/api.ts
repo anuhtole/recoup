@@ -181,6 +181,114 @@ export interface AdvanceResult {
   run: RunSummary;
 }
 
+// Setup: plugging one company's data into Recoup. Mirrors api/routes/{company,ledger,discovery}.py.
+export type SetupStepKey = "company" | "ledger" | "vendors" | "mail" | "contracts";
+
+export interface Setup {
+  data_mode: "demo" | "live";
+  counts: { transactions: number; emails: number; vendors: number; contracts: number };
+  connections: { ramp: boolean; gmail: boolean; gmail_can_connect: boolean };
+  steps: { key: SetupStepKey; done: boolean; hint: string }[];
+}
+
+export interface Company {
+  name: string;
+  card_dispute_address: string;
+  is_set: boolean;
+}
+
+export interface Vendor {
+  key: string;
+  name: string;
+  support_email: string;
+  domains: string[];
+  aliases: string[];
+  origin: "bundled" | "user" | "discovered";
+}
+
+export interface VendorSuggestion {
+  merchant: string;
+  key: string;
+  name: string;
+  charges: number;
+  spend_minor: number;
+  domains: string[];
+  senders: string[];
+}
+
+export interface SlaTier {
+  below_bp: number;
+  credit_pct: number;
+}
+
+export interface Contract {
+  vendor_key: string;
+  plan: string;
+  document: string;
+  sla_target_bp: number | null;
+  tiers: SlaTier[];
+  claim_window_days: number;
+  clause: string;
+  period: "month" | "quarter";
+  covered_components: string[];
+  needs_customer_confirmation: boolean;
+  price_minor: number | null;
+  price_currency: string;
+  price_locked_until: string | null;
+  price_increase_cap_bp: number | null;
+  price_clause: string;
+}
+
+export interface StoredContract extends Contract {
+  id: number | null;
+  origin: "bundled" | "user" | "upload";
+}
+
+export type LedgerColumn = "date" | "merchant" | "amount" | "debit" | "credit" | "currency" | "reference" | "id" | "card";
+
+export interface LedgerUpload {
+  filename: string;
+  text: string;
+  // Only needed when exports from several cards or accounts lack an id column.
+  account?: string;
+  // An empty string means "this file has no such column".
+  columns?: Partial<Record<LedgerColumn, string>>;
+  charge_sign?: "positive" | "negative";
+  date_order?: DateOrder;
+  currency?: string;
+  include_overlaps?: boolean;
+}
+
+export type DateOrder = "month_first" | "day_first";
+
+export interface LedgerPreview {
+  headers: string[];
+  columns: Partial<Record<LedgerColumn, string>>;
+  charge_sign: "positive" | "negative";
+  // False when Recoup guessed from weak evidence and a person should check.
+  is_sign_certain: boolean;
+  date_order: DateOrder;
+  is_date_order_certain: boolean;
+  already_imported: number;
+  // Rows another source (Ramp, an earlier upload) already holds.
+  on_file_elsewhere: number;
+  rows: number;
+  skipped: number;
+  problems: { line: number; reason: string }[];
+  first_date: string | null;
+  last_date: string | null;
+  charges_minor: number;
+  sample: (Transaction & { source: string; external_id: string })[];
+}
+
+export interface LedgerImport {
+  source: string;
+  inserted: number;
+  duplicates: number;
+  skipped_overlaps: number;
+  run: RunSummary;
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,
@@ -228,4 +336,26 @@ export const api = {
   advance: (days: number) => post<AdvanceResult>("/api/demo/advance", { days }),
   sources: () => request<Sources>("/api/sources"),
   sync: () => post<SyncReport>("/api/sync"),
+
+  setup: () => request<Setup>("/api/setup"),
+  company: () => request<Company>("/api/company"),
+  saveCompany: (name: string, card_dispute_address: string) =>
+    request<Company>("/api/company", { method: "PUT", body: JSON.stringify({ name, card_dispute_address }) }),
+  previewLedger: (upload: LedgerUpload) => post<LedgerPreview>("/api/ledger/preview", upload),
+  importLedger: (upload: LedgerUpload) => post<LedgerImport>("/api/ledger/import", upload),
+  vendors: () => request<Vendor[]>("/api/vendors"),
+  vendorSuggestions: () => request<VendorSuggestion[]>("/api/vendors/suggestions"),
+  // `merchant` is the name as the ledger prints it; the server derives the key.
+  saveVendor: (merchant: string, vendor: Pick<Vendor, "name" | "support_email" | "domains" | "aliases">, origin: "user" | "discovered") =>
+    request<Vendor>(`/api/vendors/${encodeURIComponent(merchant)}`, {
+      method: "PUT",
+      body: JSON.stringify({ ...vendor, origin }),
+    }),
+  removeVendor: (key: string) => request<{ removed: boolean }>(`/api/vendors/${encodeURIComponent(key)}`, { method: "DELETE" }),
+  contracts: () => request<StoredContract[]>("/api/contracts"),
+  // Claude reads the document; nothing is stored until saveContract.
+  readContract: (filename: string, data_base64: string) =>
+    post<{ contract: Contract | null; problems: string[] }>("/api/contracts/read", { filename, data_base64 }),
+  saveContract: (contract: Contract) => post<StoredContract>("/api/contracts", contract),
+  removeContract: (id: number) => request<{ removed: boolean }>(`/api/contracts/${id}`, { method: "DELETE" }),
 };

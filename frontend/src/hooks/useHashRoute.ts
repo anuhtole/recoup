@@ -1,19 +1,21 @@
 import { useCallback, useEffect, useState } from "react";
 
-export type Page = "overview" | "claims";
+export type Page = "overview" | "claims" | "setup";
 export interface Route {
   page: Page;
   caseId: number | null;
 }
 
-// #/overview, #/claims, #/claims/<id>. Anything else is the overview.
+// #/overview, #/claims, #/claims/<id>, #/setup (with an optional ?query). Anything else is the overview.
 export function parseHash(hash: string): Route {
+  if (/^#\/setup\/?(\?.*)?$/.test(hash)) return { page: "setup", caseId: null };
   const match = /^#\/claims(?:\/(\d+))?\/?$/.exec(hash);
   if (match) return { page: "claims", caseId: match[1] ? Number(match[1]) : null };
   return { page: "overview", caseId: null };
 }
 
 export function hrefFor(route: Route): string {
+  if (route.page === "setup") return "#/setup";
   return route.page === "claims" ? `#/claims${route.caseId !== null ? `/${route.caseId}` : ""}` : "#/overview";
 }
 

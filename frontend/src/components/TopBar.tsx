@@ -84,6 +84,7 @@ function PageSwitch({ page }: { page: Page }) {
   const items: { page: Page; label: string; href: string }[] = [
     { page: "overview", label: "Overview", href: "#/overview" },
     { page: "claims", label: "Claims", href: "#/claims" },
+    { page: "setup", label: "Setup", href: "#/setup" },
   ];
   return (
     <nav aria-label="Pages" className="order-last w-full sm:order-none sm:w-auto">
