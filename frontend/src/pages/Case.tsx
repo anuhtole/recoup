@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Draft, Email, FindingDetail } from "../api";
 import { ApprovalSheet } from "../components/case/ApprovalSheet";
-import { Facts, NextStep, RespondBy } from "../components/case/CaseSidebar";
+import { CaseRail } from "../components/case/CaseRail";
 import { Reason } from "../components/case/Citations";
 import { citeReason, needsCustomerConfirmation, type VendorQuote } from "../components/case/cite";
 import { Correspondence } from "../components/case/Correspondence";
@@ -11,12 +11,17 @@ import { DraftEditor } from "../components/case/DraftEditor";
 import { EmailSheet } from "../components/case/EmailSheet";
 import { Evidence } from "../components/case/Evidence";
 import { History } from "../components/case/History";
-import { HowFound } from "../components/case/HowFound";
-import { Label, Pill } from "../components/ui";
-import { formatMoney } from "../format";
+import { WhyOwed } from "../components/case/WhyOwed";
+import { Money } from "../components/Money";
+import { Section } from "../components/Section";
+import { TopBarActions } from "../components/shell/TopBarActions";
+import { Pill, Tag } from "../components/ui";
+import { VendorLogo } from "../components/VendorLogo";
 import { useMediaQuery } from "../hooks/useIsNarrow";
+import { vendorName } from "../lib/vendors";
 import { displayReason, referenceOf } from "../queue";
-import { LEAK_LABEL } from "../theme";
+import { LEAK_LABEL, statusOf } from "../theme";
+import { cn } from "@/lib/utils";
 
 export interface CaseActions {
   onDraft: () => void;
@@ -28,7 +33,6 @@ export interface CaseActions {
 interface Props extends CaseActions {
   detail: FindingDetail;
   isBusy: boolean;
-  listHref: string;
   prevId: number | null;
   nextId: number | null;
   position: { index: number; total: number } | null;
@@ -46,15 +50,15 @@ function NavArrow({ id, label, onNavigate, children }: { id: number | null; labe
       title={label}
       disabled={id === null}
       onClick={() => id !== null && onNavigate(id)}
-      className="grid size-8 place-items-center rounded-sm border border-line bg-paper text-ink transition-colors hover:border-line-strong disabled:opacity-40"
+      className="grid size-8 place-items-center rounded-sm text-ink transition-colors hover:bg-wash disabled:text-line-strong disabled:hover:bg-transparent"
     >
       {children}
     </button>
   );
 }
 
-/** A case on its own route: breadcrumb, a narrative column, and a sticky facts-and-action sidebar. */
-export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, onNavigate, onBack, onDraft, onDismiss, onSave, onSend }: Props) {
+/** A case on its own route: a header, the reason and its evidence on the left, the deadline and the one action on the right. */
+export function CasePage({ detail, isBusy, prevId, nextId, position, onNavigate, onBack, onDraft, onDismiss, onSave, onSend }: Props) {
   const [openEmail, setOpenEmail] = useState<{ email: Email; quote: VendorQuote } | null>(null);
   // Held here, not in the sheet, so the sheet can show "Sent" after the draft leaves the case.
   const [approving, setApproving] = useState<{ draft: Draft; subject: string; body: string } | null>(null);
@@ -65,7 +69,9 @@ export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, o
   const references = [...new Set(detail.transactions.map((t) => t.reference).filter((r): r is string => Boolean(r)))];
   const reference = referenceOf(detail.reason) ?? references[0] ?? null;
   const isRecovered = detail.status === "recovered";
-  // Two columns from 1280px; below that the action panel follows the header and the facts go last.
+  const status = statusOf(detail);
+  const vendor = vendorName(detail.merchant);
+  // Two columns from 1280px; below that the rail follows the header.
   const isWide = useMediaQuery("(min-width: 1280px)");
 
   useEffect(() => {
@@ -89,32 +95,25 @@ export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, o
   }, [approving, openEmail, onBack, onNavigate, nextId, prevId]);
 
   const review = () => openDraft && setApproving({ draft: openDraft, subject: edits.subject, body: edits.body });
-  const nextStep = (
-    <NextStep detail={detail} openDraft={openDraft} isReviewing={approving !== null} isBusy={isBusy} onDraft={onDraft} onReview={review} onDismiss={onDismiss} />
+  const rail = (
+    <CaseRail
+      detail={detail}
+      openDraft={openDraft}
+      isReviewing={approving !== null}
+      isBusy={isBusy}
+      onDraft={onDraft}
+      onReview={review}
+      onDismiss={onDismiss}
+      className={cn(isWide && "sticky top-[88px]")}
+    />
   );
 
   return (
-    <article aria-label={`${detail.merchant} case`} className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-4">
-        <nav aria-label="Breadcrumb" className="label flex min-w-0 items-center gap-2 text-dim">
-          <a
-            href={listHref}
-            onClick={(e) => {
-              e.preventDefault();
-              onBack();
-            }}
-            className="rounded-xs underline decoration-line-strong underline-offset-4 transition-colors hover:text-ink hover:decoration-current"
-          >
-            Claims
-          </a>
-          <span aria-hidden>/</span>
-          <span aria-current="page" className="truncate text-ink">
-            {detail.merchant}
-          </span>
-        </nav>
-        <div className="flex flex-none items-center gap-2">
+    <article aria-label={`${vendor} case`} className="flex flex-col">
+      <TopBarActions>
+        <div className="flex items-center gap-1">
           {position && (
-            <span className="label hidden text-dim sm:inline">
+            <span className="figure hidden pr-2 text-13 text-dim sm:inline">
               {position.index + 1} of {position.total}
             </span>
           )}
@@ -125,39 +124,36 @@ export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, o
             <ChevronRight aria-hidden className="size-4" strokeWidth={1.75} />
           </NavArrow>
         </div>
-      </div>
+      </TopBarActions>
 
-      <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(300px,1fr)]">
-        {/* Header and reason come first on every screen; on narrow screens the action panel follows them. */}
-        <div className="flex min-w-0 flex-col gap-6">
-          <header className="card flex flex-col gap-5 p-5 md:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <Label>{LEAK_LABEL[detail.leak_type]}</Label>
-              {/* Status lives once, in the facts; the header only flags what changes how to read the case. */}
-              {publicStatus && <Pill label="Public status page" tone="neutral" />}
+      <div className="grid grid-cols-1 items-start gap-x-12 gap-y-8 xl:grid-cols-[minmax(0,1fr)_304px]">
+        <div className="flex min-w-0 flex-col gap-10">
+          <header className="flex flex-col gap-5">
+            <div className="flex items-center gap-3.5">
+              <VendorLogo name={detail.merchant} size={40} />
+              <div className="flex min-w-0 flex-col">
+                <div className="flex min-w-0 flex-wrap items-center gap-x-2.5 gap-y-1">
+                  <h1 className="m-0 truncate text-20 font-semibold tracking-[-0.01em]">{vendor}</h1>
+                  <Tag>{LEAK_LABEL[detail.leak_type]}</Tag>
+                  {publicStatus && <Tag>Public status page</Tag>}
+                </div>
+                {reference && (
+                  <p data-reference className="ref m-0 truncate text-12 text-dim">
+                    {references.length > 1 ? references.slice(0, 3).join(" · ") : reference}
+                  </p>
+                )}
+              </div>
             </div>
-            <div className="flex flex-col gap-1">
-              <h1 className="m-0 text-28 font-semibold tracking-[-0.03em]">{detail.merchant}</h1>
-              <p className={`figure m-0 text-44 font-semibold tracking-[-0.035em] ${isRecovered ? "text-mint-ink" : ""}`}>
-                {formatMoney(isRecovered ? (detail.recovered_minor ?? detail.amount_minor) : detail.amount_minor, detail.currency)}
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+              <p className={cn("m-0 text-44 font-semibold tracking-[-0.02em]", isRecovered && "text-mint-ink")}>
+                <Money minor={isRecovered ? (detail.recovered_minor ?? detail.amount_minor) : detail.amount_minor} currency={detail.currency} />
               </p>
-              {reference && (
-                <p data-reference className="ref m-0 text-13 text-dim">
-                  {references.length > 1 ? references.slice(0, 3).join(" · ") : reference}
-                </p>
-              )}
+              <Pill label={status.label} tone={status.tone} />
             </div>
-            <div className="border-t border-line pt-5">
-              <Reason cited={cited} onOpenEmail={(source) => source.email && setOpenEmail({ email: source.email, quote: source.quote })} />
-            </div>
+            <Reason cited={cited} onOpenEmail={(source) => source.email && setOpenEmail({ email: source.email, quote: source.quote })} />
           </header>
 
-          {!isWide && (
-            <div className="flex flex-col gap-4">
-              <RespondBy detail={detail} />
-              {nextStep}
-            </div>
-          )}
+          {!isWide && rail}
 
           {openDraft && (
             <DraftEditor
@@ -170,10 +166,9 @@ export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, o
             />
           )}
 
-          <HowFound detail={detail} />
+          <WhyOwed detail={detail} />
 
-          <section aria-label="Evidence" className="flex flex-col gap-3">
-            <h2 className="m-0 text-14 font-semibold tracking-[-0.01em]">Evidence</h2>
+          <Section title="Evidence">
             <Evidence
               evidence={detail.evidence}
               transactions={detail.transactions}
@@ -183,20 +178,13 @@ export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, o
               isPriceCase={detail.leak_type === "price_overcharge"}
               isPublicStatus={publicStatus}
             />
-          </section>
+          </Section>
 
           <Correspondence emails={detail.emails} drafts={detail.drafts} />
           <History events={detail.timeline} trace={detail.trace} />
-          {!isWide && <Facts detail={detail} />}
         </div>
 
-        {isWide && (
-          <aside aria-label="Case sidebar" className="sticky top-8 flex min-w-0 flex-col gap-4">
-            <RespondBy detail={detail} />
-            <Facts detail={detail} />
-            {nextStep}
-          </aside>
-        )}
+        {isWide && rail}
       </div>
 
       <AnimatePresence>
@@ -209,7 +197,7 @@ export function CasePage({ detail, isBusy, listHref, prevId, nextId, position, o
             amountMinor={detail.amount_minor}
             currency={detail.currency}
             reference={reference}
-            vendor={detail.merchant}
+            vendor={vendor}
             onClose={() => setApproving(null)}
             onConfirm={async () => {
               const { draft, subject, body } = approving;

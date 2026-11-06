@@ -1,4 +1,5 @@
 import type { Finding, LeakType } from "./api";
+import { vendorName } from "./lib/vendors";
 
 /** A case whose claim window has passed: kept, but out of the live lists. */
 export function isWindowClosed(finding: Finding): boolean {
@@ -68,9 +69,15 @@ export function titleCase(text: string): string {
   });
 }
 
-/** The reason sentence for display: an all-caps card descriptor at its start reads in title case. Same length, so citations still line up. */
+/**
+ * The reason sentence for display. Citations are numbered on this text, so it may change length:
+ * an all-caps card descriptor at its start reads as the vendor's name ("SQ *JOES CATERING" → "Joes Catering"),
+ * "3 more time(s)" reads "3 more times", and a date repeated for both charges is said once.
+ */
 export function displayReason(reason: string): string {
-  const match = /^([^a-z]+?) (charged|confirmed|promised|ran|owed)\b/.exec(reason);
-  if (!match) return reason;
-  return titleCase(match[1]) + reason.slice(match[1].length);
+  let text = reason;
+  const match = /^([^a-z]+?) (charged|confirmed|promised|ran|owed)\b/.exec(text);
+  if (match) text = vendorName(titleCase(match[1])) + text.slice(match[1].length);
+  text = text.replace(/\b(\d+) (more )?([a-z]+)\(s\)/g, (_, n: string, more: string | undefined, word: string) => `${n} ${more ?? ""}${n === "1" ? word : `${word}s`}`);
+  return text.replace(/, on ([A-Z][a-z]{2} \d{1,2}, \d{4}) and \1,?/, " on $1,").replace(/ on ([A-Z][a-z]{2} \d{1,2}, \d{4}),\./, " on $1.");
 }

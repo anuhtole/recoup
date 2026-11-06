@@ -14,7 +14,7 @@ function Preview({ source }: { source: Source }) {
     case "charge":
       return (
         <>
-          <p className="text-11 label text-sub">{source.transactions.length > 1 ? "Charges on your card" : "Charge on your card"}</p>
+          <p className="text-12 text-sub">{source.transactions.length > 1 ? "Charges on your card" : "Charge on your card"}</p>
           <ul className="mt-2 flex flex-col gap-2">
             {source.transactions.map((t) => (
               <li key={t.id} className="grid grid-cols-[auto_1fr_auto] items-baseline gap-3 text-14">
@@ -25,31 +25,33 @@ function Preview({ source }: { source: Source }) {
             ))}
           </ul>
           {source.transactions[0]?.reference && (
-            <p className="mt-2 text-11 text-sub">Reference <span className="ref"> {source.transactions[0].reference}</span></p>
+            <p className="mt-2 text-12 text-sub">
+              Reference <span className="ref text-white">{source.transactions[0].reference}</span>
+            </p>
           )}
         </>
       );
     case "email":
       return (
         <>
-          <p className="text-11 label text-sub">
+          <p className="text-12 text-sub">
             {source.quote.vendor}, <span className="figure">{formatDate(source.quote.day)}</span>
           </p>
           <p className="mt-2 text-14">“{source.quote.quote}”</p>
-          {source.email && <p className="mt-2 text-11 text-sub">Click to read the whole email.</p>}
+          {source.email && <p className="mt-2 text-12 text-sub">Click to read the email.</p>}
         </>
       );
     case "contract":
       return (
         <>
-          <p className="ref truncate text-11 text-sub">{source.evidence.ref}</p>
+          <p className="truncate text-12 text-sub">{source.evidence.ref}</p>
           <p className="mt-2 line-clamp-5 text-14">{source.evidence.detail}</p>
         </>
       );
     case "incident":
       return (
         <>
-          <p className="text-11 label text-sub">Vendor status page</p>
+          <p className="text-12 text-sub">Vendor status page</p>
           <ul className="mt-2 flex flex-col gap-2">
             {source.items.map((item) => (
               <li key={item.ref} className="text-14">
@@ -140,7 +142,7 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
         // negative margins give a 24px target without pushing the line apart.
         className="group/fn relative -mx-1 -my-3 inline-block px-1 py-3 align-super leading-[0] text-dim transition-colors duration-150 hover:text-ink"
       >
-        <span className="ref text-11 font-semibold leading-[0] underline decoration-transparent underline-offset-2 transition-colors group-hover/fn:decoration-current">
+        <span className="figure text-12 font-semibold leading-[0] underline decoration-transparent underline-offset-2 transition-colors group-hover/fn:decoration-current">
           {citation.n}
         </span>
       </button>
@@ -177,9 +179,22 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
 export function Reason({ cited, onOpenEmail }: { cited: CitedReason; onOpenEmail: (source: Extract<Source, { kind: "email" }>) => void }) {
   return (
     <p className="m-0 max-w-[64ch] text-16 text-ink text-pretty">
-      {cited.parts.map((part, i) =>
-        typeof part === "string" ? <span key={i}>{part}</span> : <Footnote key={`fn-${part.n}`} citation={part} onOpenEmail={onOpenEmail} />,
-      )}
+      {cited.parts.map((part, i) => {
+        if (typeof part !== "string") return null;
+        const next = cited.parts[i + 1];
+        if (!next || typeof next === "string") return <span key={i}>{part}</span>;
+        // The word a footnote marks stays on its line, so a number never wraps on its own.
+        const at = part.search(/\S+$/);
+        return (
+          <span key={i}>
+            {part.slice(0, Math.max(at, 0))}
+            <span className="whitespace-nowrap">
+              {at >= 0 ? part.slice(at) : ""}
+              <Footnote citation={next} onOpenEmail={onOpenEmail} />
+            </span>
+          </span>
+        );
+      })}
     </p>
   );
 }

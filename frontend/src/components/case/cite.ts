@@ -85,7 +85,12 @@ export function citeReason(detail: FindingDetail): CitedReason {
 
   const uncited: Transaction[] = [];
   for (const txn of detail.transactions) {
-    if (!claim(formatDate(txn.posted_at), { kind: "charge", transactions: [txn] })) uncited.push(txn);
+    const date = formatDate(txn.posted_at);
+    if (claim(date, { kind: "charge", transactions: [txn] })) continue;
+    // "charged twice on Jun 19": the second charge shares the first one's date, and its footnote.
+    const sameDay = spans.find((sp) => sp.source.kind === "charge" && sp.source.transactions.some((t) => formatDate(t.posted_at) === date));
+    if (sameDay && sameDay.source.kind === "charge") sameDay.source.transactions.push(txn);
+    else uncited.push(txn);
   }
   // Some charges are dated in the sentence and some aren't ("3 charges since Jul 3"): cite them as one
   // group on the count, so every charge in the ledger carries a number, not just the first.

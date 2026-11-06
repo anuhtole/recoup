@@ -24,7 +24,7 @@ export function EmailSheet({ email, quote, onClose }: Props) {
   return (
     <Sheet labelId="email-sheet-title" title={email.subject} subtitle={`From ${email.from_addr} · ${formatDateTime(email.sent_at)}`} onClose={onClose}>
       <div className="min-h-0 flex-1 overflow-y-auto px-6 pb-2">
-        <div className="field-box whitespace-pre-wrap bg-wash px-5 py-4 text-14 leading-6">
+        <div className="whitespace-pre-wrap rounded-sm border border-line bg-wash px-5 py-4 text-14 leading-6">
           {range ? (
             <>
               {email.body.slice(0, range.start)}
@@ -40,8 +40,8 @@ export function EmailSheet({ email, quote, onClose }: Props) {
       </div>
       <p className="m-0 px-6 pb-6 pt-3 text-13 text-dim">
         {range
-          ? "The highlighted sentence is the quote Recoup relies on, checked word for word against this email."
-          : "Recoup checked the quote word for word against this email."}
+          ? "The highlighted sentence is the quote, checked word for word."
+          : "The quote was checked word for word against this email."}
       </p>
     </Sheet>
   );

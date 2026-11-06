@@ -203,7 +203,6 @@ export function App() {
         key={detail.id}
         detail={detail}
         isBusy={busy === "case"}
-        listHref={hrefFor({ page: "claims", params: writeParams(listParams.current) })}
         prevId={navIndex > 0 ? navIds[navIndex - 1] : null}
         nextId={navIndex >= 0 && navIndex < navIds.length - 1 ? navIds[navIndex + 1] : null}
         position={navIndex >= 0 && inList ? { index: navIndex, total: navIds.length } : null}

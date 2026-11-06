@@ -37,8 +37,8 @@ function Letter({ subject, body }: { subject: string; body: string }) {
   return (
     <div className="flex min-h-0 flex-col gap-2">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="label m-0 text-dim">Letter</p>
-        {more && <p className="label m-0 text-dim">Scroll to read it all</p>}
+        <p className="m-0 text-13 text-dim">Letter</p>
+        {more && <p className="m-0 text-12 text-dim">Scroll to read it all</p>}
       </div>
       <div className="relative">
         <div
@@ -46,12 +46,12 @@ function Letter({ subject, body }: { subject: string; body: string }) {
           onScroll={measure}
           tabIndex={0}
           aria-label="Letter preview"
-          className="field-box max-h-[min(20rem,32dvh)] overflow-y-auto bg-wash px-4 py-3"
+          className="max-h-[min(20rem,32dvh)] overflow-y-auto rounded-sm border border-line bg-wash px-4 py-3"
         >
           <p className="m-0 text-14 font-medium">{subject}</p>
           <p className="m-0 mt-2 whitespace-pre-wrap text-13 leading-6 text-ink">{body}</p>
         </div>
-        {more && <div aria-hidden className="pointer-events-none absolute inset-x-px bottom-px h-12 rounded-b-xs bg-gradient-to-t from-wash to-transparent" />}
+        {more && <div aria-hidden className="pointer-events-none absolute inset-x-px bottom-px h-12 rounded-b-sm bg-gradient-to-t from-wash to-transparent" />}
       </div>
     </div>
   );
@@ -60,7 +60,7 @@ function Letter({ subject, body }: { subject: string; body: string }) {
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex min-w-0 flex-col gap-1 py-3">
-      <dt className="label text-dim">{label}</dt>
+      <dt className="text-13 text-dim">{label}</dt>
       <dd className="m-0 min-w-0 truncate text-14">{children}</dd>
     </div>
   );
@@ -77,15 +77,14 @@ export function ApprovalSheet({ draft, subject, body, amountMinor, currency, ref
     <Sheet
       labelId="approve-title"
       title={isDispute ? "Approve this dispute" : "Approve this request"}
-      subtitle="It goes exactly as written."
       onClose={onClose}
       initialFocus={thumb}
     >
       <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 pb-5 pt-3">
         <div className="flex flex-col gap-1">
-          <p className="label m-0 text-dim">Sends to</p>
-          <p className="ref m-0 break-all text-20 font-medium tracking-[-0.01em]">{draft.to_addr}</p>
-          <p className="m-0 text-13 text-dim">{isDispute ? "Your card issuer's dispute desk" : `${vendor} billing, from your vendor directory`}</p>
+          <p className="m-0 text-13 text-dim">To</p>
+          <p className="m-0 break-all text-20 font-medium tracking-[-0.01em]">{draft.to_addr}</p>
+          <p className="m-0 text-13 text-dim">{isDispute ? "Your card issuer's dispute desk" : `${vendor} billing`}</p>
         </div>
         <dl className="m-0 grid grid-cols-3 gap-x-4 border-y border-line">
           <Row label="Amount">
@@ -103,8 +102,7 @@ export function ApprovalSheet({ draft, subject, body, amountMinor, currency, ref
         <p className="m-0 flex items-start gap-2 text-13 text-sub">
           <Lock aria-hidden className="mt-0.5 size-3.5 flex-none text-mint" strokeWidth={2} />
           <span>
-            <span className="font-medium text-white">Can't be edited after sending.</span> Recoup never contacts anyone without this approval, and
-            records it in the history.
+            <span className="font-medium text-white">This can't be edited after it's sent.</span> Nothing goes out without this approval.
           </span>
         </p>
         <SlideToConfirm
@@ -119,7 +117,7 @@ export function ApprovalSheet({ draft, subject, body, amountMinor, currency, ref
             window.setTimeout(onClose, CLOSE_AFTER_DONE_MS);
           }}
         />
-        <p className="m-0 text-center text-13 text-sub">Drag the arrow to the end, or press Enter, then Enter again.</p>
+        <p className="m-0 text-center text-12 text-sub">Drag to the end, or press Enter twice.</p>
       </div>
     </Sheet>
   );
