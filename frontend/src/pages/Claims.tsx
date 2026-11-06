@@ -575,15 +575,16 @@ export function Claims({ findings, params, onParams, onOpen, onExport, isBusy, o
   const tabLabel = TABS.find((t) => t.id === params.tab)?.label ?? "";
 
   return (
-    <div className="flex flex-col gap-3 md:gap-0">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-6 md:border-b md:border-line">
-        <div className="-mx-4 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:overflow-visible md:border-0 md:px-0">
+    <div className="flex flex-col gap-3 xl:gap-0">
+      {/* One toolbar row where it fits; below 1280px the filters drop under the tabs instead of squeezing. */}
+      <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between xl:gap-6 xl:border-b xl:border-line">
+        <div className="-mx-4 overflow-x-auto border-b border-line px-4 [scrollbar-width:none] md:mx-0 md:px-0 xl:overflow-visible xl:border-0">
           <Tabs tab={params.tab} counts={counts} onTab={(tab) => set({ tab })} />
         </div>
         <div className="flex min-w-0 items-center gap-2">
           <TypeFilter type={params.type} onType={(type) => set({ type })} />
           <SearchField value={params.q} onChange={(q) => set({ q })} inputRef={search} />
-          <Button size="sm" onClick={() => onExport(rows)} disabled={rows.length === 0} title="Download these claims as a CSV file" aria-label="Export">
+          <Button size="sm" onClick={() => onExport(rows)} disabled={rows.length === 0} title="Download these claims as a CSV file" aria-label="Export" className="flex-none">
             <Download aria-hidden className="size-3.5" strokeWidth={2} />
             <span className="hidden sm:inline">Export</span>
           </Button>

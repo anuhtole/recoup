@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { type ReactNode, useState } from "react";
 import type { Draft, FindingDetail } from "../../api";
-import { formatDate, formatMoney } from "../../format";
+import { formatDate } from "../../format";
 import { SPRING } from "../../motion";
 import { isUrgent } from "../../theme";
 import { cn } from "@/lib/utils";
@@ -21,12 +21,12 @@ function Block({ label, children, className }: { label: string; children: ReactN
 /** The top of the rail: the deadline while it can still be claimed, otherwise where the case stands. */
 function Standing({ detail }: { detail: FindingDetail }) {
   if (detail.status === "recovered") {
+    // The amount already leads the header in mint; the rail says when it came back and how we know.
+    const at = detail.timeline.find((e) => e.kind === "recovered" && !e.is_future)?.at;
     return (
       <Block label="Recovered">
         <p className="m-0 text-13 text-dim">Recovered</p>
-        <p className="figure m-0 text-20 font-semibold tracking-[-0.01em] text-mint-ink">
-          +{formatMoney(detail.recovered_minor ?? detail.amount_minor, detail.currency)}
-        </p>
+        <p className="figure m-0 text-20 font-semibold tracking-[-0.01em] text-mint-ink">{at ? formatDate(at) : "Money back"}</p>
         <p className="m-0 text-13 text-dim">Confirmed in your ledger</p>
       </Block>
     );

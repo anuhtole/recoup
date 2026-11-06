@@ -104,7 +104,7 @@ export function CasePage({ detail, isBusy, prevId, nextId, position, onNavigate,
       onDraft={onDraft}
       onReview={review}
       onDismiss={onDismiss}
-      className={cn(isWide && "sticky top-[88px]")}
+      className={cn(isWide ? "sticky top-[88px]" : "md:max-w-md")}
     />
   );
 

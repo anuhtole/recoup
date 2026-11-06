@@ -12,7 +12,8 @@ const API_PORT = 8002;
 const UI_PORT = 5175;
 
 export default defineConfig({
-  testDir: "./e2e",
+  // RECOUP_E2E_DIR=scripts/shots runs the review screenshots against the same throwaway world.
+  testDir: process.env.RECOUP_E2E_DIR ?? "./e2e",
   fullyParallel: false,
   workers: 1,
   retries: 0,

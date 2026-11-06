@@ -230,8 +230,11 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(feed.locator('[data-activity="sent"]').filter({ hasText: "Figma" })).toBeVisible();
     await feed.locator('[data-activity="recovered"]').filter({ hasText: "Figma" }).click();
     await expect(page).toHaveURL(/#\/claims\/2$/);
-    await expect(page.getByRole("region", { name: "Recovered" })).toContainText("+$480.00");
+    await expect(page.locator("[data-case-header]")).toContainText("$480.00");
+    await expect(page.locator("[data-case-header]")).toContainText("Recovered");
     await expect(page.getByRole("region", { name: "Recovered" })).toContainText("Confirmed in your ledger");
+    // The credit that closed it is in the evidence ledger, as money back.
+    await expect(page.getByRole("region", { name: "Evidence" }).locator("[data-txn]").filter({ hasText: "-$480.00" })).toHaveCount(1);
     await page.goto("/#/claims?tab=done");
     await expect(row(page, 2)).toContainText("Recovered");
   });

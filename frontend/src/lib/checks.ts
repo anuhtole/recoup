@@ -29,16 +29,22 @@ function allCharges(n: number, verb: string): string {
   return `All ${n} charges ${verb}`;
 }
 
+/** Charges only: once money is back, the ledger also holds the credit, which is no part of why it was owed. */
+const chargesOf = (detail: FindingDetail) => detail.transactions.filter((t) => t.amount_minor > 0);
+/** After a credit posts, "no refund has posted" is history, so it is said in the past tense. */
+const posted = (detail: FindingDetail) => (detail.status === "recovered" || detail.transactions.some((t) => t.amount_minor < 0) ? "had posted when Recoup found it" : "has posted");
+
 function duplicates(detail: FindingDetail, rule: string): OwedCheck[] {
   const out: OwedCheck[] = [];
+  const charges = chargesOf(detail);
   const gap = /(\d+) day\(s\) apart/.exec(rule);
   const n = gap ? Number(gap[1]) : null;
   out.push({ text: `Same amount charged twice${n === null ? "" : `, ${APART[n] ?? `${n} days apart`}`}`, passed: true });
-  const refs = [...new Set(detail.transactions.map((t) => t.reference).filter((r): r is string => Boolean(r)))];
-  const shared = refs.length === 1 && detail.transactions.every((t) => t.reference === refs[0]);
-  if (shared) out.push({ text: `${allCharges(detail.transactions.length, "carry")} the same reference`, code: refs[0], passed: true });
-  if (/no matching refund has posted/i.test(rule)) out.push({ text: "No refund has posted", passed: true });
-  out.push({ text: `${allCharges(detail.transactions.length, "are")} in your ledger`, passed: true });
+  const refs = [...new Set(charges.map((t) => t.reference).filter((r): r is string => Boolean(r)))];
+  const shared = refs.length === 1 && charges.every((t) => t.reference === refs[0]);
+  if (shared) out.push({ text: `${allCharges(charges.length, "carry")} the same reference`, code: refs[0], passed: true });
+  if (/no matching refund has posted/i.test(rule)) out.push({ text: `No refund ${posted(detail)}`, passed: true });
+  out.push({ text: `${allCharges(charges.length, "are")} in your ledger`, passed: true });
   if (!shared) out.push({ text: "No shared order reference, so confirm it was one purchase", passed: false });
   return out;
 }
@@ -52,14 +58,15 @@ function promises(detail: FindingDetail, rule: string): OwedCheck[] {
     const n = Number(after[1]);
     if (quoted) out.push({ text: `${vendor} confirmed the cancellation by email`, passed: true });
     out.push({ text: `${n === 1 ? "A charge" : `${n} charges`} posted after it took effect on ${day(after[2])}`, passed: true });
-    out.push({ text: `${allCharges(detail.transactions.length, "are")} in your ledger`, passed: true });
+    out.push({ text: `${allCharges(chargesOf(detail).length, "are")} in your ledger`, passed: true });
     return out;
   }
   if (quoted) out.push({ text: `${vendor} promised the ${detail.leak_type === "missing_refund" ? "refund" : "credit"} by email`, passed: true });
   const due = /due by (\d{4}-\d{2}-\d{2})/.exec(rule);
   if (due) out.push({ text: `It was due by ${day(due[1])}`, passed: true });
-  if (/none matches/.test(rule)) out.push({ text: "No matching credit has posted since", passed: true });
-  if (detail.transactions.length > 0) out.push({ text: `${allCharges(detail.transactions.length, "are")} in your ledger`, passed: true });
+  if (/none matches/.test(rule)) out.push({ text: `No matching credit ${posted(detail)}`, passed: true });
+  const charges = chargesOf(detail);
+  if (charges.length > 0) out.push({ text: `${allCharges(charges.length, "are")} in your ledger`, passed: true });
   return out;
 }
 
@@ -73,12 +80,10 @@ function outages(detail: FindingDetail, rule: string): OwedCheck[] {
     out.push({ text: "The contract owes a credit for the outage", passed: true });
   }
   const incidents = detail.evidence.filter((e) => e.kind === "incident").length;
-  if (incidents > 0)
-    out.push({
-      text: incidents === 1 ? "The outage is on the vendor's status page" : `${NUMBER[incidents] ?? incidents} outages are on the vendor's status page`.replace(/^\w/, (c) => c.toUpperCase()),
-      passed: true,
-    });
-  if (detail.transactions.length > 0) out.push({ text: detail.transactions.length === 1 ? "The invoice is in your ledger" : "The invoices are in your ledger", passed: true });
+  if (incidents === 1) out.push({ text: "The outage is on the vendor's status page", passed: true });
+  else if (incidents > 1) out.push({ text: `${NUMBER[incidents] ?? incidents} outages are on the vendor's status page`.replace(/^\w/, (c) => c.toUpperCase()), passed: true });
+  const invoices = chargesOf(detail).length;
+  if (invoices > 0) out.push({ text: invoices === 1 ? "The invoice is in your ledger" : "The invoices are in your ledger", passed: true });
   if (needsCustomerConfirmation(detail.leak_type, detail.reason)) out.push({ text: "Confirm the outage affected you", passed: false });
   return out;
 }
@@ -89,7 +94,7 @@ function pricing(detail: FindingDetail, rule: string): OwedCheck[] {
   if (price) out.push({ text: `The contract fixes the price at ${price[1]} through ${price[2]}`, passed: true });
   const over = detail.evidence.filter((e) => e.kind === "transaction" && /charged .*, contract allows/.test(e.detail)).length;
   if (over > 0) out.push({ text: over === 1 ? "A charge came in above it" : `${over} charges came in above it`, passed: true });
-  if (/no credit for the difference has posted/i.test(rule)) out.push({ text: "No credit for the difference has posted", passed: true });
+  if (/no credit for the difference has posted/i.test(rule)) out.push({ text: `No credit for the difference ${posted(detail)}`, passed: true });
   return out;
 }
 
