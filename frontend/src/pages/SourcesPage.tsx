@@ -1,9 +1,11 @@
-import { ArrowUpRight, RefreshCw } from "lucide-react";
+import { Activity, ArrowUpRight, RefreshCw } from "lucide-react";
 import type { ReactNode } from "react";
 import type { Sources, SyncRun } from "../api";
 import { Button } from "../components/Button";
+import { Section } from "../components/Section";
 import { Copyable, FEED_LABEL, num, relativeTime, runResult } from "../components/Sources";
-import { Label, PageHeader, Pill } from "../components/ui";
+import { PageHeader, Pill } from "../components/ui";
+import { VendorLogo } from "../components/VendorLogo";
 import { formatDateTime, plural } from "../format";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +22,10 @@ function health(connected: boolean, run: SyncRun | null) {
   return run ? ("ok" as const) : ("none" as const);
 }
 
+const GRID = "grid grid-cols-[minmax(0,1fr)_auto] gap-x-4 gap-y-2 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_minmax(0,1.2fr)]";
+
 function SourceRow({
+  icon,
   name,
   kind,
   connected,
@@ -29,6 +34,7 @@ function SourceRow({
   result,
   children,
 }: {
+  icon: ReactNode;
   name: string;
   kind: string;
   connected: boolean;
@@ -39,143 +45,147 @@ function SourceRow({
 }) {
   const h = health(connected, run);
   return (
-    <li className="list-none border-b border-line last:border-b-0">
-      <div className="grid grid-cols-1 gap-4 px-5 py-5 lg:grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))] lg:items-start">
-        <div className="flex min-w-0 flex-col gap-1">
-          <span className="text-14 font-semibold">{name}</span>
-          <span className="text-13 text-dim">{kind}</span>
-        </div>
-        <div className="flex flex-col gap-1">
-          <Label as="span">Status</Label>
-          <span>
-            <Pill label={connected ? (h === "attention" ? "Needs attention" : "Connected") : "Not connected"} tone={!connected ? "muted" : h === "attention" ? "amber" : "mint"} />
+    <li className="list-none border-b border-line py-4">
+      <div className={cn(GRID, "items-center")}>
+        <div className="flex min-w-0 items-center gap-3">
+          {icon}
+          <span className="flex min-w-0 flex-col">
+            <span className="truncate text-14 font-medium">{name}</span>
+            <span className="truncate text-13 text-dim">{kind}</span>
           </span>
         </div>
-        <div className="flex flex-col gap-1">
-          <Label as="span">Environment</Label>
-          <span className="text-14">{environment}</span>
-        </div>
-        <div className="flex flex-col gap-1">
-          <Label as="span">Last sync</Label>
-          <span className="text-14" title={run ? formatDateTime(run.finished_at) : undefined}>
-            {run ? (
-              <span className="figure">{relativeTime(run.finished_at)}</span>
-            ) : (
-              <span className="text-dim">{connected ? "Never. Sync now reads it." : "—"}</span>
-            )}
-          </span>
+        <span className="justify-self-end lg:justify-self-start">
+          <Pill label={connected ? (h === "attention" ? "Needs attention" : "Connected") : "Not connected"} tone={!connected ? "muted" : h === "attention" ? "amber" : "mint"} />
+        </span>
+        <span className="hidden text-14 lg:block">{environment}</span>
+        <span className="col-span-2 flex flex-col pl-10 text-14 lg:col-span-1 lg:pl-0" title={run ? formatDateTime(run.finished_at) : undefined}>
+          {run ? <span className="figure">{relativeTime(run.finished_at)}</span> : <span className="text-dim">{connected ? "Not synced yet" : "—"}</span>}
           {result && <span className={cn("text-13", run && !run.ok ? "text-amber-ink" : "text-dim")}>{result}</span>}
-        </div>
+        </span>
       </div>
-      {children && <div className="flex flex-col gap-3 px-5 pb-5">{children}</div>}
+      {children && <div className="mt-3 flex flex-col gap-2 pl-10">{children}</div>}
     </li>
+  );
+}
+
+function StatusIcon() {
+  return (
+    <span aria-hidden className="grid size-7 flex-none place-items-center rounded-sm border border-line bg-paper text-dim">
+      <Activity className="size-4" strokeWidth={1.75} />
+    </span>
   );
 }
 
 /** Every source, where it stands, how to connect the missing ones, and one "Sync now". */
 export function SourcesPage({ sources, isAvailable, isSyncing, onSync }: Props) {
   const status = sources?.connectors.find((c) => c.kind === "status");
+  const background = sources?.background_sync;
   return (
     <>
       <PageHeader
-        crumbs={<span>Recoup / Sources</span>}
-        title="Sources"
-        meta={<p className="m-0 text-14 text-dim">Read-only. Credentials stay on the server.</p>}
         actions={
-          <Button variant="primary" onClick={onSync} isBusy={isSyncing} busyLabel="Syncing…" disabled={!isAvailable}>
-            <RefreshCw aria-hidden className="size-4" strokeWidth={2} />
+          <Button variant="primary" size="sm" onClick={onSync} isBusy={isSyncing} busyLabel="Syncing…" disabled={!isAvailable}>
+            <RefreshCw aria-hidden className="size-3.5" strokeWidth={2} />
             Sync now
           </Button>
         }
       />
-      {sources?.background_sync && (
-        <p className="label m-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-dim">
-          <span>
-            {sources.background_sync.running && sources.background_sync.interval_minutes > 0
-              ? `Background sync · every ${sources.background_sync.interval_minutes} min`
-              : "Background sync off · sync on demand"}
-          </span>
-          {sources.background_sync.last_error && <span className="normal-case tracking-normal text-amber-ink">Last error: {sources.background_sync.last_error}</span>}
-        </p>
-      )}
-      <section aria-label="Data sources" className="card overflow-hidden">
+      <Section
+        title="Data sources"
+        meta={
+          background ? (
+            <span className={cn(background.last_error && "text-amber-ink")}>
+              {background.last_error
+                ? `Last background sync failed: ${background.last_error}`
+                : background.running && background.interval_minutes > 0
+                  ? `Syncs every ${plural(background.interval_minutes, "minute")}`
+                  : "Syncs when you ask"}
+            </span>
+          ) : undefined
+        }
+      >
         {!sources ? (
-          <p className="m-0 px-5 py-10 text-center text-14 text-dim">
-            {isAvailable ? "Loading sources…" : "This server doesn't report its sources. Detection still runs on the data it has."}
-          </p>
+          <p className="m-0 py-10 text-center text-14 text-dim">{isAvailable ? "Loading sources…" : "This server doesn't report its sources."}</p>
         ) : (
-          <ul className="m-0 flex flex-col p-0">
-            <SourceRow
-              name="Ramp transactions"
-              kind="Ledger · card and bill payments"
-              connected={sources.ramp.connected}
-              environment={sources.ramp.connected ? (sources.ramp.environment === "sandbox" ? "Sandbox" : "Production") : "—"}
-              run={sources.ramp.last_sync}
-              result={sources.ramp.last_sync ? runResult("ramp", sources.ramp.last_sync) : null}
-            >
-              {!sources.ramp.connected && (
-                <>
-                  <p className="m-0 text-13 text-dim">Not connected yet. Whoever runs your Recoup server adds the Ramp app's keys to its settings file (backend/.env):</p>
-                  <Copyable text={"RECOUP_RAMP_CLIENT_ID=\nRECOUP_RAMP_CLIENT_SECRET="} />
-                </>
-              )}
-            </SourceRow>
-            <SourceRow
-              name="Gmail vendor email"
-              kind="Inbox · refund promises and replies"
-              connected={sources.gmail.connected}
-              environment={sources.gmail.connected ? "Read-only scope" : "—"}
-              run={sources.gmail.last_sync}
-              result={sources.gmail.last_sync ? runResult("gmail", sources.gmail.last_sync) : null}
-            >
-              {!sources.gmail.connected && (
-                <>
-                  <p className="m-0 text-13 text-dim">Not connected yet. Whoever runs your Recoup server adds the Gmail app's keys (RECOUP_GMAIL_CLIENT_ID and RECOUP_GMAIL_CLIENT_SECRET) to backend/.env, then runs this in backend/:</p>
-                  <Copyable text="recoup connect gmail" />
-                </>
-              )}
-            </SourceRow>
-            <SourceRow
-              name="Status pages"
-              kind="Public incidents · no credentials needed"
-              connected={status?.configured ?? true}
-              environment="Public"
-              run={status?.last_sync ?? null}
-              result={status?.last_sync ? (status.last_sync.ok ? "Finished." : "Didn't finish.") : null}
-            >
-              <p className="m-0 text-13 text-dim">The public status pages it watches for outages that owe you a credit. These are part of this source, not separate ones.</p>
-              <ul className="m-0 grid grid-cols-1 gap-2 p-0 sm:grid-cols-3">
-                {sources.status_feeds.map((feed) => {
-                  const seen = num(feed.last_sync?.detail, "incidents_seen");
-                  return (
-                    <li key={feed.key} className="field-box flex list-none flex-col gap-1 px-3 py-2">
-                      <a
-                        href={feed.page_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex min-h-6 items-center justify-between gap-2 text-14 font-medium underline decoration-line-strong underline-offset-4 hover:decoration-current"
-                      >
-                        {FEED_LABEL[feed.key] ?? feed.key}
-                        <ArrowUpRight aria-hidden className="size-3.5 flex-none text-dim" strokeWidth={1.75} />
-                      </a>
-                      <span className="label text-dim">
-                        {!feed.last_sync
-                          ? "Not read yet"
-                          : !feed.last_sync.ok
-                            ? "Couldn't reach the page"
-                            : seen !== null
-                              ? `${plural(seen, "incident")} read`
-                              : "Read"}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </SourceRow>
-          </ul>
+          <>
+            <div className={cn(GRID, "hidden border-b border-line py-2 text-12 font-medium text-dim lg:grid")}>
+              <span>Source</span>
+              <span>Status</span>
+              <span>Environment</span>
+              <span>Last sync</span>
+            </div>
+            <ul className="m-0 flex flex-col p-0">
+              <SourceRow
+                icon={<VendorLogo name="Ramp" />}
+                name="Ramp transactions"
+                kind="Ledger · card and bill payments"
+                connected={sources.ramp.connected}
+                environment={sources.ramp.connected ? (sources.ramp.environment === "sandbox" ? "Sandbox" : "Production") : "—"}
+                run={sources.ramp.last_sync}
+                result={sources.ramp.last_sync ? runResult("ramp", sources.ramp.last_sync) : null}
+              >
+                {!sources.ramp.connected && (
+                  <>
+                    <p className="m-0 text-13 text-dim">To connect, add the Ramp app's keys to backend/.env on the server:</p>
+                    <Copyable text={"RECOUP_RAMP_CLIENT_ID=\nRECOUP_RAMP_CLIENT_SECRET="} />
+                  </>
+                )}
+              </SourceRow>
+              <SourceRow
+                icon={<VendorLogo name="Gmail" />}
+                name="Gmail vendor email"
+                kind="Inbox · refund promises and replies"
+                connected={sources.gmail.connected}
+                environment={sources.gmail.connected ? "Read-only" : "—"}
+                run={sources.gmail.last_sync}
+                result={sources.gmail.last_sync ? runResult("gmail", sources.gmail.last_sync) : null}
+              >
+                {!sources.gmail.connected && (
+                  <>
+                    <p className="m-0 text-13 text-dim">
+                      To connect, add RECOUP_GMAIL_CLIENT_ID and RECOUP_GMAIL_CLIENT_SECRET to backend/.env, then run this in backend/:
+                    </p>
+                    <Copyable text="recoup connect gmail" />
+                  </>
+                )}
+              </SourceRow>
+              <SourceRow
+                icon={<StatusIcon />}
+                name="Status pages"
+                kind="Public incidents · no credentials needed"
+                connected={status?.configured ?? true}
+                environment="Public"
+                run={status?.last_sync ?? null}
+                result={status?.last_sync ? (status.last_sync.ok ? "Finished" : "Didn't finish") : null}
+              >
+                <ul className="m-0 flex max-w-sm flex-col p-0">
+                  {sources.status_feeds.map((feed) => {
+                    const seen = num(feed.last_sync?.detail, "incidents_seen");
+                    const label = FEED_LABEL[feed.key] ?? feed.key;
+                    return (
+                      <li key={feed.key} className="flex list-none items-center gap-3 py-1.5">
+                        <VendorLogo name={label} size={20} />
+                        <a
+                          href={feed.page_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex min-h-6 items-center gap-1 text-14 font-medium underline decoration-line-strong underline-offset-4 hover:decoration-current"
+                        >
+                          {label}
+                          <ArrowUpRight aria-hidden className="size-3.5 flex-none text-dim" strokeWidth={1.75} />
+                        </a>
+                        <span className="ml-auto text-13 text-dim">
+                          {!feed.last_sync ? "Not read yet" : !feed.last_sync.ok ? "Couldn't reach the page" : seen !== null ? `${plural(seen, "incident")} read` : "Read"}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </SourceRow>
+            </ul>
+          </>
         )}
-      </section>
-      <p className="m-0 text-13 text-dim">Sync now pulls every connected source, then looks for new money owed.</p>
+      </Section>
     </>
   );
 }

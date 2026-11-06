@@ -160,6 +160,14 @@ export function App() {
   const exportClaims = useCallback(() => exportRows(rowsFor(findings, "todo"), "open claim"), [exportRows, findings]);
   const goPage = useCallback((page: Page) => go({ page, params: {} }), [go]);
 
+  const advanceTime = () =>
+    void act("advance", async () => {
+      const before = findings;
+      const result = await api.advance(ADVANCE_DAYS);
+      const after = await api.findings();
+      return advanceNotices(before, after, result.as_of).map((notice) => ({ ...notice, isResult: true }));
+    });
+
   const sync = () =>
     void act("sync", async () => {
       try {
@@ -272,7 +280,7 @@ export function App() {
       />
     );
   } else if (route.page === "recovered") {
-    page = <Recovered summary={summary} findings={findings} version={version} />;
+    page = <Recovered summary={summary} findings={findings} version={version} isAdvancing={busy === "advance"} onAdvance={advanceTime} />;
   } else {
     page = <SourcesPage sources={sources} isAvailable={sourcesAvailable} isSyncing={busy === "sync"} onSync={sync} />;
   }
@@ -330,14 +338,7 @@ export function App() {
             ];
           })
         }
-        onAdvance={() =>
-          void act("advance", async () => {
-            const before = findings;
-            const result = await api.advance(ADVANCE_DAYS);
-            const after = await api.findings();
-            return advanceNotices(before, after, result.as_of).map((notice) => ({ ...notice, isResult: true }));
-          })
-        }
+        onAdvance={advanceTime}
       >
         {page}
       </Shell>

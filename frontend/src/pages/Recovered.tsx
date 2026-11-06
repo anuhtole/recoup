@@ -1,7 +1,12 @@
+import { FastForward } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { api, type Finding, type Summary, type TimelineEvent } from "../api";
-import { PageHeader, RollingMoney, VendorTile } from "../components/ui";
-import { formatDate, formatMoney } from "../format";
+import { Button } from "../components/Button";
+import { Money } from "../components/Money";
+import { Section } from "../components/Section";
+import { VendorLogo } from "../components/VendorLogo";
+import { formatDate, formatMoney, plural } from "../format";
+import { vendorName } from "../lib/vendors";
 import { cn } from "@/lib/utils";
 
 // Statuses that have a story after the request left: the activity feed is built from their timelines.
@@ -48,13 +53,14 @@ function useActivity(findings: Finding[], version: number) {
 }
 
 function headline(a: Activity): string {
-  if (a.kind === "recovered") return `${a.finding.merchant} credit posted`;
-  if (a.kind === "sent") return `Request sent to ${a.finding.merchant}`;
+  const vendor = vendorName(a.finding.merchant);
+  if (a.kind === "recovered") return `${vendor} credit posted`;
+  if (a.kind === "sent") return `Request sent to ${vendor}`;
   const verdict = /replied: (\w[\w ]*)/.exec(a.title)?.[1];
-  if (verdict === "agreed") return `${a.finding.merchant} agreed to refund`;
-  if (verdict === "declined") return `${a.finding.merchant} declined`;
-  if (verdict) return `${a.finding.merchant} ${verdict.replace(/_/g, " ")}`;
-  return `${a.finding.merchant} replied`;
+  if (verdict === "agreed") return `${vendor} agreed to refund`;
+  if (verdict === "declined") return `${vendor} declined`;
+  if (verdict) return `${vendor} ${verdict.replace(/_/g, " ")}`;
+  return `${vendor} replied`;
 }
 
 function sub(a: Activity): string {
@@ -63,18 +69,43 @@ function sub(a: Activity): string {
   return a.detail ?? a.title;
 }
 
-const DOT: Record<Activity["kind"], string> = {
-  recovered: "bg-mint-ink",
-  reply: "bg-ink",
-  sent: "border border-dim bg-paper",
-};
+const KIND_LABEL: Record<Activity["kind"], string> = { recovered: "Recovered", reply: "Reply", sent: "In flight" };
 
-/** Link-style activity: what came back and what is on its way, grouped by day, each row opening its case. */
-export function Recovered({ summary, findings, version }: { summary: Summary; findings: Finding[]; version: number }) {
+/** A total in the stat row: muted "—" when it is zero, so nothing reads as an empty box. */
+function Stat({ label, minor, currency, note, tone }: { label: string; minor: number; currency: string; note?: string; tone?: "mint" }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <p className="m-0 text-13 text-dim">{label}</p>
+      {minor > 0 ? (
+        <p className={cn("m-0 text-28 font-semibold tracking-[-0.02em]", tone === "mint" && "text-mint-ink")}>
+          <Money minor={minor} currency={currency} roll={tone === "mint"} />
+        </p>
+      ) : (
+        <p className="m-0 flex h-8 items-center text-20 text-dim">
+          <span aria-hidden>—</span>
+          <span className="sr-only">None</span>
+        </p>
+      )}
+      {note && <p className="m-0 text-13 text-dim">{note}</p>}
+    </div>
+  );
+}
+
+interface Props {
+  summary: Summary;
+  findings: Finding[];
+  version: number;
+  isAdvancing: boolean;
+  onAdvance: () => void;
+}
+
+/** What came back and what is on its way, grouped by day; each row opens its case. */
+export function Recovered({ summary, findings, version, isAdvancing, onAdvance }: Props) {
   const { items, error } = useActivity(findings, version);
   const { currency } = summary;
   const agreed = findings.filter((f) => f.status === "vendor_agreed").reduce((s, f) => s + f.amount_minor, 0);
   const recoveredCount = findings.filter((f) => f.status === "recovered").length;
+  const hasTotals = summary.recovered_minor > 0 || agreed > 0 || summary.in_flight_minor > 0;
   const groups = useMemo(() => {
     const map = new Map<string, Activity[]>();
     for (const item of items ?? []) {
@@ -85,75 +116,56 @@ export function Recovered({ summary, findings, version }: { summary: Summary; fi
   }, [items]);
 
   return (
-    <>
-      <PageHeader crumbs={<span>Recoup / Recovered</span>} title="Recovered" />
-      <section aria-label="Recovered totals" className="on-ink grid grid-cols-1 overflow-hidden rounded-md bg-panel text-white sm:grid-cols-3">
-        <div className="flex flex-col gap-2 px-5 py-5">
-          <p className="label m-0 text-sub">Recovered · {recoveredCount}</p>
-          <p className="m-0 text-28 font-semibold tracking-[-0.03em]">
-            <RollingMoney minor={summary.recovered_minor} currency={currency} className="text-mint" />
-          </p>
-        </div>
-        <div className="flex flex-col gap-2 border-t border-rule px-5 py-5 sm:border-l sm:border-t-0">
-          <p className="label m-0 text-sub">Vendor agreed</p>
-          <p className="figure m-0 text-28 font-semibold tracking-[-0.03em]">{formatMoney(agreed, currency)}</p>
-        </div>
-        <div className="flex flex-col gap-2 border-t border-rule px-5 py-5 sm:border-l sm:border-t-0">
-          <p className="label m-0 text-sub">In flight</p>
-          <p className="figure m-0 text-28 font-semibold tracking-[-0.03em]">{formatMoney(summary.in_flight_minor, currency)}</p>
-        </div>
-      </section>
+    <div className="flex flex-col gap-12">
+      {hasTotals && (
+        <section aria-label="Recovered totals" className="grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <Stat label="Recovered" minor={summary.recovered_minor} currency={currency} tone="mint" note={recoveredCount > 0 ? plural(recoveredCount, "claim") : undefined} />
+          <Stat label="Vendor agreed" minor={agreed} currency={currency} />
+          <Stat label="In flight" minor={summary.in_flight_minor} currency={currency} />
+        </section>
+      )}
 
-      <section aria-label="Activity" className="card overflow-hidden">
-        <header className="flex min-h-12 items-center justify-between gap-4 border-b border-line px-5">
-          <h2 className="m-0 text-14 font-semibold tracking-[-0.01em]">Activity</h2>
-          <span className="label text-dim">Newest first</span>
-        </header>
+      <Section title="Activity">
         {error ? (
-          <p className="m-0 px-5 py-10 text-center text-14 text-dim">Couldn't load the activity. Try again in a moment.</p>
+          <p className="m-0 py-10 text-center text-14 text-dim">Couldn't load the activity. Try again in a moment.</p>
         ) : items === null ? (
-          <p className="m-0 px-5 py-10 text-center text-14 text-dim">Loading activity…</p>
+          <p className="m-0 py-10 text-center text-14 text-dim">Loading activity…</p>
         ) : items.length === 0 ? (
           <div className="flex flex-col items-center gap-3 px-6 py-16 text-center">
-            <p className="m-0 max-w-[46ch] text-14 text-dim text-balance">
-              Nothing sent yet. Requests you send, vendor replies and credits that post show up here, newest first.
-            </p>
-            <a
-              href="#/claims"
-              className="inline-flex h-8 items-center rounded-sm border border-line bg-paper px-3 text-13 font-medium transition-colors hover:border-line-strong hover:bg-wash"
-            >
-              Review claims
-            </a>
+            <p className="m-0 text-14 text-dim">Nothing sent yet.</p>
+            {summary.demo_mode && (
+              <Button size="sm" onClick={onAdvance} isBusy={isAdvancing} busyLabel="Advancing…">
+                <FastForward aria-hidden className="size-3.5" strokeWidth={2} />
+                Advance 2 weeks
+              </Button>
+            )}
           </div>
         ) : (
           <div className="flex flex-col">
             {groups.map(([day, rows]) => (
               <div key={day} className="flex flex-col">
-                <h3 className="label m-0 border-b border-line bg-wash px-5 py-2 text-dim">{formatDate(day)}</h3>
+                <h3 className="m-0 pb-1 pt-5 text-13 font-medium text-dim">{formatDate(day)}</h3>
                 <ul className="m-0 flex flex-col p-0">
                   {rows.map((a) => {
                     const amount = a.kind === "recovered" ? (a.finding.recovered_minor ?? a.finding.amount_minor) : a.finding.amount_minor;
                     return (
-                      <li key={a.key} className="list-none border-b border-line last:border-b-0">
+                      <li key={a.key} className="list-none border-b border-line">
                         <a
                           href={`#/claims/${a.finding.id}`}
                           data-activity={a.kind}
-                          className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 px-5 py-3 transition-colors hover:bg-wash"
+                          className="-mx-2 grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-x-3 rounded-sm px-2 py-3 transition-colors hover:bg-wash"
                         >
-                          <VendorTile name={a.finding.merchant} />
+                          <VendorLogo name={a.finding.merchant} />
                           <span className="flex min-w-0 flex-col">
-                            <span className="flex min-w-0 items-center gap-2">
-                              <span aria-hidden className={cn("size-1.5 flex-none rounded-full", DOT[a.kind])} />
-                              <span className="truncate text-14 font-medium">{headline(a)}</span>
-                            </span>
-                            <span className="truncate pl-3.5 text-13 text-dim">{sub(a)}</span>
+                            <span className="truncate text-14 font-medium">{headline(a)}</span>
+                            <span className="truncate text-13 text-dim">{sub(a)}</span>
                           </span>
                           <span className="flex flex-col items-end">
                             <span className={cn("figure text-14 font-medium", a.kind === "recovered" ? "text-mint-ink" : "text-ink")}>
                               {a.kind === "recovered" ? "+" : ""}
                               {formatMoney(amount, a.finding.currency)}
                             </span>
-                            <span className="label text-dim">{a.kind === "recovered" ? "Recovered" : a.kind === "sent" ? "In flight" : "Reply"}</span>
+                            <span className="text-12 text-dim">{KIND_LABEL[a.kind]}</span>
                           </span>
                         </a>
                       </li>
@@ -164,7 +176,7 @@ export function Recovered({ summary, findings, version }: { summary: Summary; fi
             ))}
           </div>
         )}
-      </section>
-    </>
+      </Section>
+    </div>
   );
 }

@@ -5,6 +5,7 @@ import {
   siDelta,
   siFigma,
   siGithub,
+  siGmail,
   siGoogle,
   siJira,
   siLinear,
@@ -50,10 +51,11 @@ const BY_NAME: Record<string, SimpleIcon> = {
   delta: siDelta,
   "delta air lines": siDelta,
   "google workspace": siGoogle,
+  gmail: siGmail,
 };
 
 // Brands whose first word alone is unambiguous: "Lyft Ride", "Uber Trip", "Marriott Union Square".
-const FIRST_WORD = new Set(["figma", "loom", "lyft", "uber", "marriott", "zoom", "notion", "github", "calendly"]);
+const FIRST_WORD = new Set(["figma", "loom", "lyft", "uber", "marriott", "zoom", "notion", "github", "calendly", "gmail"]);
 
 function key(name: string): string {
   return vendorName(name)

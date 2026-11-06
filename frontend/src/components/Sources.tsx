@@ -68,20 +68,20 @@ export function runResult(key: string, run: SyncRun): string {
   if (key === "ramp") {
     const inserted = num(run.detail, "inserted");
     const pulled = num(run.detail, "pulled");
-    return inserted !== null && pulled !== null ? `${plural(inserted, "new transaction")} of ${pulled} read.` : "Finished.";
+    return inserted !== null && pulled !== null ? `${plural(inserted, "new transaction")} of ${pulled} read` : "Finished";
   }
   if (key === "gmail") {
     const inserted = num(run.detail, "inserted");
     const fetched = num(run.detail, "fetched");
-    return inserted !== null && fetched !== null ? `${plural(inserted, "new vendor email")} of ${fetched} read.` : "Finished.";
+    return inserted !== null && fetched !== null ? `${plural(inserted, "new vendor email")} of ${fetched} read` : "Finished";
   }
-  return "Finished.";
+  return "Finished";
 }
 
 export function Copyable({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   return (
-    <div className="field-box flex items-start justify-between gap-3 bg-paper py-2 pl-3 pr-1">
+    <div className="flex max-w-xl items-start justify-between gap-3 rounded-sm border border-line bg-wash py-1.5 pl-3 pr-1">
       <code className="ref min-w-0 whitespace-pre-wrap break-all py-1 text-13 text-ink">{text}</code>
       <button
         type="button"
@@ -94,7 +94,7 @@ export function Copyable({ text }: { text: string }) {
             })
             .catch(() => undefined);
         }}
-        className="label h-7 flex-none rounded-xs px-2 text-dim transition-colors hover:bg-wash hover:text-ink"
+        className="h-7 flex-none rounded-sm px-2 text-12 font-medium text-dim transition-colors hover:bg-paper hover:text-ink"
       >
         {copied ? "Copied" : "Copy"}
       </button>
