@@ -49,6 +49,8 @@ class Settings(BaseSettings):
     gmail_client_id: str | None = None
     gmail_client_secret: SecretStr | None = None
     gmail_refresh_token: SecretStr | None = None
+    # Where connecting Gmail from the web app saves the refresh token.
+    env_path: Path = Path(".env")
     gmail_lookback_days: int = 180
     gmail_max_messages: int = 500
 
