@@ -128,7 +128,7 @@ export function CasePage({ detail, isBusy, prevId, nextId, position, onNavigate,
 
       <div className="grid grid-cols-1 items-start gap-x-12 gap-y-8 xl:grid-cols-[minmax(0,1fr)_304px]">
         <div className="flex min-w-0 flex-col gap-10">
-          <header className="flex flex-col gap-5">
+          <header data-case-header className="flex flex-col gap-5">
             <div className="flex items-center gap-3.5">
               <VendorLogo name={detail.merchant} size={40} />
               <div className="flex min-w-0 flex-col">

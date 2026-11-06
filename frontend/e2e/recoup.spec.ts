@@ -1,6 +1,7 @@
 import { expect, type Page, test } from "@playwright/test";
 
-// One path through the review UI, in order: it changes the demo database, so run `make reset` first.
+// One path through the review UI, in order. It changes the database it runs against, so use
+// `npm run e2e:isolated` (a throwaway DB on :8002 and a Vite on :5175), or `make reset` before `npm run e2e`.
 
 const nav = (page: Page, label: string) => page.getByRole("navigation", { name: "Pages" }).first().getByRole("link", { name: new RegExp(`^${label}`) });
 const tab = (page: Page, label: string) => page.getByRole("tab", { name: new RegExp(`^${label}`) });
@@ -19,6 +20,9 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
   const errors: string[] = [];
   page.on("console", (message) => message.type() === "error" && errors.push(message.text()));
   page.on("pageerror", (error) => errors.push(String(error)));
+  // Every send the UI makes, so the run can prove nothing goes out without the slide.
+  const sends: string[] = [];
+  page.on("request", (r) => r.method() === "POST" && /\/api\/drafts\/\d+\/send$/.test(r.url()) && sends.push(r.url()));
 
   await test.step("the overview is the landing page", async () => {
     await page.goto("/");
@@ -63,23 +67,37 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
 
   await test.step("tabs, search and type filters live in the hash", async () => {
     await expect(row(page, 2)).toBeVisible();
+    // The total lives once on this screen: the table footer.
+    await expect(page.locator("tfoot")).toContainText("15 claims");
+    await expect(page.locator("tfoot")).toContainText("Total $13,710.09");
+    await expect(row(page, 7)).toContainText("Needs review");
+    // Status is a column only where it varies.
+    await expect(page.getByRole("columnheader", { name: "Status" })).toHaveCount(0);
     await expect(tab(page, "Window closed")).toContainText("5");
     for (const label of ["Waiting", "Done", "Window closed", "To do"]) {
       await tab(page, label).click();
       await expect(tab(page, label)).toHaveAttribute("aria-selected", "true");
+      if (label === "Window closed") await expect(page.getByRole("columnheader", { name: "Status" })).toHaveCount(1);
     }
+    // Export hands over a CSV built in the browser.
+    const download = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Export" }).click();
+    expect((await download).suggestedFilename()).toBe("recoup-claims-2026-10-01.csv");
     await page.getByRole("searchbox", { name: "Search vendors or references" }).fill("FIG-202606");
     await expect(page).toHaveURL(/q=FIG-202606/);
     await expect(page.locator("tr[data-case-id]")).toHaveCount(1);
     await page.getByRole("searchbox", { name: "Search vendors or references" }).fill("nothing like this");
     await expect(page.getByText(/No to do claims match/)).toBeVisible();
     await page.getByRole("button", { name: "Clear filters" }).click();
-    await page.getByRole("group", { name: "Filter by type" }).getByRole("button", { name: "Outages" }).click();
+    const typeFilter = page.getByRole("group", { name: "Filter by type" });
+    await typeFilter.getByRole("button", { name: /^Type/ }).click();
+    await page.getByRole("menuitemradio", { name: "Outages" }).click();
     await expect(page).toHaveURL(/type=sla_credit/);
+    await expect(typeFilter).toContainText("Type: Outages");
     await expect(page.locator("tr[data-case-id]")).toHaveCount(2);
     await page.reload();
     await expect(page.locator("tr[data-case-id]")).toHaveCount(2);
-    await page.getByRole("group", { name: "Filter by type" }).getByRole("button", { name: "All types" }).click();
+    await typeFilter.getByRole("button", { name: "Clear type filter" }).click();
     await expect(page).toHaveURL(/#\/claims$/);
   });
 
@@ -106,17 +124,26 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(page).toHaveURL(/#\/claims$/);
   });
 
-  await test.step("Figma case: footnotes, rule checks, sidebar", async () => {
+  await test.step("Figma case: footnotes, plain-language checks, rail", async () => {
     await row(page, 2).click();
     await expect(caseTitle(page)).toHaveText("Figma");
+    await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("Claims");
     await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("Figma");
+    await expect(page.getByText("1 of 15")).toBeVisible();
     await expect(page.locator("[data-footnote]")).toHaveCount(2);
     await page.locator('[data-footnote="1"]').hover();
     await expect(page.getByRole("tooltip")).toContainText("FIG-202606");
-    await expect(page.getByRole("region", { name: "How Recoup found this" })).toContainText("No matching refund has posted");
+    const why = page.getByRole("region", { name: "Why it's owed" });
+    await expect(why).toContainText("Same amount charged twice, one day apart");
+    await expect(why).toContainText("No refund has posted");
+    // Rule ids and developer plurals never reach the screen.
+    await expect(page.getByRole("article")).not.toContainText("duplicates/1");
+    await expect(page.getByRole("article")).not.toContainText("(s)");
     await expect(page.getByRole("region", { name: "Respond by" })).toContainText("1 day left");
     await expect(page.locator("[data-reference]")).toHaveText("FIG-202606");
-    await expect(sidebar(page).getByRole("region", { name: "Facts" })).toContainText("Duplicate charge");
+    await expect(page.locator("[data-case-header]")).toContainText("Duplicate charge");
+    await expect(sidebar(page).getByRole("region", { name: "Details" })).toContainText("4417");
+    await expect(page.getByRole("region", { name: "Evidence" }).locator("[data-txn]")).toHaveCount(2);
   });
 
   await test.step("email footnote opens the original email; Escape closes it", async () => {
@@ -139,13 +166,15 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await page.getByRole("button", { name: "Save edits" }).click();
     await expect(page.getByRole("button", { name: "Save edits" })).toBeDisabled();
 
-    await sidebar(page).getByRole("button", { name: /^Send to billing@figma\.com · \$480\.00/ }).click();
+    // A draft alone sends nothing.
+    expect(sends, "drafting must not send").toEqual([]);
+    await sidebar(page).getByRole("button", { name: "Review and send" }).click();
     const sheet = page.getByRole("dialog", { name: "Approve this request" });
     await expect(sheet).toContainText("billing@figma.com");
     await expect(sheet).toContainText("$480.00");
     await expect(sheet).toContainText("FIG-202606");
     await expect(sheet).toContainText("Duplicate charge FIG-202606: please refund $480.00");
-    await expect(sheet).toContainText("Can't be edited after sending");
+    await expect(sheet).toContainText("This can't be edited after it's sent");
     // Let the sheet finish rising before measuring the slider for the drag.
     await page.waitForTimeout(700);
 
@@ -160,6 +189,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     }
     await page.mouse.up();
     expect((await sent).postDataJSON()).toEqual({ confirm: true });
+    expect(sends, "exactly one send, from the slide").toHaveLength(1);
     await expect(sheet).toHaveCount(0, { timeout: 8_000 });
     await expect(page.getByRole("region", { name: "Status" })).toContainText("Waiting on the vendor");
     await page.goto("/#/claims");
@@ -176,9 +206,13 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(bar).toHaveCount(0);
     await expect(row(page, 1)).toContainText("Draft ready");
     await expect.poll(() => tabCount(page, "Waiting")).toBe(1);
+    expect(sends, "bulk drafting must not send").toHaveLength(1);
   });
 
   await test.step("advance two weeks: notices, overview totals, recovered feed", async () => {
+    // Sending is not recovering: money counts as recovered only once the ledger shows the credit.
+    const sentSummary = await (await request.get("/api/summary")).json();
+    expect(sentSummary.recovered_minor, "nothing is recovered before a credit posts").toBe(0);
     await nav(page, "Overview").click();
     const totals = page.locator("[data-totals]");
     const before = await totals.innerText();
@@ -197,6 +231,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await feed.locator('[data-activity="recovered"]').filter({ hasText: "Figma" }).click();
     await expect(page).toHaveURL(/#\/claims\/2$/);
     await expect(page.getByRole("region", { name: "Recovered" })).toContainText("+$480.00");
+    await expect(page.getByRole("region", { name: "Recovered" })).toContainText("Confirmed in your ledger");
     await page.goto("/#/claims?tab=done");
     await expect(row(page, 2)).toContainText("Recovered");
   });
@@ -205,7 +240,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await page.goto("/#/claims");
     const done = await tabCount(page, "Done");
     await row(page, 7).click(); // Lyft Ride
-    await sidebar(page).getByRole("button", { name: "Not owed, dismiss" }).click();
+    await sidebar(page).getByRole("button", { name: "Not owed" }).click();
     await page.locator("#dismiss-reason").fill("Two separate rides that evening");
     await page.getByRole("button", { name: "Dismiss case" }).click();
     await expect(page.getByRole("region", { name: "Status" })).toContainText("Dismissed");
@@ -234,6 +269,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(page.getByRole("button", { name: "Sync now" })).toBeEnabled();
   });
 
+  expect(sends, "the only send in the whole run is the one approved by sliding").toHaveLength(1);
   expect(errors, "console errors").toEqual([]);
 });
 
