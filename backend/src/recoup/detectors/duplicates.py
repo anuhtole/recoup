@@ -73,8 +73,7 @@ def _describe(original: Transaction, duplicate: Transaction, outcome: Outcome) -
         )
     return (
         f"{original.merchant} charged {amount} twice, on {first} and {second}. "
-        "There is no shared order reference to prove it was one purchase, "
-        "so a person should confirm before we contact the vendor."
+        "No shared order reference shows it was one purchase, so confirm it before you claim."
     )
 
 
@@ -85,7 +84,8 @@ def _evidence(
         reference = txn.reference or "no reference"
         return f"{txn.posted_at.date()} {txn.merchant} {txn.money.format()} ({reference})"
 
-    gap_days = (duplicate.posted_at - original.posted_at).days
+    # Calendar days, as the ledger shows them: 11pm and 1am the next day are one day apart.
+    gap_days = (duplicate.posted_at.date() - original.posted_at.date()).days
     return (
         Evidence(kind="transaction", ref=original.id, detail=describe(original)),
         Evidence(kind="transaction", ref=duplicate.id, detail=describe(duplicate)),

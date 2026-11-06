@@ -24,7 +24,23 @@ from recoup.domain.types import Evidence, Transaction
 from recoup.domain.workflow import CLOSED, STAGE_OF, Status
 from recoup.ingest.loader import row_to_transaction
 from recoup.ingest.sources import Sources
-from recoup.recovery.workflow import finding_transactions, next_action
+from recoup.recovery.workflow import finding_transactions, next_action, vendor_for
+
+# What the vendor's reply said, as History and the activity feed read it.
+_REPLY_TITLE = {
+    "agreed": "Vendor agreed to refund",
+    "declined": "Vendor declined",
+    "info_requested": "Vendor asked for more details",
+}
+
+
+def actor_label(actor: str) -> str:
+    """The signed-in reviewer reads "you", other people by name, and the system "Recoup"."""
+    if actor == "user:reviewer":
+        return "you"
+    if actor.startswith("user:"):
+        return actor.removeprefix("user:")
+    return "Recoup"
 
 
 def _drafts_by_finding(session: Session, ids: Sequence[int]) -> dict[int, list[DraftRow]]:
@@ -61,6 +77,7 @@ def _finding_out(row: FindingRow, drafts: Sequence[DraftRow], as_of: date) -> Fi
         source_refs=row.source_refs,
         next_action=NextActionOut(kind=action.kind, label=action.label),
         created_at=row.created_at,
+        recovered_at=row.recovered_at,
     )
 
 
@@ -126,10 +143,9 @@ def _timeline(
                 )
             )
         elif event.action == "draft.created":
-            channel = "card dispute" if payload.get("channel") == "card_dispute" else "vendor"
-            events.append(
-                TimelineEventOut(at=when, kind="drafted", title=f"Drafted a {channel} request")
-            )
+            is_dispute = payload.get("channel") == "card_dispute"
+            title = "Card dispute drafted" if is_dispute else "Request drafted"
+            events.append(TimelineEventOut(at=when, kind="drafted", title=title))
         elif event.action == "message.sent":
             draft = next((d for d in drafts if d.id == payload.get("draft_id")), None)
             sent_at = draft.sent_at if draft and draft.sent_at else event.occurred_at
@@ -138,17 +154,17 @@ def _timeline(
                     at=sent_at,
                     kind="sent",
                     title=f"Sent to {payload.get('to')}",
-                    detail=f"Approved by {event.actor}",
+                    detail=f"Approved by {actor_label(event.actor)}",
                 )
             )
         elif event.action == "vendor.replied":
             reply = next((e for e in emails if e.id == payload.get("email_id")), None)
-            decision = str(payload.get("decision", "other")).replace("_", " ")
+            decision = str(payload.get("decision", "other"))
             events.append(
                 TimelineEventOut(
                     at=reply.sent_at if reply else event.occurred_at,
                     kind="reply",
-                    title=f"Vendor replied: {decision}",
+                    title=_REPLY_TITLE.get(decision, "Vendor replied"),
                     detail=payload.get("quote"),
                 )
             )
@@ -165,7 +181,10 @@ def _timeline(
         elif event.action == "case.dismissed":
             events.append(
                 TimelineEventOut(
-                    at=when, kind="dismissed", title="Dismissed", detail=payload.get("reason")
+                    at=when,
+                    kind="dismissed",
+                    title="Marked not owed",
+                    detail=payload.get("reason"),
                 )
             )
     if row.recover_by and row.status not in CLOSED:
@@ -173,7 +192,7 @@ def _timeline(
             TimelineEventOut(
                 at=datetime.combine(row.recover_by, time(23, 59), tzinfo=UTC),
                 kind="deadline",
-                title="Claim deadline",
+                title="Respond by",
                 is_future=row.recover_by >= as_of,
             )
         )
@@ -202,6 +221,7 @@ def finding_detail(
         .order_by(AuditEventRow.occurred_at, AuditEventRow.id)
     ).all()
     base = _finding_out(row, drafts, as_of)
+    to_issuer = row.status == Status.VENDOR_DECLINED or vendor_for(txns, sources.vendors) is None
     return FindingDetailOut(
         **base.model_dump(),
         evidence=[Evidence.model_validate(e) for e in row.evidence],
@@ -210,4 +230,5 @@ def finding_detail(
         drafts=[DraftOut.model_validate(d, from_attributes=True) for d in drafts],
         timeline=_timeline(row, txns, emails, incidents, drafts, trace, as_of),
         trace=[AuditEventOut.model_validate(e, from_attributes=True) for e in trace],
+        draft_channel="card_dispute" if to_issuer else "vendor_email",
     )

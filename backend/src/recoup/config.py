@@ -11,6 +11,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
+# The company Recoup works for, in one place: the app shows it and letters are signed with it.
+DEFAULT_ORG = "Acme Inc."
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="RECOUP_", extra="ignore")
 
@@ -35,6 +39,8 @@ class Settings(BaseSettings):
     llm: Literal["auto", "on", "off"] = "auto"
     llm_model: str = "claude-opus-5-5"
     llm_effort: Literal["low", "medium", "high"] = "medium"
+
+    org_name: str = DEFAULT_ORG
 
     # Where card dispute packets go when a vendor is not in the directory.
     card_dispute_address: str = "disputes@card-issuer.example"

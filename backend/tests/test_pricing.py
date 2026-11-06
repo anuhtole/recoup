@@ -133,5 +133,5 @@ def test_draft_quotes_the_clause_and_lists_each_charge() -> None:
 
     assert draft.subject == "Charges above our contracted price"
     assert LOCKED.price_clause in draft.body
-    assert "contract allows $480.00" in draft.body
+    assert "charged, $480.00 allowed" in draft.body
     assert keeps_the_facts(draft.body, facts)

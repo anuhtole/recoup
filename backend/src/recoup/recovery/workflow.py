@@ -66,7 +66,7 @@ def latest_sent_draft(session: Session, finding_id: int) -> DraftRow | None:
     )
 
 
-def _vendor_for(txns: Sequence[Transaction], vendors: VendorDirectory) -> Vendor | None:
+def vendor_for(txns: Sequence[Transaction], vendors: VendorDirectory) -> Vendor | None:
     for txn in txns:
         vendor = vendors.for_merchant(vendor_key(txn, vendors))
         if vendor is not None:
@@ -82,7 +82,7 @@ def case_facts(
         finding_id=row.id,
         leak_type=LeakType(row.leak_type),
         merchant=row.merchant,
-        vendor=_vendor_for(txns, vendors),
+        vendor=vendor_for(txns, vendors),
         amount_minor=row.amount_minor,
         currency=row.currency,
         reason=row.reason,
@@ -99,6 +99,25 @@ def channel_for(facts: CaseFacts, card_dispute_address: str) -> tuple[Channel, s
     return "vendor_email", facts.vendor.support_email
 
 
+# Errors reach the person as a notice, so they name the state in words, never the enum value.
+_CANNOT_DRAFT: dict[Status, str] = {
+    Status.SENT: "This claim was already sent.",
+    Status.VENDOR_AGREED: "This claim is already with the vendor, so there's nothing to draft.",
+    Status.RECOVERED: "This claim is already recovered.",
+    Status.DISMISSED: "This claim is already marked not owed.",
+    Status.EXPIRED: "This claim's window has closed.",
+}
+_CANNOT_SEND: dict[Status, str] = {
+    **_CANNOT_DRAFT,
+    Status.VENDOR_AGREED: "The vendor already agreed, so there's nothing to send.",
+}
+_ALREADY_CLOSED: dict[Status, str] = {
+    Status.RECOVERED: "This claim is already recovered.",
+    Status.DISMISSED: "This claim is already marked not owed.",
+    Status.EXPIRED: "This claim's window has closed.",
+}
+
+
 def create_draft(
     session: Session,
     row: FindingRow,
@@ -111,7 +130,7 @@ def create_draft(
 ) -> DraftRow:
     status = Status(row.status)
     if status not in DRAFTABLE:
-        raise TransitionError(f"Cannot draft a request while the case is {status.value}")
+        raise TransitionError(_CANNOT_DRAFT.get(status, "This claim can't be drafted right now."))
     if row.outcome == Outcome.NOT_RECOVERABLE:
         raise TransitionError("This credit can no longer be claimed")
 
@@ -162,10 +181,10 @@ def send_draft(
         raise TransitionError("This message was already sent")
     row = session.get(FindingRow, draft.finding_id)
     if row is None:
-        raise TransitionError("Case not found")
+        raise TransitionError("Claim not found")
     status = Status(row.status)
     if status not in DRAFTABLE:
-        raise TransitionError(f"Cannot send a request while the case is {status.value}")
+        raise TransitionError(_CANNOT_SEND.get(status, "This claim can't be sent right now."))
     # Claim the draft before sending so two concurrent approvals cannot both send it.
     claimed = session.execute(
         update(DraftRow)
@@ -193,9 +212,11 @@ def send_draft(
 
 def dismiss(session: Session, row: FindingRow, reason: str, actor: str, as_of: date) -> FindingRow:
     if row.status in CLOSED:
-        raise TransitionError(f"The case is already {row.status}")
+        raise TransitionError(
+            _ALREADY_CLOSED.get(Status(row.status), "This claim is already closed.")
+        )
     if not reason.strip():
-        raise TransitionError("A reason is required to dismiss a case")
+        raise TransitionError("Add a reason.")
     row.status, row.dismissed_reason = Status.DISMISSED, reason.strip()
     audit(session, actor, "case.dismissed", row.id, reason=reason.strip(), clock=as_of.isoformat())
     return row

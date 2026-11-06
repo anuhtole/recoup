@@ -37,7 +37,7 @@ def _is_past(days_left: int | None) -> bool:
 def _get(session: SessionDep, finding_id: int) -> FindingRow:
     row = session.get(FindingRow, finding_id)
     if row is None:
-        raise HTTPException(status_code=404, detail="Case not found")
+        raise HTTPException(status_code=404, detail="Claim not found")
     return row
 
 
@@ -72,6 +72,7 @@ def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
         mode=context.services.mode,
         demo_mode=context.settings.demo_mode,
         data_mode=context.settings.data_mode,
+        org_name=context.settings.org_name,
         claimable_minor=claimable,
         in_flight_minor=in_flight,
         recovered_minor=recovered,
