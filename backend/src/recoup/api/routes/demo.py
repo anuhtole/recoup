@@ -55,7 +55,10 @@ def scan(session: SessionDep, context: ContextDep) -> RunSummaryOut:
 @router.post("/reset", response_model=ResetOut)
 def reset(session: SessionDep, context: ContextDep) -> ResetOut:
     _require_demo(context)
-    staging.reset_demo(session, context.settings)
+    try:
+        staging.reset_demo(session, context.settings)
+    except staging.NotDemoDataError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     return ResetOut(ok=True)
 
 

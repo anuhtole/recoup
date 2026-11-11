@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from datetime import UTC, date, datetime, time
 from pathlib import Path
 
-from sqlalchemy import delete, select, text
+from sqlalchemy import delete, func, select, text
 from sqlalchemy.orm import Session
 
 from recoup.config import Settings
@@ -32,15 +32,19 @@ from recoup.db.models import (
 from recoup.db.state import get_as_of, set_as_of
 from recoup.demo.history import replay_history
 from recoup.ingest.gmail import SOURCE as GMAIL_SOURCE
+from recoup.ingest.live import DEMO_SOURCE
 from recoup.ingest.loader import ingest_transactions, load_transactions_file
 from recoup.ingest.sources import Sources, ingest_emails, load_emails_file
 from recoup.pipeline.run import RunSummary, run_pipeline
 from recoup.services import Services
+from recoup.synth.builder import SOURCE
 
 GMAIL_ADDRESS = "finance@acme.com"
 DEFAULT_START = date(2026, 10, 1)
 _GMAIL_CONNECTED = "demo.gmail_connected"
 _SCANNED = "demo.scanned"
+# Ledger rows a reset may delete: the synthetic feed and the fictional status-page invoices.
+_DEMO_SOURCES = (SOURCE, DEMO_SOURCE)
 
 # Children before parents, so foreign keys hold at every step.
 _TABLES = (
@@ -64,6 +68,10 @@ class NotConnectedError(Exception):
 
 class NotScannedError(Exception):
     pass
+
+
+class NotDemoDataError(Exception):
+    """The database holds a company's own ledger, which a demo reset must not delete."""
 
 
 @dataclass(frozen=True, slots=True)
@@ -136,9 +144,21 @@ def _restart_ids(session: Session) -> None:
 def reset_demo(session: Session, settings: Settings) -> int:
     """Back to the clean slate in one transaction. Returns the ledger rows loaded.
 
+    Refuses when the ledger holds rows from a real connector or upload.
+
     Rows are deleted, never the database file, so a running server's engine and its
     pooled connections stay valid; requests in flight wait on SQLite's lock.
     """
+    own_rows = session.scalar(
+        select(func.count())
+        .select_from(TransactionRow)
+        .where(TransactionRow.source.notin_(_DEMO_SOURCES))
+    )
+    if own_rows:
+        raise NotDemoDataError(
+            f"This database holds {own_rows} ledger rows that are not demo data, so the demo "
+            "reset was refused. Point RECOUP_DATABASE_URL at a separate database for the demo."
+        )
     for table in _TABLES:
         session.execute(delete(table))
     session.flush()

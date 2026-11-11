@@ -12,7 +12,7 @@ from typing import Literal
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from recoup.config import Settings
+from recoup.config import DEFAULT_ORG, Settings
 from recoup.db.models import ContractRow, StateRow, VendorRow
 from recoup.domain.sources import Contract, Vendor
 from recoup.domain.vendors import VendorDirectory
@@ -21,7 +21,8 @@ from recoup.ingest.sources import Sources
 VendorOrigin = Literal["user", "discovered"]
 ContractOrigin = Literal["upload", "user"]
 
-DEFAULT_COMPANY_NAME = "Northwind Labs"
+# Until a name is saved in Setup, letters are signed with the name the UI shows.
+DEFAULT_COMPANY_NAME = DEFAULT_ORG
 MAX_NAME_LENGTH = 120
 _PROFILE_PREFIX = "company."
 # Deliberately plain: one @, a dot in the domain, no spaces or angle brackets.

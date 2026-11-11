@@ -1,3 +1,4 @@
+from dataclasses import replace
 from datetime import UTC, datetime
 from typing import Any
 
@@ -300,3 +301,28 @@ def test_advancing_the_clock_pays_each_in_flight_claim_once(
         assert sum(r.recovered_minor or 0 for r in recovered) == RECOVERED_MINOR + IN_FLIGHT_MINOR
         credit_ids = [r.recovered_txn_id for r in recovered]
         assert len(credit_ids) == len(set(credit_ids)) == 12
+
+
+class _RefusingOutbox:
+    """Stands in for the Gmail outbox: any send through it fails the test."""
+
+    def send(self, draft: DraftRow) -> str:
+        raise AssertionError(f"history sent draft {draft.id} through the real outbox")
+
+
+def test_history_never_sends_through_the_configured_outbox(
+    session_factory: sessionmaker[Session], settings: Settings, services: Services, sources: Sources
+) -> None:
+    # Arrange: the configured outbox is one that would deliver real mail.
+    load_and_run(session_factory, settings, services, sources)
+    live = replace(services, outbox=_RefusingOutbox())
+
+    # Act
+    summary = _replay(session_factory, settings, live, sources)
+
+    # Assert: the past claims were replayed, and none of them left the machine.
+    assert summary is not None
+    with session_scope(session_factory) as session:
+        sent = session.scalars(select(DraftRow).where(DraftRow.status == "sent")).all()
+        assert sent
+        assert all(d.message_id and "northwind.example" in d.message_id for d in sent)
