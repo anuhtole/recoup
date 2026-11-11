@@ -8,8 +8,9 @@ import { defineConfig, devices } from "@playwright/test";
 const frontend = path.dirname(fileURLToPath(import.meta.url));
 const backend = path.resolve(frontend, "../backend");
 const db = path.resolve(frontend, "../.pipeline/e2e/e2e.db");
-const API_PORT = 8002;
-const UI_PORT = 5175;
+// Override either port when something else on the machine already holds it.
+const API_PORT = Number(process.env.RECOUP_E2E_API_PORT ?? 8002);
+const UI_PORT = Number(process.env.RECOUP_E2E_UI_PORT ?? 5175);
 
 export default defineConfig({
   // RECOUP_E2E_DIR=scripts/shots runs the review screenshots against the same throwaway world.
