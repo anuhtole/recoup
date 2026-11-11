@@ -29,8 +29,9 @@ class VendorDirectory:
         (Amazon retail and AWS), the exact support address decides; otherwise
         the sender is ambiguous and treated as unverified.
 
-        Production would also require a passing DKIM/SPF Authentication-Results
-        header, which Gmail exposes; the synthetic mailbox has no headers.
+        This only compares addresses. Mail read from Gmail has already passed
+        Gmail's own DMARC or DKIM check for the sender's domain before it is
+        stored (`ingest/gmail.py`); the synthetic mailbox has no headers to check.
         """
         candidates = [v for v in self._vendors if v.sends_from(address)]
         if len(candidates) == 1:
