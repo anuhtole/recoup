@@ -12,9 +12,21 @@ const sidebar = (page: Page) => page.getByRole("complementary", { name: "Claim d
 
 test.describe.configure({ mode: "serial" });
 
+// The demo starts from a clean slate (nothing found until the scan runs). These tests cover the app with
+// its data in, so each run resets the demo, connects Gmail and scans through the API first, and puts the
+// clean slate back when it is done.
+test.beforeAll(async ({ request }) => {
+  expect((await request.post("/api/demo/reset")).ok(), "POST /api/demo/reset (the API must run with RECOUP_DEMO_MODE=true)").toBe(true);
+  expect((await request.post("/api/demo/connect", { data: { source: "gmail" } })).ok(), "POST /api/demo/connect").toBe(true);
+  expect((await request.post("/api/demo/scan")).ok(), "POST /api/demo/scan").toBe(true);
+});
+test.afterAll(async ({ request }) => {
+  await request.post("/api/demo/reset");
+});
+
 test("review, send, advance and dismiss", async ({ page, request }) => {
   const summary = await (await request.get("/api/summary")).json();
-  expect(summary.as_of, "Run `make reset` so the demo starts at Oct 1, 2026").toBe("2026-10-01");
+  expect(summary.as_of, "the reset puts the demo clock back to Oct 1, 2026").toBe("2026-10-01");
   expect(summary.demo_mode, "The API must run with RECOUP_DEMO_MODE=true (make api)").toBe(true);
 
   const errors: string[] = [];
@@ -24,11 +36,14 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
   const sends: string[] = [];
   page.on("request", (r) => r.method() === "POST" && /\/api\/drafts\/\d+\/send$/.test(r.url()) && sends.push(r.url()));
 
-  await test.step("the overview is the landing page", async () => {
+  await test.step("the agent is the landing page, and the overview is one click away", async () => {
     await page.goto("/");
+    await expect(nav(page, "Agent")).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("heading", { level: 1, name: "Agent" })).toBeVisible();
+    await nav(page, "Overview").click();
     await expect(nav(page, "Overview")).toHaveAttribute("aria-current", "page");
     await expect(nav(page, "Claims")).toContainText("15");
-    await expect(page.getByRole("button", { name: /Acme Inc/ })).toContainText("Demo");
+    await expect(page.getByRole("button", { name: /Acme Inc/ })).toBeVisible();
     await expect(page.getByRole("heading", { level: 1 })).toHaveText("Overview");
     const hero = page.getByRole("region", { name: "Open claims" });
     await expect(hero).toContainText("$13,710.09");
@@ -234,8 +249,8 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await nav(page, "Overview").click();
     const totals = page.locator("[data-totals]");
     const before = await totals.innerText();
-    await page.getByRole("button", { name: /^Demo/ }).click();
-    await expect(page.getByRole("menu", { name: "Demo" })).toContainText("Viewing Oct 1, 2026");
+    await page.getByRole("button", { name: /^Oct 1/ }).click();
+    await expect(page.getByRole("menu", { name: "Date" })).toContainText("Viewing Oct 1, 2026");
     await page.getByRole("menuitem", { name: "Advance 2 weeks" }).click();
     await expect(page.locator("[aria-live=polite] li").filter({ hasText: /credit posted/i })).toBeVisible();
     await expect.poll(() => totals.innerText()).not.toBe(before);
@@ -243,10 +258,10 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(page.getByRole("region", { name: "Recently recovered" })).toContainText("Figma");
     await nav(page, "Recovered").click();
     await expect(page).toHaveURL(/#\/recovered$/);
-    const feed = page.getByRole("region", { name: "Activity" });
-    await expect(feed.locator('[data-activity="recovered"]').filter({ hasText: "Figma" })).toBeVisible();
-    await expect(feed.locator('[data-activity="sent"]').filter({ hasText: "Figma" })).toBeVisible();
-    await feed.locator('[data-activity="recovered"]').filter({ hasText: "Figma" }).click();
+    // The page opens on what came back; the credited claim is a row in its list, and the row opens it.
+    const credited = page.locator("[data-recovered-id]").filter({ hasText: "Figma" });
+    await expect(credited).toBeVisible();
+    await credited.click();
     await expect(page).toHaveURL(/#\/claims\/2$/);
     await expect(page.locator("[data-case-header]")).toContainText("$480.00");
     await expect(page.locator("[data-case-header]")).toContainText("Recovered");
@@ -279,20 +294,16 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(comparison).toContainText("Over by");
   });
 
-  await test.step("sources page: rows, setup help, sync", async () => {
+  await test.step("sources page: both sources connected, sync", async () => {
     await page.goto("/#/sources");
     await expect(nav(page, "Sources")).toHaveAttribute("aria-current", "page");
     const list = page.getByRole("region", { name: "Data sources" });
     await expect(list).toContainText("Ramp transactions");
     await expect(list).toContainText("Gmail");
     await expect(list).toContainText("Public incident feeds");
-    // Setup is server work, so it opens in a sheet rather than sitting on the page.
-    await expect(list).not.toContainText("recoup connect gmail");
-    await list.getByRole("button", { name: "Connect" }).nth(1).click();
-    const connect = page.getByRole("dialog", { name: "Connect Gmail" });
-    await expect(connect).toContainText("recoup connect gmail");
-    await page.keyboard.press("Escape");
-    await expect(connect).toHaveCount(0);
+    // In the demo Ramp starts connected and Gmail was connected before the scan, so nothing is left to connect.
+    await expect(list.getByRole("button", { name: "Connect" })).toHaveCount(0);
+    await expect(list).not.toContainText("Not connected");
     await expect(page.getByRole("button", { name: "Sync now" })).toBeEnabled();
   });
 

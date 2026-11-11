@@ -4,21 +4,21 @@ import { type ReactNode, useState } from "react";
 import type { Sources, SyncRun } from "../api";
 import { Button } from "../components/Button";
 import { Section } from "../components/Section";
-import { Sheet } from "../components/Sheet";
-import { Copyable, FEED_LABEL, num, relativeTime, runError, runResult } from "../components/Sources";
+import { type Connect, ConnectSheet, FEED_LABEL, GmailConnectDialog, num, relativeTime, runError, runResult } from "../components/Sources";
 import { PageHeader, Pill } from "../components/ui";
 import { VendorLogo } from "../components/VendorLogo";
+import { demo, useDemo } from "../demo/flow";
 import { formatDateTime, plural } from "../format";
 import { cn } from "@/lib/utils";
 
 interface Props {
   sources: Sources | null;
+  /** The scripted demo: Gmail connects through the staged pop-up, not server setup. */
+  isDemo: boolean;
   isAvailable: boolean;
   isSyncing: boolean;
   onSync: () => void;
 }
-
-type Connect = "ramp" | "gmail";
 
 function health(connected: boolean, run: SyncRun | null) {
   if (!connected) return "none" as const;
@@ -109,7 +109,7 @@ function FeedRow({ feed }: { feed: Sources["status_feeds"][number] }) {
           href={feed.page_url}
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex min-h-6 items-center gap-1 text-14 font-medium underline decoration-line-strong underline-offset-4 hover:decoration-current"
+          className="inline-flex min-h-6 items-center gap-1 text-14 font-medium text-mint-ink underline-offset-4 hover:underline"
         >
           {label}
           <ArrowUpRight aria-hidden className="size-3.5 flex-none text-dim" strokeWidth={1.75} />
@@ -128,35 +128,11 @@ function StatusIcon() {
   );
 }
 
-/** How to connect a source: server setup, so it lives in a sheet an admin opens, not on the page. */
-function ConnectSheet({ source, onClose }: { source: Connect; onClose: () => void }) {
-  const isRamp = source === "ramp";
-  return (
-    <Sheet labelId="connect-title" title={isRamp ? "Connect Ramp" : "Connect Gmail"} subtitle="An admin sets this up on the Recoup server." onClose={onClose}>
-      <div className="flex flex-col gap-4 overflow-y-auto px-6 pb-6 pt-2 text-14">
-        {isRamp ? (
-          <>
-            <p className="m-0">Add the Ramp app's client ID and secret to the server's backend/.env:</p>
-            <Copyable text={"RECOUP_RAMP_CLIENT_ID=\nRECOUP_RAMP_CLIENT_SECRET="} />
-            <p className="m-0 text-dim">Then press Sync now. Recoup only reads transactions.</p>
-          </>
-        ) : (
-          <>
-            <p className="m-0">Add the Google app's client ID and secret to the server's backend/.env:</p>
-            <Copyable text={"RECOUP_GMAIL_CLIENT_ID=\nRECOUP_GMAIL_CLIENT_SECRET="} />
-            <p className="m-0">Then run this in backend/ and sign in with the finance inbox:</p>
-            <Copyable text="recoup connect gmail" />
-            <p className="m-0 text-dim">Access is read-only.</p>
-          </>
-        )}
-      </div>
-    </Sheet>
-  );
-}
-
 /** Every source, where it stands, a Connect for the missing ones, and one "Sync now". */
-export function SourcesPage({ sources, isAvailable, isSyncing, onSync }: Props) {
+export function SourcesPage({ sources, isDemo, isAvailable, isSyncing, onSync }: Props) {
   const [connecting, setConnecting] = useState<Connect | null>(null);
+  const { busy, connectError } = useDemo();
+  const isStaged = isDemo && connecting === "gmail";
   const status = sources?.connectors.find((c) => c.kind === "status");
   const background = sources?.background_sync;
   return (
@@ -231,7 +207,23 @@ export function SourcesPage({ sources, isAvailable, isSyncing, onSync }: Props) 
           </div>
         )}
       </Section>
-      <AnimatePresence>{connecting && <ConnectSheet key="connect" source={connecting} onClose={() => setConnecting(null)} />}</AnimatePresence>
+      <AnimatePresence>
+        {isStaged ? (
+          <GmailConnectDialog
+            key="gmail"
+            address={demo.address()}
+            isConnecting={busy === "connecting"}
+            error={connectError}
+            onConnect={() => void demo.connectGmail().then((ok) => ok && setConnecting(null))}
+            onClose={() => {
+              demo.closeConnect();
+              setConnecting(null);
+            }}
+          />
+        ) : (
+          connecting && <ConnectSheet key="connect" source={connecting} onClose={() => setConnecting(null)} />
+        )}
+      </AnimatePresence>
     </>
   );
 }

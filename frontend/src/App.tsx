@@ -1,9 +1,11 @@
 import { MotionConfig } from "motion/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { api, ApiError, type Finding } from "./api";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { api, errorText, type Finding } from "./api";
 import { Shell } from "./components/shell/Shell";
 import { syncNotice } from "./components/Sources";
 import { type Notice, Notifications } from "./components/Toast";
+import { demo, useDemo } from "./demo/flow";
+import { useDemoServer } from "./demo/useDemoServer";
 import { formatDate, formatMoney, plural, setReferenceYear } from "./format";
 import { useCase } from "./hooks/useCase";
 import { useCases } from "./hooks/useCases";
@@ -11,27 +13,21 @@ import { hrefFor, useHashRoute } from "./hooks/useHashRoute";
 import { useSources } from "./hooks/useSources";
 import { downloadClaims } from "./lib/exportCsv";
 import { vendorName } from "./lib/vendors";
+import { Agent } from "./pages/Agent";
 import { CasePage } from "./pages/Case";
 import { Claims, type ClaimsParams, readParams, visibleIds, writeParams } from "./pages/Claims";
 import { Overview } from "./pages/Overview";
 import type { Page } from "./hooks/useHashRoute";
-import { Recovered } from "./pages/Recovered";
+import { Recovered, recoveredView } from "./pages/Recovered";
 import { SourcesPage } from "./pages/SourcesPage";
 import { countsFor, rowsFor, tabOf } from "./queue";
 
 const ADVANCE_DAYS = 14;
 
-const PAGE_TITLE: Record<Page, string> = { overview: "Overview", claims: "Claims", recovered: "Recovered", sources: "Sources" };
+const PAGE_TITLE: Record<Page, string> = { agent: "Agent", overview: "Overview", claims: "Claims", recovered: "Recovered", sources: "Sources" };
 
 type NoticeInput = Omit<Notice, "id">;
-type Busy = "case" | "run" | "advance" | "sync" | "bulk" | null;
-
-function errorText(error: unknown): string {
-  if (error instanceof ApiError) return error.message;
-  // fetch rejects with a TypeError when the server can't be reached at all.
-  if (error instanceof TypeError) return "Couldn't connect to Recoup. Try again in a moment.";
-  return "Something went wrong. Try again.";
-}
+type Busy = "case" | "run" | "advance" | "sync" | "bulk" | "restart" | null;
 
 /** How many results show as separate cards before they fold into one summary card. */
 const MAX_RESULT_CARDS = 3;
@@ -89,6 +85,8 @@ export function App() {
   const { summary, findings, error, isLoading, reload } = useCases();
   const { route, go, replace } = useHashRoute();
   const { sources, isAvailable: sourcesAvailable, reload: reloadSources } = useSources();
+  const { server, isLoaded: isServerLoaded, reload: reloadServer } = useDemoServer();
+  const { busy: demoBusy, isReady: isDemoReady } = useDemo();
   const [version, setVersion] = useState(0);
   const [busy, setBusy] = useState<Busy>(null);
   const [notices, setNotices] = useState<Notice[]>([]);
@@ -139,9 +137,22 @@ export function App() {
   const dismissNotice = useCallback((id: number) => setNotices((current) => current.filter((n) => n.id !== id)), []);
 
   const refresh = useCallback(async () => {
-    await reload();
+    await Promise.all([reload(), reloadServer()]);
     setVersion((v) => v + 1);
-  }, [reload]);
+  }, [reload, reloadServer]);
+
+  // The scripted demo runs outside React (demo/flow.ts). It reloads everything here after each of its
+  // actions, and is handed the server's data whenever that changes, to keep its step in line with it.
+  useEffect(() => {
+    demo.bind(async () => {
+      await Promise.all([refresh(), reloadSources()]);
+    });
+  }, [refresh, reloadSources]);
+  // Before paint, so a stored conversation that the server has moved past never shows.
+  const isSourcesKnown = sources !== null || !sourcesAvailable;
+  useLayoutEffect(() => {
+    if (summary && isServerLoaded && (server || isSourcesKnown)) demo.sync({ summary, findings, sources, server });
+  }, [summary, findings, sources, server, isServerLoaded, isSourcesKnown]);
 
   const act = async (kind: Exclude<Busy, null>, work: () => Promise<string | NoticeInput[] | void>): Promise<boolean> => {
     setBusy(kind);
@@ -181,13 +192,31 @@ export function App() {
   const exportClaims = useCallback(() => exportRows(rowsFor(findings, "todo"), "open claim"), [exportRows, findings]);
   const goPage = useCallback((page: Page) => go({ page, params: {} }), [go]);
 
-  const advanceTime = () =>
+  // From the date menu, what changed shows as notices. From the keyboard nothing shows but the date: the
+  // presenter cuts to "two weeks later" and asks the agent what came back.
+  const advanceTime = (isQuiet = false) =>
     void act("advance", async () => {
       const before = findings;
       const result = await api.advance(ADVANCE_DAYS);
+      if (isQuiet) return;
       const after = await api.findings();
       return advanceNotices(before, after, result.as_of).map((notice) => ({ ...notice, isResult: true }));
     });
+
+  // Restart demo: the server goes back to its clean slate, the conversation starts over, and the Agent page opens.
+  const restartDemo = async () => {
+    if (busy) return;
+    setBusy("restart");
+    try {
+      await demo.restart();
+      setNotices([]);
+      go({ page: "agent", params: {} });
+    } catch (err) {
+      notify([{ tone: "error", title: "The demo didn't restart", body: errorText(err) }]);
+    } finally {
+      setBusy(null);
+    }
+  };
 
   const sync = () =>
     void act("sync", async () => {
@@ -301,10 +330,21 @@ export function App() {
         }
       />
     );
+  } else if (route.page === "agent") {
+    page = isDemoReady ? <Agent summary={summary} findings={findings} sources={sources} isHeld={busy !== null} /> : <p className="m-0 text-14 text-dim">Loading…</p>;
   } else if (route.page === "recovered") {
-    page = <Recovered summary={summary} findings={findings} version={version} isAdvancing={busy === "advance"} onAdvance={advanceTime} />;
+    page = <Recovered
+        summary={summary}
+        findings={findings}
+        view={recoveredView(route.params)}
+        onView={(view) => replace({ page: "recovered", params: view === "inflight" ? { view } : {} })}
+        version={version}
+        isAdvancing={busy === "advance"}
+        onAdvance={() => advanceTime()}
+        onExport={exportRows}
+      />;
   } else {
-    page = <SourcesPage sources={sources} isAvailable={sourcesAvailable} isSyncing={busy === "sync"} onSync={sync} />;
+    page = <SourcesPage sources={sources} isDemo={summary.demo_mode} isAvailable={sourcesAvailable} isSyncing={busy === "sync"} onSync={sync} />;
   }
 
   // The top bar title. A case shows where it sits: "Claims / Figma", with Claims back to the list.
@@ -348,6 +388,10 @@ export function App() {
         onGo={goPage}
         isRunning={busy === "run"}
         isAdvancing={busy === "advance"}
+        isRestarting={busy === "restart"}
+        isLocked={demoBusy !== null}
+        onAdvanceQuiet={() => advanceTime(true)}
+        onRestart={() => void restartDemo()}
         onRun={() =>
           void act("run", async () => {
             const run = await api.runPipeline();
@@ -360,7 +404,7 @@ export function App() {
             ];
           })
         }
-        onAdvance={advanceTime}
+        onAdvance={() => advanceTime()}
       >
         {page}
       </Shell>

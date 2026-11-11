@@ -181,7 +181,7 @@ export function Evidence({ evidence, transactions, emails, numberOf, onOpenEmail
                   <button
                     type="button"
                     onClick={() => onOpenEmail(email, quote)}
-                    className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-current"
+                    className="font-medium text-mint-ink underline-offset-4 hover:underline"
                   >
                     Read the email
                   </button>

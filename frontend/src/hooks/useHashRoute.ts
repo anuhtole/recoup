@@ -1,22 +1,23 @@
 import { useCallback, useEffect, useState } from "react";
 
-export type Page = "overview" | "claims" | "recovered" | "sources";
+export type Page = "agent" | "overview" | "claims" | "recovered" | "sources";
 export interface Route {
   page: Page;
   /** #/claims/<id> */
   caseId: number | null;
-  /** Claims list filters, kept in the hash: tab, q, type. */
+  /** What a page keeps in the hash: the claims list's filters (tab, q, type), Recovered's view. */
   params: Record<string, string>;
 }
 
-const PAGES: Page[] = ["overview", "claims", "recovered", "sources"];
+const PAGES: Page[] = ["agent", "overview", "claims", "recovered", "sources"];
 
-// #/overview, #/claims?tab=waiting&q=fig&type=sla_credit, #/claims/<id>, #/recovered, #/sources.
-// Anything else is the overview.
+// #/agent, #/overview, #/claims?tab=waiting&q=fig&type=sla_credit, #/claims/<id>, #/recovered,
+// #/recovered?view=inflight, #/sources.
+// Anything else is the agent page.
 export function parseHash(hash: string): Route {
   const [path, query = ""] = hash.replace(/^#/, "").split("?");
   const parts = path.split("/").filter(Boolean);
-  const page = PAGES.includes(parts[0] as Page) ? (parts[0] as Page) : "overview";
+  const page = PAGES.includes(parts[0] as Page) ? (parts[0] as Page) : "agent";
   const caseId = page === "claims" && parts[1] && /^\d+$/.test(parts[1]) ? Number(parts[1]) : null;
   const params: Record<string, string> = {};
   new URLSearchParams(query).forEach((value, key) => {

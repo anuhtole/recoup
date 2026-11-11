@@ -1,5 +1,6 @@
 import { AnimatePresence } from "motion/react";
 import {
+  CalendarDays,
   Check,
   ChevronDown,
   ChevronsUpDown,
@@ -13,7 +14,9 @@ import {
   Menu as MenuIcon,
   Play,
   Plug,
+  RotateCcw,
   Search,
+  Sparkles,
   type LucideIcon,
 } from "lucide-react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
@@ -41,8 +44,16 @@ export interface ShellProps {
   findings: Finding[];
   isRunning: boolean;
   isAdvancing: boolean;
+  /** Restart demo is putting the server back to its clean slate. */
+  isRestarting: boolean;
+  /** The agent is in the middle of something (scanning, drafting, sending): the clock stays put until it is done. */
+  isLocked: boolean;
   onRun: () => void;
   onAdvance: () => void;
+  /** The same two weeks from the keyboard, with no notices: the presenter's cut to "two weeks later". */
+  onAdvanceQuiet: () => void;
+  /** Demo only: back to the clean slate, and a new conversation on the Agent page. */
+  onRestart: () => void;
   onExport: () => void;
   onOpenCase: (id: number) => void;
   onGo: (page: Page) => void;
@@ -56,6 +67,7 @@ interface NavItem {
 }
 
 const NAV: NavItem[] = [
+  { page: "agent", label: "Agent", icon: Sparkles },
   { page: "overview", label: "Overview", icon: LayoutGrid },
   { page: "claims", label: "Claims", icon: Inbox },
   { page: "recovered", label: "Recovered", icon: HandCoins },
@@ -82,23 +94,24 @@ const SHORTCUTS: { keys: string[]; label: string }[] = [
 const TYPING = new Set(["INPUT", "TEXTAREA", "SELECT"]);
 
 /**
- * Where the data stands, in one quiet line. The demo runs on generated data, so it says so ("Demo data ·
- * Oct 1") rather than claiming a ledger sync that Sources would contradict; live, "Ledger synced · 3 hours ago".
+ * Ctrl+Shift+. (the ">" key) advances the demo two weeks from any page, even while typing. It is for
+ * the presenter, so it is not in the shortcuts list: three keys, none of them used by anything else here.
+ */
+// Matched by the physical key and by the character, so it works on any layout and with remotes or
+// tools that send a key without a code.
+const isAdvanceKey = (event: KeyboardEvent) =>
+  event.ctrlKey && event.shiftKey && !event.altKey && !event.metaKey && (event.code === "Period" || event.key === "." || event.key === ">");
+
+/**
+ * Where the data stands, in one quiet line. Generated data has no ledger sync to report, so it gives the
+ * date the data runs to ("Data as of Oct 1"); live, "Ledger synced · 3 hours ago".
  */
 function sourcesLine(summary: Summary | null, sources: Sources | null): string {
   if (!summary) return "Sources";
-  if (summary.data_mode !== "live") return `Demo data · ${formatDate(summary.as_of, "short")}`;
+  if (summary.data_mode !== "live") return `Data as of ${formatDate(summary.as_of, "short")}`;
   const ledger = sources?.connectors.find((c) => c.kind === "ledger");
   if (!ledger?.configured) return "Ledger not connected";
   return ledger.last_sync ? `Ledger synced · ${relativeTime(ledger.last_sync.finished_at)}` : "Ledger not synced yet";
-}
-
-function DemoPill({ className }: { className?: string }) {
-  return (
-    <span className={cn("inline-flex h-[18px] flex-none items-center rounded-xs border border-rule px-1 text-12 leading-none font-medium text-sub", className)}>
-      Demo
-    </span>
-  );
 }
 
 /** The Recoup product mark: small, in the sidebar footer. The org has its own tile above. */
@@ -121,20 +134,18 @@ function OrgTile({ name, size = 24 }: { name: string; size?: number }) {
 }
 
 function OrgSwitcher({ summary }: { summary: Summary | null }) {
-  const live = summary?.data_mode === "live";
   const org = orgOf(summary);
   return (
     <Menu
       label="Organization"
       align="start"
-      triggerClassName="flex h-12 w-full items-center gap-2 rounded-sm px-2 text-left transition-colors hover:bg-panel-2"
+      triggerClassName="flex h-12 w-full items-center gap-2 rounded-sm px-2 text-left transition-colors hover:bg-wash"
       panelClassName="w-[216px]"
       trigger={
         <>
           <OrgTile name={org} />
-          <span className="min-w-0 flex-1 truncate text-14 font-semibold text-white">{org}</span>
-          {summary && !live && <DemoPill />}
-          <ChevronsUpDown aria-hidden className="size-4 flex-none text-sub" strokeWidth={1.75} />
+          <span className="min-w-0 flex-1 truncate text-14 font-semibold text-ink">{org}</span>
+          <ChevronsUpDown aria-hidden className="size-4 flex-none text-dim" strokeWidth={1.75} />
         </>
       }
     >
@@ -144,11 +155,6 @@ function OrgSwitcher({ summary }: { summary: Summary | null }) {
           <MenuItem onSelect={close} hint={<Check aria-hidden className="size-4 text-ink" strokeWidth={2} />} icon={<OrgTile name={org} size={16} />}>
             {org}
           </MenuItem>
-          <MenuSeparator />
-          <MenuNote className="flex items-center justify-between">
-            <span>Data</span>
-            <span className="font-medium text-ink">{live ? "Live" : "Demo"}</span>
-          </MenuNote>
         </>
       )}
     </Menu>
@@ -162,7 +168,7 @@ function SearchRow({ onSearch }: { onSearch: () => void }) {
       type="button"
       onClick={onSearch}
       aria-keyshortcuts={IS_MAC ? "Meta+K" : "Control+K"}
-      className="flex h-9 w-full items-center gap-3 rounded-sm px-3 text-left text-14 text-sub transition-colors hover:bg-panel-2 hover:text-white"
+      className="flex h-9 w-full items-center gap-3 rounded-sm px-3 text-left text-14 text-dim transition-colors hover:bg-wash hover:text-ink"
     >
       <Search aria-hidden className="size-4 flex-none" strokeWidth={1.75} />
       <span className="flex-1">Search</span>
@@ -173,9 +179,8 @@ function SearchRow({ onSearch }: { onSearch: () => void }) {
 
 function Sidebar({ page, claimsCount, summary, sources, onSearch }: Pick<ShellProps, "page" | "claimsCount" | "summary" | "sources"> & { onSearch: () => void }) {
   const health = sourcesHealth(sources);
-  const isDemo = summary !== null && summary.data_mode !== "live";
   return (
-    <aside className="on-ink fixed inset-y-0 left-0 z-20 hidden w-58 flex-col bg-panel text-white md:flex">
+    <aside className="fixed inset-y-0 left-0 z-20 hidden w-58 flex-col border-r border-line bg-paper md:flex">
       <div className="flex flex-col gap-1 px-3 pt-3 pb-4">
         <OrgSwitcher summary={summary} />
         <SearchRow onSearch={onSearch} />
@@ -192,13 +197,14 @@ function Sidebar({ page, claimsCount, summary, sources, onSearch }: Pick<ShellPr
                   aria-current={active ? "page" : undefined}
                   className={cn(
                     "flex h-9 items-center gap-3 rounded-sm px-3 text-14 transition-colors",
-                    active ? "bg-panel-active font-medium text-white" : "text-sub hover:bg-panel-2 hover:text-white",
+                    // The current page is green text and icon, no fill.
+                    active ? "font-medium text-mint-ink" : "text-dim hover:bg-wash hover:text-ink",
                   )}
                 >
                   <Icon aria-hidden className="size-4 flex-none" strokeWidth={1.75} />
                   <span className="flex-1">{item.label}</span>
                   {item.page === "claims" && claimsCount > 0 && (
-                    <span className="figure text-12 text-sub">
+                    <span className="figure text-12 text-dim">
                       {claimsCount}
                       <span className="sr-only"> to do</span>
                     </span>
@@ -206,7 +212,7 @@ function Sidebar({ page, claimsCount, summary, sources, onSearch }: Pick<ShellPr
                   {item.page === "sources" && sources && (
                     <>
                       <StatusDot health={health} />
-                      <span className="sr-only">{isDemo ? "demo data" : health === "ok" ? "all synced" : health === "attention" ? "needs attention" : "not synced"}</span>
+                      <span className="sr-only">{health === "ok" ? "all synced" : health === "attention" ? "needs attention" : "not synced"}</span>
                     </>
                   )}
                 </a>
@@ -217,7 +223,7 @@ function Sidebar({ page, claimsCount, summary, sources, onSearch }: Pick<ShellPr
       </nav>
       <a
         href="#/sources"
-        className="mx-3 mt-auto mb-3 flex h-9 items-center gap-2 rounded-sm px-3 text-12 text-sub transition-colors hover:bg-panel-2 hover:text-white"
+        className="mx-3 mt-auto mb-3 flex h-9 items-center gap-2 rounded-sm px-3 text-12 text-dim transition-colors hover:bg-wash hover:text-ink"
       >
         <StatusDot health={health} className="size-1.5" />
         <span className="min-w-0 flex-1 truncate">{sourcesLine(summary, sources)}</span>
@@ -299,17 +305,28 @@ function Help({ isOpen, onOpenChange }: { isOpen: boolean; onOpenChange: (open: 
   );
 }
 
-function DemoMenu({ summary, isRunning, isAdvancing, onRun, onAdvance }: Pick<ShellProps, "summary" | "isRunning" | "isAdvancing" | "onRun" | "onAdvance">) {
+/** The date the data runs to, with the two controls that move it on. Only where the server allows them. */
+function DateMenu({
+  summary,
+  isRunning,
+  isAdvancing,
+  isRestarting,
+  isLocked,
+  onRun,
+  onAdvance,
+  onRestart,
+}: Pick<ShellProps, "summary" | "isRunning" | "isAdvancing" | "isRestarting" | "isLocked" | "onRun" | "onAdvance" | "onRestart">) {
   if (!summary?.demo_mode) return null;
-  const busy = isRunning ? "Running…" : isAdvancing ? "Advancing…" : null;
+  const busy = isRunning ? "Running…" : isAdvancing ? "Advancing…" : isRestarting ? "Restarting…" : null;
   return (
     <Menu
-      label="Demo"
-      triggerTitle="Demo controls"
+      label="Date"
+      triggerTitle="Date and detection"
       triggerClassName="flex h-8 items-center gap-1.5 rounded-sm border border-line px-2.5 text-13 font-medium text-ink transition-colors hover:border-line-strong hover:bg-wash"
       trigger={
         <>
-          <span aria-live="polite">{busy ?? "Demo"}</span>
+          <CalendarDays aria-hidden className="size-3.5 text-dim" strokeWidth={1.75} />
+          <span aria-live="polite" className="figure">{busy ?? formatDate(summary.as_of, "short")}</span>
           <ChevronDown aria-hidden className="size-3.5 text-dim" strokeWidth={2} />
         </>
       }
@@ -322,7 +339,7 @@ function DemoMenu({ summary, isRunning, isAdvancing, onRun, onAdvance }: Pick<Sh
           <MenuSeparator />
           <MenuItem
             icon={<Play className="size-4" strokeWidth={1.75} />}
-            disabled={busy !== null}
+            disabled={busy !== null || isLocked}
             onSelect={() => {
               close();
               onRun();
@@ -332,13 +349,24 @@ function DemoMenu({ summary, isRunning, isAdvancing, onRun, onAdvance }: Pick<Sh
           </MenuItem>
           <MenuItem
             icon={<FastForward className="size-4" strokeWidth={1.75} />}
-            disabled={busy !== null}
+            disabled={busy !== null || isLocked}
             onSelect={() => {
               close();
               onAdvance();
             }}
           >
             Advance 2 weeks
+          </MenuItem>
+          <MenuSeparator />
+          <MenuItem
+            icon={<RotateCcw className="size-4" strokeWidth={1.75} />}
+            disabled={busy !== null}
+            onSelect={() => {
+              close();
+              onRestart();
+            }}
+          >
+            Restart demo
           </MenuItem>
         </>
       )}
@@ -351,7 +379,7 @@ function UserMenu({ org, onShortcuts }: { org: string; onShortcuts: () => void }
     <Menu
       label="Account"
       triggerTitle={USER.name}
-      triggerClassName="grid size-8 place-items-center rounded-full bg-ink text-12 font-semibold text-white transition-transform active:scale-[0.96]"
+      triggerClassName="grid size-8 place-items-center rounded-full bg-mint-wash text-12 font-semibold text-mint-ink transition-transform active:scale-[0.96]"
       trigger={
         <>
           <span aria-hidden>{USER.initials}</span>
@@ -421,7 +449,7 @@ function TopBar(props: TopBarProps) {
           <Search aria-hidden className="size-5" strokeWidth={1.75} />
         </button>
         <div className="hidden items-center gap-1 md:flex">
-          <DemoMenu {...props} />
+          <DateMenu {...props} />
           <Help isOpen={props.isHelpOpen} onOpenChange={props.onHelp} />
           <UserMenu org={orgOf(props.summary)} onShortcuts={() => props.onHelp(true)} />
         </div>
@@ -430,49 +458,66 @@ function TopBar(props: TopBarProps) {
   );
 }
 
-type PhoneMenuProps = Pick<ShellProps, "summary" | "sources" | "isRunning" | "isAdvancing" | "onRun" | "onAdvance"> & { onClose: () => void };
+type PhoneMenuProps = Pick<ShellProps, "summary" | "sources" | "isRunning" | "isAdvancing" | "isRestarting" | "isLocked" | "onRun" | "onAdvance" | "onRestart"> & {
+  onClose: () => void;
+};
 
 /** The phone menu: the org, the demo controls, and where the sources stand. */
-function PhoneMenu({ summary, sources, isRunning, isAdvancing, onRun, onAdvance, onClose }: PhoneMenuProps) {
+function PhoneMenu({ summary, sources, isRunning, isAdvancing, isRestarting, isLocked, onRun, onAdvance, onRestart, onClose }: PhoneMenuProps) {
   const demo = Boolean(summary?.demo_mode);
   const live = summary?.data_mode === "live";
   return (
-    <Sheet labelId="menu-title" title={orgOf(summary)} subtitle={summary ? (summary.data_mode === "live" ? "Live data" : "Demo data") : undefined} onClose={onClose} tone="ink">
+    <Sheet labelId="menu-title" title={orgOf(summary)} subtitle={summary?.data_mode === "live" ? "Live data" : undefined} onClose={onClose}>
       <div className="flex flex-col gap-5 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2">
         {demo && summary && (
           <div className="flex flex-col gap-2">
-            <p className="m-0 text-13 text-sub">
-              Viewing <span className="figure text-white">{formatDate(summary.as_of)}</span>
+            <p className="m-0 text-13 text-dim">
+              Viewing <span className="figure text-ink">{formatDate(summary.as_of)}</span>
             </p>
             <Button
-              variant="ink"
+              variant="secondary"
               className="justify-start"
               isBusy={isRunning}
+              disabled={isLocked}
               busyLabel="Running…"
               onClick={() => {
                 onClose();
                 onRun();
               }}
             >
-              <Play aria-hidden className="size-4 text-sub" strokeWidth={1.75} />
+              <Play aria-hidden className="size-4 text-dim" strokeWidth={1.75} />
               Run detection
             </Button>
             <Button
-              variant="ink"
+              variant="secondary"
               className="justify-start"
               isBusy={isAdvancing}
+              disabled={isLocked}
               busyLabel="Advancing…"
               onClick={() => {
                 onClose();
                 onAdvance();
               }}
             >
-              <FastForward aria-hidden className="size-4 text-sub" strokeWidth={1.75} />
+              <FastForward aria-hidden className="size-4 text-dim" strokeWidth={1.75} />
               Advance 2 weeks
+            </Button>
+            <Button
+              variant="secondary"
+              className="justify-start"
+              isBusy={isRestarting}
+              busyLabel="Restarting…"
+              onClick={() => {
+                onClose();
+                onRestart();
+              }}
+            >
+              <RotateCcw aria-hidden className="size-4 text-dim" strokeWidth={1.75} />
+              Restart demo
             </Button>
           </div>
         )}
-        <a href="#/sources" onClick={onClose} className="-mx-2 flex h-10 items-center gap-2 rounded-sm px-2 text-13 text-sub transition-colors hover:bg-panel-2 hover:text-white">
+        <a href="#/sources" onClick={onClose} className="-mx-2 flex h-10 items-center gap-2 rounded-sm px-2 text-13 text-dim transition-colors hover:bg-wash hover:text-ink">
           <StatusDot health={sourcesHealth(sources)} />
           <span className="truncate">{sourcesLine(summary, sources)}</span>
           {live && sources && <span className="ml-auto flex-none">{`${configured(sources).length} of ${sources.connectors.length} connected`}</span>}
@@ -484,8 +529,8 @@ function PhoneMenu({ summary, sources, isRunning, isAdvancing, onRun, onAdvance,
 
 function TabBar({ page, claimsCount }: Pick<ShellProps, "page" | "claimsCount">) {
   return (
-    <nav aria-label="Pages" className="on-ink fixed inset-x-0 bottom-0 z-20 border-t border-rule bg-panel pb-[env(safe-area-inset-bottom)] md:hidden">
-      <ul className="m-0 grid grid-cols-4 p-0">
+    <nav aria-label="Pages" className="fixed inset-x-0 bottom-0 z-20 border-t border-line bg-paper pb-[env(safe-area-inset-bottom)] md:hidden">
+      <ul className="m-0 grid grid-cols-5 p-0">
         {NAV.map((item) => {
           const active = item.page === page;
           const Icon = item.icon;
@@ -494,13 +539,13 @@ function TabBar({ page, claimsCount }: Pick<ShellProps, "page" | "claimsCount">)
               <a
                 href={`#/${item.page}`}
                 aria-current={active ? "page" : undefined}
-                className={cn("relative flex h-14 flex-col items-center justify-center gap-1 text-12 font-medium", active ? "text-white" : "text-sub")}
+                className={cn("relative flex h-14 flex-col items-center justify-center gap-1 text-12 font-medium", active ? "text-mint-ink" : "text-dim")}
               >
-                {active && <span aria-hidden className="absolute inset-x-6 top-0 h-0.5 bg-white" />}
+                {active && <span aria-hidden className="absolute inset-x-6 top-0 h-0.5 bg-mint-ink" />}
                 <span className="relative">
                   <Icon aria-hidden className="size-5" strokeWidth={1.75} />
                   {item.page === "claims" && claimsCount > 0 && (
-                    <span className="figure absolute -top-1.5 left-full -ml-1 grid h-4 min-w-4 place-items-center rounded-full bg-paper px-1 text-12 font-semibold leading-none text-ink">
+                    <span className="figure absolute -top-1.5 left-full -ml-1 grid h-4 min-w-4 place-items-center rounded-full bg-mint px-1 text-12 font-semibold leading-none text-ink">
                       {claimsCount}
                     </span>
                   )}
@@ -515,18 +560,26 @@ function TabBar({ page, claimsCount }: Pick<ShellProps, "page" | "claimsCount">)
   );
 }
 
-/** Ink sidebar and a white top bar on wide screens; the top bar, a menu sheet and a bottom tab bar on phones. */
+/** White sidebar and top bar on wide screens; the top bar, a menu sheet and a bottom tab bar on phones. */
 export function Shell(props: ShellProps) {
   const [slot, setSlot] = useState<HTMLElement | null>(null);
   const [isPaletteOpen, setIsPaletteOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const { summary, onRun, onAdvance, onExport, onGo } = props;
+  const { summary, onRun, onAdvance, onAdvanceQuiet, onRestart, onExport, onGo } = props;
+  const isIdle = !props.isRunning && !props.isAdvancing && !props.isRestarting && !props.isLocked;
+  const canAdvance = Boolean(summary?.demo_mode) && isIdle;
 
   // ⌘K / Ctrl+K opens the palette from anywhere; ? shows the shortcuts when you're not typing.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       const modalOpen = () => document.querySelector('[role="dialog"][aria-modal="true"]') !== null;
+      if (isAdvanceKey(event)) {
+        event.preventDefault();
+        // Not over a sheet or a pop-up, not twice for one press, and not while something else is running.
+        if (!event.repeat && canAdvance && !modalOpen()) onAdvanceQuiet();
+        return;
+      }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         // Not over a sheet: it owns the keyboard while it is open.
         if (!isPaletteOpen && modalOpen()) return;
@@ -544,7 +597,7 @@ export function Shell(props: ShellProps) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [isPaletteOpen]);
+  }, [isPaletteOpen, canAdvance, onAdvanceQuiet]);
 
   const commands = useMemo<Command[]>(() => {
     const icon = (Icon: LucideIcon) => <Icon className="size-4" strokeWidth={1.75} />;
@@ -556,14 +609,19 @@ export function Shell(props: ShellProps) {
       keywords: item.page === "sources" ? "sync ramp gmail connect" : undefined,
       run: () => onGo(item.page),
     }));
-    list.push({ id: "run", group: "Actions", label: "Run detection", icon: icon(Play), keywords: "detect scan find", run: onRun });
+    // The same lock as the date menu: never while the agent is mid-action or another of these is running.
+    const whenIdle = (run: () => void) => () => {
+      if (isIdle) run();
+    };
+    list.push({ id: "run", group: "Actions", label: "Run detection", icon: icon(Play), keywords: "detect scan find", run: whenIdle(onRun) });
     if (summary?.demo_mode) {
-      list.push({ id: "advance", group: "Actions", label: "Advance 2 weeks", icon: icon(FastForward), keywords: "demo time clock", run: onAdvance });
+      list.push({ id: "advance", group: "Actions", label: "Advance 2 weeks", icon: icon(FastForward), keywords: "demo time clock", run: whenIdle(onAdvance) });
+      list.push({ id: "restart", group: "Actions", label: "Restart demo", icon: icon(RotateCcw), keywords: "reset start over clean", run: onRestart });
     }
     list.push({ id: "export", group: "Actions", label: "Export open claims", icon: icon(Download), keywords: "csv download spreadsheet", run: onExport });
     list.push({ id: "shortcuts", group: "Actions", label: "Keyboard shortcuts", icon: icon(Keyboard), keywords: "help keys", run: () => setIsHelpOpen(true) });
     return list;
-  }, [summary?.demo_mode, onRun, onAdvance, onExport, onGo]);
+  }, [summary?.demo_mode, isIdle, onRun, onAdvance, onRestart, onExport, onGo]);
 
   return (
     <TopBarSlot.Provider value={slot}>

@@ -16,8 +16,6 @@ interface Props {
   className?: string;
   /** Element to focus first; defaults to the sheet itself. */
   initialFocus?: React.RefObject<HTMLElement>;
-  /** "ink" for the phone menu: a dark panel like the sidebar it stands in for. */
-  tone?: "paper" | "ink";
 }
 
 /**
@@ -25,8 +23,7 @@ interface Props {
  * traps focus, closes on Escape, and gives focus back to whatever opened it.
  * Render it inside <AnimatePresence> so it can leave along its entry path.
  */
-export function Sheet({ title, subtitle, labelId, onClose, children, className, initialFocus, tone = "paper" }: Props) {
-  const ink = tone === "ink";
+export function Sheet({ title, subtitle, labelId, onClose, children, className, initialFocus }: Props) {
   const panel = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
   onCloseRef.current = onClose;
@@ -85,7 +82,7 @@ export function Sheet({ title, subtitle, labelId, onClose, children, className, 
         tabIndex={-1}
         className={cn(
           "float relative flex max-h-[min(90dvh,780px)] w-full flex-col overflow-hidden rounded-t-md outline-none sm:max-w-[540px] sm:rounded-md",
-          ink ? "on-ink border border-rule bg-panel text-white" : "border border-line bg-paper text-ink",
+          "border border-line bg-paper text-ink",
           className,
         )}
         initial={{ opacity: 0, y: 48 }}
@@ -98,16 +95,13 @@ export function Sheet({ title, subtitle, labelId, onClose, children, className, 
             <h2 id={labelId} className="m-0 text-20 font-semibold tracking-[-0.02em]">
               {title}
             </h2>
-            {subtitle && <p className={cn("m-0 mt-1 text-14", ink ? "text-sub" : "text-dim")}>{subtitle}</p>}
+            {subtitle && <p className="m-0 mt-1 text-14 text-dim">{subtitle}</p>}
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className={cn(
-              "-mr-2 -mt-1 grid size-9 flex-none place-items-center rounded-sm transition-[transform,background-color,color] duration-150 active:scale-[0.94]",
-              ink ? "text-sub hover:bg-panel-2 hover:text-white" : "text-dim hover:bg-wash hover:text-ink",
-            )}
+            className="-mr-2 -mt-1 grid size-9 flex-none place-items-center rounded-sm text-dim transition-[transform,background-color,color] duration-150 hover:bg-wash hover:text-ink active:scale-[0.94]"
           >
             <svg viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
               <path d="M4 4l8 8M12 4l-8 8" />

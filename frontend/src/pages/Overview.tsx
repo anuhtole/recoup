@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { motion } from "motion/react";
 import { ArrowRight, Download } from "lucide-react";
 import type { Finding, LeakType, Summary } from "../api";
 import { Button } from "../components/Button";
@@ -9,6 +11,7 @@ import { VendorLogo } from "../components/VendorLogo";
 import { daysHint, formatDate, formatMoney, plural } from "../format";
 import { useRecoveryHistory } from "../hooks/useSummaryHistory";
 import { vendorName } from "../lib/vendors";
+import { SPRING } from "../motion";
 import { rowsFor } from "../queue";
 import { typeGroup, typeLabel } from "../lib/claimTypes";
 import { isUrgent } from "../theme";
@@ -50,10 +53,24 @@ function Stat({ label, minor, currency, tone, href }: { label: string; minor: nu
   );
 }
 
+// The hero's deadline buckets, soonest first: each is a column of figures and a segment of the bar.
+const BUCKETS = [
+  { key: "week", label: "This week", holds: (d: number | null) => d !== null && d <= 7, fill: "bg-amber" },
+  { key: "month", label: "Next 30 days", holds: (d: number | null) => d !== null && d > 7 && d <= 30, fill: "bg-mint-ink" },
+  { key: "later", label: "Later", holds: (d: number | null) => d === null || d > 30, fill: "bg-mint" },
+] as const;
+
 function Hero({ summary, findings, live, ready, missed, onReview }: { summary: Summary; findings: Finding[]; live: Finding[]; ready: number; missed: number; onReview: () => void }) {
   const history = useRecoveryHistory(summary, findings);
+  // Pointing at a bucket (its column or its bar segment) dims the other two.
+  const [focus, setFocus] = useState<string | null>(null);
   const soon = urgency(live);
   const { currency } = summary;
+  const buckets = BUCKETS.map((bucket) => {
+    const rows = live.filter((f) => bucket.holds(f.days_left));
+    return { ...bucket, count: rows.length, minor: rows.reduce((sum, f) => sum + f.amount_minor, 0) };
+  });
+  const dim = (key: string) => focus !== null && focus !== key && "opacity-30";
   // Only figures that are there: no "—" placeholders. Closed windows link to their tab.
   const stats = [
     { label: "In flight", minor: summary.in_flight_minor },
@@ -62,7 +79,7 @@ function Hero({ summary, findings, live, ready, missed, onReview }: { summary: S
   ].filter((stat) => stat.minor > 0);
   return (
     <section aria-labelledby="hero-label" className="flex flex-col gap-6">
-      <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
+      <div className="grid grid-cols-1 gap-x-12 gap-y-6 xl:grid-cols-[minmax(0,2fr)_minmax(0,3fr)] xl:items-end">
         <div className="flex min-w-0 flex-col">
           <h2 id="hero-label" className="m-0 text-13 font-medium text-dim">
             Open claims
@@ -78,7 +95,7 @@ function Hero({ summary, findings, live, ready, missed, onReview }: { summary: S
             <span>{live.length > 0 ? plural(live.length, "claim") : "Nothing to claim right now"}</span>
             {soon && (
               <>
-                <span aria-hidden className="text-line-strong">
+                <span aria-hidden className="text-dim">
                   ·
                 </span>
                 <span className="inline-flex items-center gap-1.5 font-medium text-amber-ink">
@@ -90,26 +107,75 @@ function Hero({ summary, findings, live, ready, missed, onReview }: { summary: S
           </p>
         </div>
         {live.length > 0 && (
+          <dl data-buckets className="m-0 grid grid-cols-3" onPointerLeave={() => setFocus(null)}>
+            {buckets.map((bucket) => (
+              <div
+                key={bucket.key}
+                onPointerEnter={() => setFocus(bucket.key)}
+                className={cn("flex min-w-0 flex-col gap-1 border-l border-line pl-3 transition-opacity duration-150 md:pl-6", dim(bucket.key))}
+              >
+                <dt className="flex items-center gap-1.5 text-13 text-dim">
+                  <span aria-hidden className={cn("size-2 shrink-0 rounded-full", bucket.fill)} />
+                  <span className="truncate">{bucket.label}</span>
+                </dt>
+                <dd className="m-0 flex flex-col">
+                  {bucket.count > 0 ? (
+                    <span className="figure text-16 font-semibold tracking-[-0.01em] md:text-20">{formatMoney(bucket.minor, currency)}</span>
+                  ) : (
+                    <span className="text-16 font-semibold text-dim md:text-20">—</span>
+                  )}
+                  <span className="text-13 text-dim">{bucket.count > 0 ? plural(bucket.count, "claim") : "None"}</span>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        )}
+      </div>
+      {/* The same three buckets as one bar, each segment as wide as its money. The figures above carry the data. */}
+      {live.length > 0 && (
+        <motion.div
+          aria-hidden
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={SPRING}
+          style={{ originX: 0 }}
+          className="flex h-3 gap-0.5"
+          onPointerLeave={() => setFocus(null)}
+        >
+          {buckets
+            .filter((bucket) => bucket.minor > 0)
+            .map((bucket) => (
+              <div
+                key={bucket.key}
+                onPointerEnter={() => setFocus(bucket.key)}
+                style={{ flexGrow: bucket.minor }}
+                className={cn("min-w-2 basis-0 rounded-xs transition-opacity duration-150", bucket.fill, dim(bucket.key))}
+              />
+            ))}
+        </motion.div>
+      )}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        {live.length > 0 && (
           <Button variant="primary" size="lg" onClick={onReview} className="w-full sm:w-auto">
             Review claims
             <ArrowRight aria-hidden className="size-4" strokeWidth={2} />
           </Button>
         )}
+        {stats.length > 0 && (
+          <p data-totals className="m-0 flex flex-wrap gap-x-3 gap-y-1 text-13">
+            {stats.map((stat, i) => (
+              <span key={stat.label} className="flex gap-x-3">
+                {i > 0 && (
+                  <span aria-hidden className="text-dim">
+                    ·
+                  </span>
+                )}
+                <Stat {...stat} currency={currency} />
+              </span>
+            ))}
+          </p>
+        )}
       </div>
-      {stats.length > 0 && (
-        <p data-totals className="m-0 flex flex-wrap gap-x-3 gap-y-1 text-13">
-          {stats.map((stat, i) => (
-            <span key={stat.label} className="flex gap-x-3">
-              {i > 0 && (
-                <span aria-hidden className="text-line-strong">
-                  ·
-                </span>
-              )}
-              <Stat {...stat} currency={currency} />
-            </span>
-          ))}
-        </p>
-      )}
       {hasRecoveryChart(history) && <RecoveryChart history={history} currency={currency} />}
     </section>
   );
@@ -172,8 +238,8 @@ function ExpiringSoon({ live }: { live: Finding[] }) {
   );
 }
 
-// The stacked bar's segments, darkest first: ink, then lighter greys toward line-strong.
-const SHARE_TINTS = ["var(--ink)", "var(--dim)", "var(--sub)", "var(--line-strong)", "var(--line)"];
+// The stacked bar's segments, largest first: the green share ramp from the tokens.
+const SHARE_TINTS = ["var(--share-1)", "var(--share-2)", "var(--share-3)", "var(--share-4)", "var(--share-5)"];
 
 /**
  * Open money by type: one thin stacked bar under the header (each segment a type, in row order), then a
@@ -263,6 +329,18 @@ function RecentlyRecovered({ findings }: { findings: Finding[] }) {
   );
 }
 
+/** Nothing found at all: one quiet row, the same pattern as the Recovered page's empty state. */
+function NothingFound() {
+  return (
+    <div className="flex flex-col items-start gap-3 border-y border-line py-5 sm:flex-row sm:items-center sm:justify-between">
+      <p className="m-0 text-14 text-dim">Nothing found yet. Run a scan from the Agent tab to look for money you are owed.</p>
+      <div className="flex flex-none items-center gap-3 text-14">
+        <SectionLink href="#/agent">Open Agent</SectionLink>
+      </div>
+    </div>
+  );
+}
+
 /** The landing page: what is open, what expires first, where it comes from. Each figure appears once. */
 export function Overview({ summary, findings, onReview, onExport }: Props) {
   // Open means a claim you can still make: inside its window. Closed windows count as missed,
@@ -273,6 +351,13 @@ export function Overview({ summary, findings, onReview, onExport }: Props) {
     .filter((f) => f.status !== "expired")
     .reduce((sum, f) => sum + f.amount_minor, 0);
   const missed = summary.expired_minor + closedOpen;
+  if (findings.length === 0) {
+    return (
+      <div className="flex flex-col gap-12">
+        <NothingFound />
+      </div>
+    );
+  }
   return (
     <div className="flex flex-col gap-12">
       <TopBarActions>

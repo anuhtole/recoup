@@ -1,7 +1,13 @@
-import { useState } from "react";
+import { Lock } from "lucide-react";
+import { useRef, useState } from "react";
 import type { Sources, SyncReport, SyncRun } from "../api";
+import { CONNECT } from "../demo/script";
 import { formatDateTime, plural } from "../format";
 import { cn } from "@/lib/utils";
+import { Button } from "./Button";
+import { Sheet } from "./Sheet";
+import { Dialog } from "./ui";
+import { VendorLogo } from "./VendorLogo";
 
 const STALE_MS = 24 * 60 * 60 * 1000;
 export const FEED_LABEL: Record<string, string> = { jira: "Jira", confluence: "Confluence", github: "GitHub" };
@@ -24,17 +30,20 @@ export function configured(sources: Sources) {
   return sources.connectors.filter((c) => c.configured);
 }
 
-/** Green when every connected source last synced fine and recently, amber when one failed or is stale, dim when nothing has synced. */
+/** Green when every source that has synced did so fine and recently, amber when one failed or is stale, dim when nothing has synced. */
 export function sourcesHealth(sources: Sources | null): SourcesHealth {
   if (!sources) return "none";
-  const runs = configured(sources).map((c) => c.last_sync);
-  if (runs.length === 0 || runs.every((r) => r === null)) return "none";
+  // A source that has never synced is not a problem; only a failed or stale run is.
+  const runs = configured(sources)
+    .map((c) => c.last_sync)
+    .filter((r): r is SyncRun => r !== null);
+  if (runs.length === 0) return "none";
   const fresh = (r: SyncRun) => Date.now() - new Date(r.finished_at).getTime() < STALE_MS;
-  return runs.every((r) => r !== null && r.ok && fresh(r)) ? "ok" : "attention";
+  return runs.every((r) => r.ok && fresh(r)) ? "ok" : "attention";
 }
 
 const DOT: Record<SourcesHealth, string> = {
-  ok: "bg-mint",
+  ok: "bg-mint-ink",
   attention: "bg-amber",
   none: "bg-sub/50",
 };
@@ -118,4 +127,84 @@ export function syncNotice(report: SyncReport): { title: string; body: string; o
       ? `Synced · ${plural(created, "new claim")} found`
       : "Synced · nothing new";
   return { title, body: parts.join(" ") || "No sources are connected yet.", ok };
+}
+
+/** The sources a person connects; status pages are public and need no setup. */
+export type Connect = "ramp" | "gmail";
+
+/** How to connect a source: server setup, so it lives in a sheet an admin opens, not on the page. */
+export function ConnectSheet({ source, onClose }: { source: Connect; onClose: () => void }) {
+  const isRamp = source === "ramp";
+  return (
+    <Sheet labelId="connect-title" title={isRamp ? "Connect Ramp" : "Connect Gmail"} subtitle="An admin sets this up on the Recoup server." onClose={onClose}>
+      <div className="flex flex-col gap-4 overflow-y-auto px-6 pb-6 pt-2 text-14">
+        {isRamp ? (
+          <>
+            <p className="m-0">Add the Ramp app's client ID and secret to the server's backend/.env:</p>
+            <Copyable text={"RECOUP_RAMP_CLIENT_ID=\nRECOUP_RAMP_CLIENT_SECRET="} />
+            <p className="m-0 text-dim">Then press Sync now. Recoup only reads transactions.</p>
+          </>
+        ) : (
+          <>
+            <p className="m-0">Add the Google app's client ID and secret to the server's backend/.env:</p>
+            <Copyable text={"RECOUP_GMAIL_CLIENT_ID=\nRECOUP_GMAIL_CLIENT_SECRET="} />
+            <p className="m-0">Then run this in backend/ and sign in with the finance inbox:</p>
+            <Copyable text="recoup connect gmail" />
+            <p className="m-0 text-dim">Access is read-only.</p>
+          </>
+        )}
+      </div>
+    </Sheet>
+  );
+}
+
+/**
+ * The demo's Gmail pop-up, shared by the Agent page and the Sources page: the inbox, what Recoup may do
+ * with it, Cancel and Connect. Connecting is staged (no Google sign-in); `onConnect` makes the call.
+ */
+export function GmailConnectDialog({
+  address,
+  isConnecting,
+  error,
+  onConnect,
+  onClose,
+  returnFocus,
+}: {
+  address: string;
+  isConnecting: boolean;
+  /** Why the last try failed, in plain words. Connect stays, to try again. */
+  error: string | null;
+  onConnect: () => void;
+  onClose: () => void;
+  returnFocus?: () => HTMLElement | null;
+}) {
+  const confirm = useRef<HTMLButtonElement>(null);
+  return (
+    <Dialog labelId="gmail-connect-title" title={CONNECT.title} onClose={onClose} isLocked={isConnecting} initialFocus={confirm} returnFocus={returnFocus}>
+      <div className="flex items-center gap-3 rounded-sm border border-line px-3 py-3">
+        <VendorLogo name="Gmail" size={28} />
+        <span className="flex min-w-0 flex-col">
+          <span className="truncate text-14 font-medium">{address}</span>
+          <span className="text-13 text-dim">{CONNECT.account}</span>
+        </span>
+      </div>
+      <p className="m-0 flex items-start gap-2 text-13 text-dim">
+        <Lock aria-hidden className="mt-0.5 size-4 flex-none" strokeWidth={1.75} />
+        <span className="text-pretty">{CONNECT.note}</span>
+      </p>
+      {error && (
+        <p role="alert" className="m-0 rounded-sm bg-amber-wash px-3 py-2 text-13 text-amber-ink">
+          {error}
+        </p>
+      )}
+      <div className="flex justify-end gap-2 pt-1">
+        <Button onClick={onClose} disabled={isConnecting}>
+          {CONNECT.cancel}
+        </Button>
+        <Button variant="primary" buttonRef={confirm} onClick={onConnect} isBusy={isConnecting} busyLabel={CONNECT.busy}>
+          {CONNECT.confirm}
+        </Button>
+      </div>
+    </Dialog>
+  );
 }

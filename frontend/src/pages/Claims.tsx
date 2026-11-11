@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { Finding, LeakType } from "../api";
 import { Button } from "../components/Button";
 import { Menu, MenuItem, MenuSeparator } from "../components/shell/Menu";
+import { SectionLink } from "../components/Section";
 import { Pill, Tag } from "../components/ui";
 import { VendorLogo } from "../components/VendorLogo";
 import { daysHint, formatDate, formatMoney, plural } from "../format";
@@ -214,7 +215,7 @@ function Check({ checked, indeterminate, onChange, label }: { checked: boolean; 
   }, [indeterminate]);
   return (
     <label className="grid size-10 cursor-pointer place-items-center" onClick={(e) => e.stopPropagation()}>
-      <input ref={ref} type="checkbox" aria-label={label} checked={checked} onChange={onChange} className="size-4 cursor-pointer rounded-xs accent-ink" />
+      <input ref={ref} type="checkbox" aria-label={label} checked={checked} onChange={onChange} className="size-4 cursor-pointer rounded-xs accent-mint-ink" />
     </label>
   );
 }
@@ -607,6 +608,18 @@ export function Claims({ findings, params, onParams, onOpen, onExport, isBusy, o
   const selectedRows = rows.filter((r) => selected.has(r.id));
   const set = (patch: Partial<ClaimsParams>) => onParams({ ...params, ...patch });
   const tabLabel = TABS.find((t) => t.id === params.tab)?.label ?? "";
+
+  // Nothing found at all: no tabs, filters or table, just one quiet row (as on the Recovered page).
+  if (findings.length === 0) {
+    return (
+      <div className="flex flex-col items-start gap-3 border-y border-line py-5 sm:flex-row sm:items-center sm:justify-between">
+        <p className="m-0 text-14 text-dim">Nothing found yet. Run a scan from the Agent tab to look for money you are owed.</p>
+        <div className="flex flex-none items-center gap-3 text-14">
+          <SectionLink href="#/agent">Open Agent</SectionLink>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3 xl:gap-0">

@@ -23,7 +23,7 @@ export function Section({ title, meta, children, className }: { title: string; m
 /** A quiet text link for section meta: "View all". */
 export function SectionLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <a href={href} className="inline-flex min-h-6 items-center font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-current">
+    <a href={href} className="inline-flex min-h-6 items-center font-medium text-mint-ink underline-offset-4 hover:underline">
       {children}
     </a>
   );

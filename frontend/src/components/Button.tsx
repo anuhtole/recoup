@@ -1,16 +1,15 @@
 import type { ReactNode, Ref } from "react";
 import { cn } from "@/lib/utils";
 
-type Variant = "primary" | "secondary" | "ghost" | "ink" | "ink-ghost";
+type Variant = "primary" | "secondary" | "ghost" | "ink-ghost";
 
-// Primary is solid ink, one per screen. On an ink surface (.on-ink) it inverts to paper so it still reads
-// as the one action. Mint is never a button colour; it is reserved for money and the slide-to-send.
-// "ink" and "ink-ghost" are the quiet buttons for dark panels.
+// Primary is solid deep green, one per screen: the only filled accent in the product. On an ink surface
+// (.on-ink) it becomes pale mint with ink text so it still reads as the one action.
+// "ink-ghost" is the quiet button for dark floating panels.
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-ink text-white hover:bg-panel-2 in-[.on-ink]:bg-paper in-[.on-ink]:text-ink in-[.on-ink]:hover:bg-wash",
+  primary: "bg-mint-ink text-white hover:bg-mint-ink-press in-[.on-ink]:bg-mint in-[.on-ink]:text-ink in-[.on-ink]:hover:bg-mint-press",
   secondary: "bg-paper text-ink border border-line hover:border-line-strong hover:bg-wash",
   ghost: "text-dim hover:bg-wash hover:text-ink",
-  ink: "bg-panel-2 text-white border border-rule hover:border-sub/60",
   "ink-ghost": "text-sub hover:bg-panel-2 hover:text-white",
 };
 

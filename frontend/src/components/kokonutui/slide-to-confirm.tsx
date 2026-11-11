@@ -70,6 +70,8 @@ export interface SlideToConfirmProps {
   /** Go back to the start this many ms after it's done. `null` stays done. */
   resetAfter?: number | null;
   disabled?: boolean;
+  /** What it sits on: an ink panel (the default), or a light surface such as paper or a wash. */
+  surface?: "ink" | "paper";
   className?: string;
   /** Ref to the thumb button, e.g. so a dialog can focus it first. */
   thumbRef?: RefObject<HTMLButtonElement>;
@@ -97,9 +99,11 @@ export default function SlideToConfirm({
   onConfirm = () => wait(1200),
   resetAfter = 2600,
   disabled = false,
+  surface = "ink",
   className,
   thumbRef,
 }: SlideToConfirmProps) {
+  const onPaper = surface === "paper";
   const [phase, setPhase] = useState<Phase>("idle");
   const [armed, setArmed] = useState(false);
   // Keyboard path: the first Enter arms (the label asks again), the second
@@ -128,7 +132,8 @@ export default function SlideToConfirm({
   const fillClip = useTransform(
     [x, width, cover],
     ([value, total, covered]: number[]) =>
-      `inset(0px ${(1 - covered) * Math.max(0, total - value - INSET - THUMB / 2)}px 0px 0px round ${HEIGHT}px)`
+      // On paper the flooded track shows its corners, so the fill takes the track's radius.
+      `inset(0px ${(1 - covered) * Math.max(0, total - value - INSET - THUMB / 2)}px 0px 0px round ${onPaper ? "var(--radius-sm)" : `${HEIGHT}px`})`
   );
   // Hidden at rest, so no ink shows round the thumb before it moves.
   const fillOpacity = useTransform(x, (value) => Math.min(1, value / 20));
@@ -356,7 +361,7 @@ export default function SlideToConfirm({
       <motion.div
         className={cn(
           "relative overflow-hidden rounded-sm border",
-          "border-rule bg-panel-2",
+          onPaper ? "border-line-strong bg-paper" : "border-rule bg-panel-2",
           disabled && "opacity-50"
         )}
         ref={trackRef}
@@ -367,7 +372,10 @@ export default function SlideToConfirm({
             centers and reads as centered. */}
         <motion.span
           aria-hidden
-          className="absolute inset-0 flex items-center justify-center whitespace-nowrap pl-6 font-medium text-14 text-sub"
+          className={cn(
+            "absolute inset-0 flex items-center justify-center whitespace-nowrap pl-6 font-medium text-14",
+            onPaper ? "text-dim" : "text-sub"
+          )}
           style={{ opacity: labelOpacity }}
         >
           {keyArmed ? armedLabel : label}
@@ -379,7 +387,7 @@ export default function SlideToConfirm({
           aria-hidden
           className={cn(
             "absolute inset-0 transition-colors duration-300 ease-out motion-reduce:transition-none",
-            "bg-mint"
+            onPaper ? "bg-mint-ink" : "bg-mint"
           )}
           style={{ clipPath: fillClip, opacity: fillOpacity }}
         >
@@ -388,7 +396,7 @@ export default function SlideToConfirm({
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               className={cn(
                 "absolute inset-0 flex items-center justify-center gap-2 whitespace-nowrap font-medium text-14",
-                "text-ink",
+                onPaper ? "text-white" : "text-ink",
                 phase === "idle" || phase === "dragging" ? "pl-6" : "pr-6"
               )}
               exit={{ opacity: 0, y: -8, filter: "blur(2px)" }}
@@ -410,8 +418,10 @@ export default function SlideToConfirm({
           aria-label={keyArmed ? armedLabel : `${label}. Or press Enter twice.`}
           className={cn(
             "absolute flex touch-none items-center justify-center rounded-xs outline-none",
-            "bg-mint text-ink border border-mint",
-            "focus-visible:ring-2 focus-visible:ring-mint focus-visible:ring-offset-2 focus-visible:ring-offset-panel",
+            "border focus-visible:ring-2 focus-visible:ring-offset-2",
+            onPaper
+              ? "border-mint-ink bg-mint-ink text-white focus-visible:ring-mint-ink focus-visible:ring-offset-paper"
+              : "border-mint bg-mint text-ink focus-visible:ring-mint focus-visible:ring-offset-panel",
             phase === "idle" && !disabled && "cursor-grab",
             phase === "dragging" && "cursor-grabbing"
           )}
@@ -452,7 +462,7 @@ export default function SlideToConfirm({
             <Check
               aria-hidden
               className={cn(
-                "absolute inset-0 size-5 text-ink transition-[opacity,scale,filter] duration-200 ease-out motion-reduce:transition-none",
+                "absolute inset-0 size-5 transition-[opacity,scale,filter] duration-200 ease-out motion-reduce:transition-none",
                 done ? "scale-100 opacity-100" : "scale-50 opacity-0 blur-[2px]"
               )}
               strokeWidth={2.5}
