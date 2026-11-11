@@ -24,8 +24,8 @@ from recoup.db.session import has_schema, make_engine, make_session_factory, ses
 from recoup.db.state import get_as_of
 from recoup.demo.history import replay_history
 from recoup.demo.simulator import advance
+from recoup.demo.staging import NotDemoDataError, demo_state, reset_demo
 from recoup.demo.staging import connect_gmail as connect_demo_gmail
-from recoup.demo.staging import demo_state, reset_demo
 from recoup.demo.staging import scan as scan_demo
 from recoup.extract.claude import ClaudeStructured, LlmError
 from recoup.extract.contract_reader import (
@@ -107,7 +107,10 @@ def _demo_reset(args: argparse.Namespace) -> None:
     started = time.perf_counter()
     output: dict[str, object] = {}
     with _session() as session:
-        output["transactions"] = reset_demo(session, settings)
+        try:
+            output["transactions"] = reset_demo(session, settings)
+        except NotDemoDataError as exc:
+            raise SystemExit(str(exc)) from exc
         if args.scan:
             connect_demo_gmail(session)
             services = build_services(settings)

@@ -39,6 +39,7 @@ from recoup.pipeline.run import (
     run_pipeline,
     upsert_finding,
 )
+from recoup.recovery.outbox import LocalOutbox
 from recoup.recovery.workflow import create_draft, send_draft
 from recoup.services import Services
 from recoup.synth.builder import SOURCE
@@ -495,7 +496,9 @@ def _replay(
         card_dispute_address=settings.card_dispute_address,
         actor=APPROVER,
     )
-    send_draft(session, draft, outbox=services.outbox, as_of=claim.sent_on, actor=APPROVER)
+    # Always the local outbox: nobody approves a replayed request, so it must never reach
+    # a real mailbox, even with RECOUP_GMAIL_SEND on.
+    send_draft(session, draft, outbox=LocalOutbox(), as_of=claim.sent_on, actor=APPROVER)
     assert draft.sent_at is not None
 
     if claim.reply is not None:

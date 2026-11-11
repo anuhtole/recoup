@@ -17,5 +17,6 @@ Each record states one decision, the context that forced it, and what it costs. 
 | [0011](0011-contract-reader.md) | Claude reads contracts, code checks every term | `extract/contract_reader.py`, `extract/contract_gate.py` |
 | [0012](0012-company-onboarding.md) | A company plugs in its own data from the Setup page | `ingest/company.py`, `ingest/csv_ledger.py`, `frontend/src/components/setup/` |
 | [0013](0013-chat-agent-and-gmail-send.md) | A chat agent that can look and draft but not send; approved mail goes out through Gmail | `agent/`, `recovery/gmail_outbox.py` |
+| [0014](0014-scripted-demo-over-real-actions.md) | The demo conversation is scripted; everything it does is real | `frontend/src/demo/`, `demo/staging.py` |
 
 Paths under `backend/src/recoup/` unless shown otherwise. A new decision takes the next number and the same sections: **Status**, **Context**, **Decision**, **Consequences**.

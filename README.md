@@ -6,22 +6,26 @@ Recoup reads the three places this money hides (the ledger, vendor email, and th
 
 > Built for the BBS x Ramp Hackathon. Prompt: *"Automate an outdated financial workflow using the newest AI tools."*
 
-## The demo in one minute
+## The demo in two minutes
 
 ```bash
-make setup   # install, build the database, load the synthetic company, run detection
-make dev     # API on :8000, UI on http://localhost:5173
+make setup   # install everything and build the database
+make demo    # a clean slate, then the API on :8000 and the UI on http://localhost:5173
 ```
 
-1. **Find.** It is Oct 1, 2026 at Northwind Labs, a fictional 60-person startup. Recoup has found **$13,710 ready to claim** across 15 cases, plus $1,433 in 5 cases whose claim window has already closed. The queue is sorted by deadline.
-2. **Prove.** Open the United Airlines case. The vendor's own words are quoted and checked against the email: "A refund of $612.40 … has been processed." No credit ever posted, and Recoup shows the search it ran.
-3. **Act.** Click *Draft recovery request*, read it, then *Approve and send*. A confirmation dialog shows exactly where it goes. The address comes from the vendor directory, never from email content.
-4. **Chase.** Click *Advance 2 weeks*. A simulated vendor inbox replies:
-   - Most vendors agree, and the credits post. Those cases close as **Recovered** only when the money hits the ledger.
-   - Amazon asks for a receipt, so the case asks you to follow up.
-   - Marriott declines, so the case offers a **card dispute** instead.
-   - A refund Marriott promised on Sep 26 becomes overdue and appears as a new case.
-5. Do the follow-ups, advance twice more, and **$13,770 is back in the account**, each dollar with a full story and an audit trail.
+The app opens on the **Agent** page. It is Oct 1, 2026 at Acme Inc., a fictional company (the seeded vendor emails call it Northwind). Type each line:
+
+1. **"What is my company owed?"** Recoup says the ledger is connected and Gmail is not, and offers to connect it. Say **yes**, then press *Connect* in the pop-up.
+2. Press **Run scan**. Recoup reads 15 vendor emails against 455 transactions and finds **15 claims worth $13,710.09 across 11 vendors**. Another $1,432.73 was missed because the claim window had already closed.
+3. **"Which ones are urgent?"** Six claims fall due in the next 30 days, worth $5,383.29. One needs your review first, so Recoup offers to draft the other five. Say **yes**: five requests are drafted, worth $5,319.09, and nothing has gone out.
+4. **Slide to send.** One slide approves the five, and each goes out as its own confirmed send. The address comes from the vendor directory, never from email content.
+5. **Two weeks later.** Press Ctrl+Shift+. or choose *Advance 2 weeks* from the date menu. A simulated vendor inbox replies, and some credits post on the ledger.
+6. **"How are my requests doing?"** Three of five are refunded: **$4,789.38 is back**. AWS agreed to $385.71, but the credit has not posted, so it is not counted. Figma has not replied about $144.00.
+7. **"How much has the company saved now?"** $4,789.38, each dollar matched to a credit on the ledger. *Open Recovered* shows them.
+
+**What is scripted and what is real.** The conversation is scripted: the Agent page matches what you type against a fixed list of lines (`frontend/src/demo/script.ts`), the Gmail connection is staged with no Google sign-in, and the synthetic ledger stands in for Ramp. Everything under the conversation is the real system. The scan runs the real detection pipeline, every figure on screen is read from the API, the drafts are real drafts, and each send goes through the same confirmed endpoint as any other. The agent that answers free-form questions with tool calls is `POST /api/agent/chat` ([Ask Recoup](#ask-recoup)); the Agent page does not call it yet ([ADR 0014](docs/adr/0014-scripted-demo-over-real-actions.md)).
+
+**The review path.** `make db`, then `make dev`, opens the same company already scanned. *Claims* is sorted by deadline. Open the United Airlines case: the vendor's own words are quoted and checked against the email ("A refund of $612.40 … has been processed"), no credit ever posted, and Recoup shows the search it ran. After *Advance 2 weeks*, Amazon asks for a receipt, so its case asks you to follow up; Marriott declines, so its case offers a card dispute instead; and a refund Marriott promised on Sep 26 becomes overdue and appears as a new case.
 
 The data is synthetic and every send goes to a local outbox. Nothing leaves your machine.
 
@@ -60,7 +64,7 @@ make api           # then open the UI as usual
 
 To pull today's feeds instead of the recording, run `recoup sync status --demo-invoices` in `backend/`.
 
-On the feeds recorded Nov 2, 2026, priced against fictional Northwind invoices:
+On the feeds recorded Nov 2, 2026, priced against fictional invoices:
 
 | Vendor | Period | Worst covered component | Uptime | Result |
 |---|---|---|---|---|
@@ -92,7 +96,7 @@ This connector is tested against the Gmail API's documented response shapes. **I
 
 **Keeping it fresh.** `recoup watch --interval 15` syncs every connected source and re-runs detection every 15 minutes. Set `RECOUP_SYNC_INTERVAL_MINUTES` to do the same inside the API. Only one sync runs at a time.
 
-`GET /api/sources` shows each connector, its last sync, the background sync, and every uptime check. `POST /api/sync` runs every connector and then detection (409 if a sync is already running), and `POST /api/sync/status` and `POST /api/sync/ramp` sync one source, for the UI to wire up.
+`GET /api/sources` shows each connector, its last sync, the background sync, and every uptime check. `POST /api/sync` runs every connector and then detection (409 if a sync is already running), and `POST /api/sync/status` and `POST /api/sync/ramp` sync one source.
 
 ## What it finds
 
@@ -108,19 +112,9 @@ Every case has one of three discrete outcomes: **Recoverable**, **Needs review**
 
 ## How it works
 
-```mermaid
-flowchart LR
-    L[Card ledger] --> D
-    E[Vendor email] --> X["Claude extraction<br/>(typed output, no tools)"]
-    X --> V["Code checks<br/>sender · verbatim quote · amount"]
-    V --> D["Detectors<br/>(deterministic)"]
-    C[Contracts + status pages] --> D
-    D --> F[(Findings + append-only audit log)]
-    F --> UI[Review queue]
-    UI -->|person approves| O[Outbox]
-    O --> R[Vendor reply] --> X2[Claude reply classifier] --> F
-    L -->|credit posts| M[Recovery match] --> F
-```
+[![How Recoup works: read-only sources feed a fixed detection run, a person approves every send, and only a ledger credit closes a case](docs/assets/system-flow.svg)](https://anuhtole.github.io/recoup/system-diagram.html)
+
+**[Open the interactive diagram](https://anuhtole.github.io/recoup/system-diagram.html).** Press play to follow one case end to end, a prompt injection being stopped, or a question to the chat agent, and click any box to see what it does and where the code lives. (It is one file, [`docs/system-diagram.html`](docs/system-diagram.html), with no dependencies.)
 
 The full picture, with every layer, the case lifecycle and the trust boundaries, is in **[docs/architecture.md](docs/architecture.md)**.
 
@@ -140,7 +134,7 @@ Whether money posted is read from the ledger alone. So a crafted email can at mo
 
 ## Ask Recoup
 
-`POST /api/agent/chat` takes the conversation so far and returns a reply plus the tool calls the agent made, so the UI can show what it did. It needs `ANTHROPIC_API_KEY`.
+`POST /api/agent/chat` takes the conversation so far and returns a reply plus the tool calls the agent made, so a client can show what it did. It needs `ANTHROPIC_API_KEY`.
 
 ```bash
 curl -s localhost:8000/api/agent/chat -H 'content-type: application/json' \
@@ -158,7 +152,7 @@ curl -s localhost:8000/api/agent/chat -H 'content-type: application/json' \
 
 There is no send tool. Tool results contain ids, amounts, dates and states, never email, contract or draft text. The vendor name is the one free-text field, and it is cut down to 40 plain characters. Each message gets at most six model turns and one scan, and every tool call is audited.
 
-The agent is tested against a scripted model, including one that tries to send. **It has not yet run against the live Claude API.** The conversation in our demo video is scripted over the same data.
+The agent is tested against a scripted model, including one that tries to send. **It has not yet run against the live Claude API.** The conversation on the Agent page, and in our demo video, is scripted over the same data and does not call this endpoint yet.
 
 ## Evals
 
@@ -198,12 +192,13 @@ The detection rules are graded like a model. `recoup generate` builds a seeded s
 Recoup holds private financial data, reads untrusted email, and can send mail: the "lethal trifecta". Each leg is constrained in code:
 
 - **Untrusted text is data.** Email is fenced as data in the prompt, and the output schema has no actions. The checks above run regardless of what the model says. `tests/test_injection.py` swaps in a fully hijacked extractor and asserts that nothing harmful happens.
-- **No autonomous sends** ([ADR 0006](docs/adr/0006-human-approval-and-ledger-truth.md)). The send endpoint requires `{"confirm": true}`, which the UI sends only after you slide to confirm (or press Enter twice) in its confirm sheet. Recipients come from the vendor directory, and the approver goes in the audit trail. A draft can't be sent once its case is closed, and a draft is claimed before it is sent so two approvals can't both send it.
+- **No autonomous sends** ([ADR 0006](docs/adr/0006-human-approval-and-ledger-truth.md)). The send endpoint requires `{"confirm": true}`, which the UI sends only after you slide to confirm (or press Enter twice) in the approval sheet. Recipients come from the vendor directory, and the approver goes in the audit trail. A draft can't be sent once its case is closed, and a draft is claimed before it is sent so two approvals can't both send it.
 - **Ledger truth.** "Recovered" means a matching credit posted. A vendor saying yes is not enough.
 - **Single-user for now.** The API has no login: it is built to run on one person's machine, and the approver name is self-reported. A shared deployment would sit behind SSO and take the approver from the session.
-- **Secrets stay server-side.** The browser talks only to our API. CI runs a secret scan.
+- **Secrets stay server-side.** API keys and tokens never reach the browser, and the browser sends data only to our API. (It also loads fonts from Google Fonts and the Agent page's three.js from a CDN.) CI runs a secret scan.
 - **Least privilege.** Every connector is read-only: Gmail is read with the `gmail.readonly` scope and Ramp with `transactions:read`. Gmail mail is kept only from vendor directory domains, and only when Gmail's own DMARC or DKIM check passes for the sender ([ADR 0009](docs/adr/0009-connector-interface.md)).
 - **Sending is opt-in.** By default every approved message goes to a local outbox and nothing leaves the machine. With `RECOUP_GMAIL_SEND=true`, connecting Gmail also asks for `gmail.send`, and an approved vendor email goes out from the company's own mailbox to the one address in the vendor directory. A send is never retried, and one whose result is unknown is never offered again. Because the API has no login, turn this on only where the API is reachable from your own machine. **It has not yet run against a real mailbox.**
+- **Demo controls are off by default.** `/api/demo/*` answers 404 unless `RECOUP_DEMO_MODE=true`, which only `make dev` sets. The demo reset refuses to run if the ledger holds anything but demo data, and the optional replayed history always uses the local outbox.
 - **The agent cannot send.** Its tool list has no send, edit or dismiss, and it never sees email or contract text ([ADR 0013](docs/adr/0013-chat-agent-and-gmail-send.md)).
 
 ## Claude
@@ -235,7 +230,7 @@ Without a key, everything still works on the keyword rules ([ADR 0007](docs/adr/
 - **Idempotent everywhere.** Re-ingesting inserts nothing, and re-running detection creates nothing new. Model output is cached, and each reply is applied exactly once. All of this is tested.
 - **UTC everywhere**, enforced by a column type that restores tzinfo on SQLite.
 - **Migrations are checked.** CI runs `alembic upgrade head && alembic check` against SQLite and Postgres 16, and also fails if the committed dataset or eval tables drift from the code.
-- **342 tests, 94% line coverage**, mypy in strict mode, and ruff.
+- **370 tests, 95% line coverage**, mypy in strict mode, and ruff.
 
 ## Project layout
 
@@ -251,15 +246,22 @@ backend/src/recoup/
   agent/       the chat agent: its six tools and the bounded tool loop
   db/          SQLAlchemy models and session; migrations in backend/migrations/
   api/         FastAPI routes, schemas, case timelines
-  demo/        the simulated vendor inbox (only with RECOUP_DEMO_MODE=true)
+  demo/        the demo's clean slate, staged Gmail connect and scan, and the simulated vendor inbox
+               (routes only with RECOUP_DEMO_MODE=true)
   synth/       the seeded synthetic world and its answer key
 backend/tests/ unit, integration, API, CLI, and red-team tests
 backend/evals/ scoring, quality gates, results
-frontend/      React + TypeScript review UI (Vite, Tailwind v4, Motion; pine and stone design tokens in src/index.css)
+frontend/      React + TypeScript UI (Vite, Tailwind v4, Motion; ink and mint design tokens in src/index.css)
+  src/pages/   Agent, Overview, Claims, Case, Recovered, Sources
+  src/demo/    the scripted conversation on the Agent page: its words, its steps, and the figures it reads
+  e2e/         Playwright: the scripted demo and the review path
+  prototypes/, scripts/   design prototypes and screenshot scripts from the redesign; not built or shipped
 data/synthetic/ generated dataset
 docs/architecture.md  the system diagram, one case end to end, and the trust boundaries
+docs/system-diagram.html  the interactive version of that diagram
 docs/adr/      architecture decision records, indexed in docs/adr/README.md
-docs/workflow/ the brief behind the UI redesign
+docs/design/   the ink and mint design specs
+docs/workflow/ the brief behind the first UI redesign
 ```
 
 To work on the code, start with [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -268,21 +270,22 @@ To work on the code, start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 | Command | What it does |
 |---|---|
-| `make setup` | Install everything and build the demo database |
+| `make setup` | Install everything and build the scanned demo database |
 | `make dev` | API with demo controls, plus the UI |
-| `make demo` | Reset to Oct 1, 2026, then `dev` |
+| `make demo` | The scripted demo's clean slate (nothing found, Gmail not connected), then `dev` |
+| `make db` | Back to the scanned demo: 20 cases found, Oct 1, 2026 |
 | `make test` | All tests and quality gates |
 | `make eval` | Write the eval tables |
 | `make eval-claude` | Same, plus a Claude row (paid API calls) |
 | `make demo-status` | The demo plus real outages from the recorded feeds |
 | `make live` | Sync real Ramp and status data into a separate database |
 | `make check` | Everything CI runs |
-| `cd frontend && npm run e2e` | Playwright end-to-end path through the UI (run `make reset` first) |
+| `cd frontend && npm run e2e:isolated` | Playwright through the scripted demo and the review path, on its own throwaway database and ports |
 
 ## Roadmap
 
 1. **Read Ramp disputes,** so a charge already being disputed isn't flagged again.
-2. **Run the agent and Gmail sending live.** Both are built and tested against fakes; next is a real API key and a real mailbox.
+2. **Run the agent and Gmail sending live, and put the agent behind the Agent page.** Both are built and tested against fakes; next is a real API key, a real mailbox, and swapping the scripted conversation for `POST /api/agent/chat`.
 3. **Contracts from the inbox.** Feed order-form attachments from Gmail to the contract reader, so outage credits and price checks need no setup.
 4. **Partial credits and seat counts.** Match partial refunds, and price per-seat plans against the seats actually contracted.
 
@@ -291,10 +294,10 @@ To work on the code, start with [CONTRIBUTING.md](CONTRIBUTING.md).
 The prompt asks for the newest AI tools, so here is what we used and why.
 
 - **Claude Code as the pair programmer.** We wrote the backend and the UI with Claude Code. The working rule was the same one the product follows: the model proposes, and something deterministic checks it. For code that means a failing test first, then `make check`: ruff, mypy in strict mode, pytest, and the frontend build.
-- **One ADR per decision.** Each choice someone could have made differently has a record in [`docs/adr/`](docs/adr/README.md): thirteen so far, from "a fixed workflow, not an agent" to the chat agent that later narrowed it. They are the answer to "why is it built this way?".
+- **One ADR per decision.** Each choice someone could have made differently has a record in [`docs/adr/`](docs/adr/README.md): fourteen so far, from "a fixed workflow, not an agent" to the chat agent that later narrowed it. They are the answer to "why is it built this way?".
 - **Evals and drift checks in CI.** The detectors are scored against a seeded synthetic company with an answer key. CI fails if the committed dataset no longer matches the generator, if the eval tables no longer match the code, or if the migrations no longer match the models. The numbers in this README cannot quietly go stale. CI also runs the suite on SQLite and Postgres 16 and scans for secrets.
-- **Design skills, pinned.** The UI was redesigned by handing Claude Code a written brief ([docs/workflow/ui-redesign-brief.md](docs/workflow/ui-redesign-brief.md)) together with three open-source design skills in `.agents/skills/` (`design-taste-frontend`, `apple-design`, `bklit-ui`). `skills-lock.json` pins each one by source and content hash, so the tooling is reproducible.
-- **Playwright, twice.** `.mcp.json` adds the Playwright MCP server, so Claude Code can open the running app in a real browser and see what it built. The "look loop" commits in the history are rounds of looking at the result and fixing what was off. The same path through the UI is kept as a regression test in `frontend/e2e/recoup.spec.ts`.
+- **Design skills, pinned.** The UI was redesigned by handing Claude Code a written brief ([docs/workflow/ui-redesign-brief.md](docs/workflow/ui-redesign-brief.md)) together with three open-source design skills in `.agents/skills/` (`design-taste-frontend`, `apple-design`, `bklit-ui`). `skills-lock.json` pins each one by source and content hash, so the tooling is reproducible. The second pass, ink and mint, has its specs in [`docs/design/`](docs/design/).
+- **Playwright, twice.** `.mcp.json` adds the Playwright MCP server, so Claude Code can open the running app in a real browser and see what it built. The "look loop" commits in the history are rounds of looking at the result and fixing what was off. The same path through the UI is kept as a regression test in `frontend/e2e/recoup.spec.ts`, and the scripted demo is typed through, line by line, in `frontend/e2e/demo.spec.ts`.
 - **A security review before building further.** The second commit in the history closes gaps found by reviewing the first. Two examples: a vendor reply now counts only from the address we wrote to, and a draft is claimed before it is sent so two approvals cannot both send it.
 - **Stacked pull requests.** Backend features and the UI redesign were built in parallel, with `main` merged into the UI branch as connectors and detectors landed. Company onboarding is stacked on top of the redesign as its own pull request.
 

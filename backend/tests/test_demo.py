@@ -5,10 +5,13 @@ from typing import Any
 
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 from sqlalchemy.orm import Session, sessionmaker
 
 from recoup.api.app import create_app
 from recoup.config import Settings
+from recoup.db.models import TransactionRow
+from recoup.db.session import session_scope
 from recoup.services import Services
 
 # The original demo world, in /api/findings order.
@@ -239,3 +242,34 @@ def test_a_send_on_the_demo_clock_is_after_the_claim_was_flagged(client: TestCli
     assert kinds == ["detected", "drafted", "sent"]
     sent_at = detail["drafts"][0]["sent_at"]
     assert sent_at.startswith("2026-10-01T") and sent_at[11:13] >= "13"
+
+
+def test_reset_refuses_when_the_ledger_holds_a_company_s_own_data(
+    client: TestClient, session_factory: sessionmaker[Session]
+) -> None:
+    # Arrange: one transaction that came from a real connector, not the synthetic feed.
+    with session_scope(session_factory) as session:
+        row = session.scalars(select(TransactionRow)).first()
+        assert row is not None
+        row.source = "ramp"
+        before = len(session.scalars(select(TransactionRow)).all())
+
+    # Act
+    response = client.post("/api/demo/reset")
+
+    # Assert: nothing was deleted.
+    assert response.status_code == 409
+    assert "not demo data" in response.json()["detail"]
+    with session_scope(session_factory) as session:
+        assert len(session.scalars(select(TransactionRow)).all()) == before
+
+
+def test_reset_still_runs_over_the_fictional_status_page_invoices(
+    client: TestClient, session_factory: sessionmaker[Session]
+) -> None:
+    with session_scope(session_factory) as session:
+        row = session.scalars(select(TransactionRow)).first()
+        assert row is not None
+        row.source = "demo-invoices"
+
+    assert _ok(client.post("/api/demo/reset")) == {"ok": True}
