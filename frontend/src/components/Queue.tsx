@@ -1,8 +1,13 @@
-import { useEffect, useRef } from "react";
+import { motion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import type { Finding, Stage } from "../api";
 import { daysLeftLabel, formatMoney } from "../format";
-import { COLORS, FONTS, LEAK_LABEL, card } from "../theme";
-import { DeadlinePill, StatusChip } from "./Chip";
+import { SPRING } from "../motion";
+import { orderStage, referenceOf } from "../queue";
+import { LEAK_LABEL } from "../theme";
+import { Deadline, StatusChip } from "./Chip";
+import SmoothTab from "./kokonutui/smooth-tab";
+import { cn } from "@/lib/utils";
 
 const TABS: { stage: Stage; label: string }[] = [
   { stage: "todo", label: "To do" },
@@ -10,11 +15,11 @@ const TABS: { stage: Stage; label: string }[] = [
   { stage: "done", label: "Done" },
 ];
 
-const URGENT_DAYS = 14;
-
-export function isUrgent(daysLeft: number | null): boolean {
-  return daysLeft !== null && daysLeft >= 0 && daysLeft <= URGENT_DAYS;
-}
+const EMPTY: Record<Stage, string> = {
+  todo: "Nothing needs you right now. New cases show up here after you press Run detection.",
+  waiting: "Requests you send wait here until the vendor replies or the money lands.",
+  done: "Recovered and closed cases collect here.",
+};
 
 interface Props {
   findings: Finding[];
@@ -23,145 +28,155 @@ interface Props {
   selectedId: number | null;
   onStage: (stage: Stage) => void;
   onSelect: (id: number) => void;
-  // On phones the queue is the whole screen, so it grows with the page instead of scrolling.
+  // On phones the queue is the whole screen: it grows with the page, and a row expands into the case.
   isNarrow: boolean;
 }
 
-function Row({ finding, isSelected, onSelect }: { finding: Finding; isSelected: boolean; onSelect: () => void }) {
+interface RowProps {
+  finding: Finding;
+  isSelected: boolean;
+  isNarrow: boolean;
+  onSelect: () => void;
+}
+
+function Row({ finding, isSelected, isNarrow, onSelect }: RowProps) {
   const ref = useRef<HTMLButtonElement>(null);
+  // Keep the selected row in view by scrolling its own list only, never the page or the tab track.
   useEffect(() => {
-    if (isSelected) ref.current?.scrollIntoView({ block: "nearest" });
-  }, [isSelected]);
-  const deadline = daysLeftLabel(finding.days_left);
+    const row = ref.current;
+    const list = row?.closest<HTMLElement>("[data-scroll]");
+    if (!isSelected || isNarrow || !row || !list) return;
+    const top = row.getBoundingClientRect().top - list.getBoundingClientRect().top + list.scrollTop;
+    if (top < list.scrollTop) list.scrollTop = top;
+    else if (top + row.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = top + row.offsetHeight - list.clientHeight;
+  }, [isSelected, isNarrow]);
   const isRecovered = finding.status === "recovered";
   const amount = isRecovered ? (finding.recovered_minor ?? finding.amount_minor) : finding.amount_minor;
+  const isClosed = finding.days_left !== null && finding.days_left < 0;
+  const deadline = isClosed ? "Window closed" : daysLeftLabel(finding.days_left);
+  const reference = referenceOf(finding.reason);
+  const needsReview = finding.outcome === "needs_review";
   return (
-    <button
-      ref={ref}
-      type="button"
-      onClick={onSelect}
-      aria-current={isSelected}
-      style={{
-        display: "grid",
-        gridTemplateColumns: "1fr auto",
-        gap: "4px 12px",
-        width: "100%",
-        textAlign: "left",
-        padding: "13px 16px 13px 14px",
-        border: "none",
-        borderBottom: `1px solid ${COLORS.border}`,
-        borderLeft: `3px solid ${isSelected ? COLORS.accent : "transparent"}`,
-        background: isSelected ? COLORS.accentSoft : COLORS.surface,
-        cursor: "pointer",
-      }}
-    >
-      <span style={{ fontFamily: FONTS.serif, fontSize: 18, color: COLORS.ink, minWidth: 0 }}>
-        {finding.merchant}
-      </span>
-      <span
-        style={{
-          fontFamily: FONTS.mono,
-          fontSize: 14,
-          color: isRecovered ? COLORS.good : COLORS.ink,
-          textAlign: "right",
-        }}
+    <motion.li layout="position" transition={SPRING} className="list-none">
+      <button
+        ref={ref}
+        type="button"
+        onClick={onSelect}
+        aria-current={isSelected}
+        data-case-id={finding.id}
+        className="group relative grid w-full grid-cols-[minmax(0,1fr)_7rem] items-baseline gap-x-4 gap-y-1 rounded-row px-4 py-3 text-left transition-transform duration-150 ease-out active:scale-[0.99]"
       >
-        {formatMoney(amount, finding.currency)}
-      </span>
-      <span style={{ fontFamily: FONTS.mono, fontSize: 11, color: COLORS.inkDim, minWidth: 0 }}>
-        {LEAK_LABEL[finding.leak_type]} · {finding.next_action.label}
-      </span>
-      <span style={{ textAlign: "right" }}>
-        {finding.stage === "todo" && deadline ? (
-          <DeadlinePill label={deadline} isUrgent={isUrgent(finding.days_left)} />
-        ) : (
-          <StatusChip status={finding.status} />
-        )}
-      </span>
-    </button>
+        {/* On a phone this surface grows into the case view; elsewhere it is the hover and selection tint. */}
+        <motion.span
+          aria-hidden
+          layoutId={isNarrow ? `case-${finding.id}` : undefined}
+          transition={SPRING}
+          className={cn(
+            "absolute inset-0 rounded-row transition-colors duration-150",
+            isSelected && !isNarrow
+              ? "bg-selected shadow-[inset_3px_0_0_var(--primary)]"
+              : isNarrow
+                ? "bg-tint"
+                : "group-hover:bg-tint-hover",
+          )}
+        />
+        <span className="relative flex min-w-0 flex-wrap items-center gap-x-2 text-16 font-medium">
+          {finding.merchant}
+          {needsReview && (
+            <span className="inline-flex h-5 items-center rounded-full bg-amber/12 px-2 text-12 font-medium text-amber">Needs review</span>
+          )}
+        </span>
+        <span className={cn("figure relative text-right text-16 font-medium", isRecovered && "text-money-ink")}>
+          {formatMoney(amount, finding.currency)}
+        </span>
+        <span className="relative flex min-w-0 flex-wrap gap-x-2 text-14 text-dim">
+          <span className="whitespace-nowrap">{LEAK_LABEL[finding.leak_type]}</span>
+          {reference && <span className="ref whitespace-nowrap">{reference}</span>}
+        </span>
+        <span className="relative text-right">
+          {finding.stage === "todo" && deadline ? (
+            <Deadline label={deadline} daysLeft={isClosed ? null : finding.days_left} />
+          ) : (
+            <StatusChip status={finding.status} />
+          )}
+        </span>
+      </button>
+    </motion.li>
   );
 }
 
-function Empty({ stage }: { stage: Stage }) {
-  const text = {
-    todo: "Nothing needs you right now.",
-    waiting: "No requests are waiting on a vendor.",
-    done: "Closed cases will collect here.",
-  }[stage];
+function Rows({ findings, selectedId, isNarrow, onSelect }: Pick<Props, "selectedId" | "isNarrow" | "onSelect"> & { findings: Finding[] }) {
   return (
-    <div style={{ padding: "28px 18px", fontFamily: FONTS.serif, fontSize: 17, color: COLORS.inkDim }}>
-      {text}
+    <ul aria-keyshortcuts="j k ArrowDown ArrowUp" className="m-0 flex flex-col gap-1 p-0">
+      {findings.map((finding) => (
+        <Row
+          key={finding.id}
+          finding={finding}
+          isSelected={finding.id === selectedId}
+          isNarrow={isNarrow}
+          onSelect={() => onSelect(finding.id)}
+        />
+      ))}
+    </ul>
+  );
+}
+
+function List({ stage, findings, selectedId, isNarrow, onSelect }: Omit<Props, "counts" | "onStage">) {
+  const { live, closed } = orderStage(findings, stage);
+  const holdsSelection = closed.some((f) => f.id === selectedId);
+  const [isClosedOpen, setIsClosedOpen] = useState(holdsSelection);
+  useEffect(() => {
+    if (holdsSelection) setIsClosedOpen(true);
+  }, [holdsSelection]);
+
+  return (
+    <div data-scroll className={cn("flex flex-col gap-4", !isNarrow && "max-h-[calc(100dvh-132px)] overflow-y-auto")}>
+      {live.length === 0 ? (
+        <p className="px-4 py-8 text-center text-14 text-dim text-balance">{EMPTY[stage]}</p>
+      ) : (
+        <Rows findings={live} selectedId={selectedId} isNarrow={isNarrow} onSelect={onSelect} />
+      )}
+      {closed.length > 0 && (
+        <details open={isClosedOpen} onToggle={(event) => setIsClosedOpen(event.currentTarget.open)} className="group">
+          <summary className="flex cursor-pointer select-none items-center justify-between gap-4 rounded-row px-4 py-3 text-14 text-dim transition-colors hover:bg-tint-hover hover:text-ink">
+            <span>
+              Window closed <span className="figure">· {closed.length}</span>
+            </span>
+            <svg viewBox="0 0 16 16" aria-hidden className="size-4 transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 6l4 4 4-4" />
+            </svg>
+          </summary>
+          <p className="px-4 pb-2 text-12 text-dim">The card dispute window has passed. The vendor can still refund you directly.</p>
+          <Rows findings={closed} selectedId={selectedId} isNarrow={isNarrow} onSelect={onSelect} />
+        </details>
+      )}
     </div>
   );
 }
 
 export function Queue({ findings, stage, counts, selectedId, onStage, onSelect, isNarrow }: Props) {
   return (
-    <section aria-label="Cases" style={{ ...card, overflow: "hidden", display: "flex", flexDirection: "column" }}>
-      <div role="tablist" style={{ display: "flex", borderBottom: `1px solid ${COLORS.border}` }}>
-        {TABS.map((tab) => {
-          const isActive = tab.stage === stage;
-          return (
-            <button
-              key={tab.stage}
-              role="tab"
-              type="button"
-              aria-selected={isActive}
-              onClick={() => onStage(tab.stage)}
-              style={{
-                flex: 1,
-                padding: "12px 8px",
-                border: "none",
-                borderBottom: `2px solid ${isActive ? COLORS.accent : "transparent"}`,
-                background: "transparent",
-                fontFamily: FONTS.mono,
-                fontSize: 12,
-                color: isActive ? COLORS.ink : COLORS.inkDim,
-                cursor: "pointer",
-              }}
-            >
-              {tab.label}
-              <span
-                style={{
-                  marginLeft: 6,
-                  padding: "1px 7px",
-                  borderRadius: 999,
-                  background: isActive ? COLORS.accentSoft : COLORS.muted,
-                  color: isActive ? COLORS.accentInk : COLORS.inkDim,
-                }}
-              >
-                {counts[tab.stage]}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-      <div style={{ overflowY: "auto", maxHeight: isNarrow ? "none" : "calc(100vh - 290px)", minHeight: 160 }}>
-        {findings.length === 0 ? (
-          <Empty stage={stage} />
-        ) : (
-          findings.map((finding) => (
-            <Row
-              key={finding.id}
-              finding={finding}
-              isSelected={finding.id === selectedId}
-              onSelect={() => onSelect(finding.id)}
+    <section aria-label="Cases" title="j / k or the arrow keys move through the list" className="glass-lg rounded-panel p-2">
+      <SmoothTab
+        label="Case stages"
+        value={stage}
+        onChange={(id) => onStage(id as Stage)}
+        listClassName="px-2 pt-2"
+        items={TABS.map((tab) => ({
+          id: tab.stage,
+          title: tab.label,
+          badge: counts[tab.stage],
+          content: (
+            <List
+              stage={tab.stage}
+              findings={findings}
+              selectedId={selectedId}
+              isNarrow={isNarrow}
+              onSelect={onSelect}
             />
-          ))
-        )}
-      </div>
-      <div
-        style={{
-          padding: "8px 14px",
-          borderTop: `1px solid ${COLORS.border}`,
-          fontFamily: FONTS.mono,
-          fontSize: 11,
-          color: COLORS.inkDim,
-          background: COLORS.sunken,
-        }}
-      >
-        j / k to move · sorted by deadline
-      </div>
+          ),
+        }))}
+      />
     </section>
   );
 }

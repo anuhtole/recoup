@@ -71,6 +71,7 @@ def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
         as_of=get_as_of(session, context.settings),
         mode=context.services.mode,
         demo_mode=context.settings.demo_mode,
+        data_mode=context.settings.data_mode,
         claimable_minor=claimable,
         in_flight_minor=in_flight,
         recovered_minor=recovered,

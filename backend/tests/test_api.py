@@ -1,4 +1,5 @@
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
 
 import pytest
@@ -46,6 +47,7 @@ def test_summary_splits_money_by_where_it_stands(client: TestClient) -> None:
 
     assert summary["as_of"] == "2026-10-01"
     assert summary["mode"] == "offline"
+    assert summary["data_mode"] == "demo"
     assert summary["claimable_minor"] > 0
     assert summary["expired_minor"] == 3_748
     assert (summary["in_flight_minor"], summary["recovered_minor"]) == (0, 0)
@@ -165,3 +167,9 @@ def test_ramp_sync_without_credentials_is_a_clear_conflict(client: TestClient) -
 
     assert response.status_code == 409
     assert response.json()["detail"] == "Ramp is not connected."
+
+
+def test_data_mode_is_live_without_a_bundled_ledger(tmp_path: Path) -> None:
+    # The live data directory has vendors and a status snapshot, but no transactions file.
+    (tmp_path / "vendors.json").write_text("[]")
+    assert Settings(data_dir=tmp_path).data_mode == "live"

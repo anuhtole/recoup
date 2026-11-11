@@ -1,32 +1,21 @@
 import { useEffect, useState } from "react";
 import type { Draft } from "../../api";
-import { COLORS, FONTS, card, mono } from "../../theme";
 import { Button } from "../Button";
-import { ConfirmDialog } from "../ConfirmDialog";
 
 interface Props {
   draft: Draft;
   isBusy: boolean;
   onSave: (subject: string, body: string) => Promise<void>;
-  onSend: () => Promise<void>;
+  /** Opens the confirm sheet with what is in the editor now. Nothing is sent from here. */
+  onApprove: (subject: string, body: string) => void;
 }
 
-const field = {
-  width: "100%",
-  boxSizing: "border-box" as const,
-  fontFamily: FONTS.serif,
-  fontSize: 16,
-  color: COLORS.ink,
-  padding: "9px 11px",
-  borderRadius: 8,
-  border: `1px solid ${COLORS.borderStrong}`,
-  background: COLORS.surface,
-};
+const FIELD =
+  "w-full rounded-row bg-field px-4 text-16 text-ink border border-line-strong transition-colors focus-visible:outline-2 focus-visible:outline-accent";
 
-export function DraftEditor({ draft, isBusy, onSave, onSend }: Props) {
+export function DraftEditor({ draft, isBusy, onSave, onApprove }: Props) {
   const [subject, setSubject] = useState(draft.subject);
   const [body, setBody] = useState(draft.body);
-  const [isConfirming, setIsConfirming] = useState(false);
 
   useEffect(() => {
     setSubject(draft.subject);
@@ -36,57 +25,46 @@ export function DraftEditor({ draft, isBusy, onSave, onSend }: Props) {
   const isDirty = subject !== draft.subject || body !== draft.body;
   const isDispute = draft.channel === "card_dispute";
 
-  const approve = async () => {
-    if (isDirty) await onSave(subject, body);
-    await onSend();
-    setIsConfirming(false);
-  };
-
   return (
-    <div style={{ ...card, padding: 16, background: COLORS.sunken }}>
-      <div style={{ display: "grid", gridTemplateColumns: "64px 1fr", gap: "8px 10px", alignItems: "center" }}>
-        <span style={mono}>To</span>
-        <span style={{ ...mono, color: COLORS.ink }}>
-          {draft.to_addr}{" "}
-          <span style={{ color: COLORS.inkDim }}>
-            · {isDispute ? "card dispute desk" : "from your vendor directory"}
-          </span>
-        </span>
-        <label htmlFor="draft-subject" style={mono}>
+    <div className="flex flex-col gap-4 rounded-card bg-tint p-5">
+      <div className="flex flex-col gap-1">
+        <span className="text-14 text-dim">To</span>
+        <p className="flex flex-wrap items-baseline gap-x-2 text-16">
+          <span className="font-medium">{draft.to_addr}</span>
+          <span className="text-14 text-dim">{isDispute ? "card dispute desk" : "from your vendor directory"}</span>
+        </p>
+      </div>
+      <div className="flex flex-col gap-2">
+        <label htmlFor="draft-subject" className="text-14 text-dim">
           Subject
         </label>
-        <input id="draft-subject" value={subject} onChange={(e) => setSubject(e.target.value)} style={field} />
+        <input id="draft-subject" value={subject} onChange={(e) => setSubject(e.target.value)} className={`${FIELD} h-11`} />
       </div>
-      <textarea
-        aria-label="Message"
-        value={body}
-        onChange={(e) => setBody(e.target.value)}
-        rows={Math.min(18, Math.max(8, body.split("\n").length + 1))}
-        style={{ ...field, marginTop: 10, lineHeight: 1.45, resize: "vertical" }}
-      />
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 10, marginTop: 10, flexWrap: "wrap" }}>
-        <span style={{ ...mono, color: COLORS.inkDim }}>Written by {draft.drafter}</span>
-        <div style={{ display: "flex", gap: 8 }}>
-          <Button onClick={() => void onSave(subject, body)} disabled={!isDirty} isBusy={isBusy && !isConfirming}>
-            Save edits
-          </Button>
-          <Button variant="primary" onClick={() => setIsConfirming(true)} disabled={!subject.trim() || !body.trim()}>
-            Approve and send
-          </Button>
-        </div>
+      <div className="flex flex-col gap-2">
+        <label htmlFor="draft-body" className="text-14 text-dim">
+          Message
+        </label>
+        <textarea
+          id="draft-body"
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          rows={Math.max(8, body.split("\n").length + 2)}
+          className={`${FIELD} resize-y py-3 [field-sizing:content]`}
+        />
       </div>
-      {isConfirming && (
-        <ConfirmDialog
-          title={isDispute ? "File this dispute?" : "Send this request?"}
-          confirmLabel={isDispute ? "File dispute" : "Send"}
-          isBusy={isBusy}
-          onCancel={() => setIsConfirming(false)}
-          onConfirm={() => void approve()}
+      <div className="flex flex-wrap items-center gap-2 pt-1">
+        <Button
+          variant="primary"
+          onClick={() => onApprove(subject, body)}
+          disabled={!subject.trim() || !body.trim()}
         >
-          It goes to <strong style={{ fontFamily: FONTS.mono, fontSize: 14 }}>{draft.to_addr}</strong> exactly as
-          written. Recoup never contacts anyone without this approval, and it is recorded in the audit trail.
-        </ConfirmDialog>
-      )}
+          {isDispute ? "Send dispute" : "Send request"}
+        </Button>
+        <Button onClick={() => void onSave(subject, body).catch(() => undefined)} disabled={!isDirty} isBusy={isBusy}>
+          Save edits
+        </Button>
+        {isDirty && <span className="text-14 text-dim">Unsaved edits are saved when you send.</span>}
+      </div>
     </div>
   );
 }

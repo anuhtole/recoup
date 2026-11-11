@@ -150,7 +150,7 @@ The detection rules are graded like a model. `recoup generate` builds a seeded s
 Recoup holds private financial data, reads untrusted email, and can send mail: the "lethal trifecta". Each leg is constrained in code:
 
 - **Untrusted text is data.** Email is fenced as data in the prompt, and the output schema has no actions. The checks above run regardless of what the model says. `tests/test_injection.py` swaps in a fully hijacked extractor and asserts that nothing harmful happens.
-- **No autonomous sends** ([ADR 0006](docs/adr/0006-human-approval-and-ledger-truth.md)). The send endpoint requires `{"confirm": true}`, which the UI sends only from its confirmation dialog. Recipients come from the vendor directory, and the approver goes in the audit trail. A draft can't be sent once its case is closed, and a draft is claimed before it is sent so two approvals can't both send it.
+- **No autonomous sends** ([ADR 0006](docs/adr/0006-human-approval-and-ledger-truth.md)). The send endpoint requires `{"confirm": true}`, which the UI sends only after you slide to confirm (or press Enter twice) in its confirm sheet. Recipients come from the vendor directory, and the approver goes in the audit trail. A draft can't be sent once its case is closed, and a draft is claimed before it is sent so two approvals can't both send it.
 - **Ledger truth.** "Recovered" means a matching credit posted. A vendor saying yes is not enough.
 - **Single-user for now.** The API has no login: it is built to run on one person's machine, and the approver name is self-reported. A shared deployment would sit behind SSO and take the approver from the session.
 - **Secrets stay server-side.** The browser talks only to our API. CI runs a secret scan.
@@ -175,7 +175,7 @@ Try the contract reader on the sample order form. It prints the verified terms a
 cd backend && uv run recoup contracts read ../data/samples/linear-business-order-form.pdf
 ```
 
-Without a key, everything still works on the keyword rules ([ADR 0007](docs/adr/0007-offline-baseline-and-caching.md)), and the UI shows *Offline rules*.
+Without a key, everything still works on the keyword rules ([ADR 0007](docs/adr/0007-offline-baseline-and-caching.md)), and nothing else changes.
 
 ## Correctness
 
@@ -199,7 +199,7 @@ backend/src/recoup/
   synth/       the seeded synthetic world and its answer key
 backend/tests/ unit, integration, API, CLI, and red-team tests
 backend/evals/ scoring, quality gates, results
-frontend/      React + TypeScript review UI (Vite, inline styles)
+frontend/      React + TypeScript review UI (Vite, Tailwind v4, Motion; glacier glass tokens in src/index.css)
 data/synthetic/ generated dataset
 docs/adr/      architecture decision records
 ```
@@ -217,6 +217,7 @@ docs/adr/      architecture decision records
 | `make demo-status` | The demo plus real outages from the recorded feeds |
 | `make live` | Sync real Ramp and status data into a separate database |
 | `make check` | Everything CI runs |
+| `cd frontend && npm run e2e` | Playwright end-to-end path through the UI (run `make reset` first) |
 
 ## Roadmap
 

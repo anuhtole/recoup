@@ -56,6 +56,11 @@ class Settings(BaseSettings):
     sync_interval_minutes: int = 0
 
     @property
+    def data_mode(self) -> Literal["demo", "live"]:
+        """Demo data ships its ledger as a file; live data only arrives by sync."""
+        return "demo" if (self.data_dir / "transactions.json").exists() else "live"
+
+    @property
     def ramp_configured(self) -> bool:
         return bool(self.ramp_client_id and self.ramp_client_secret)
 
