@@ -11,6 +11,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
+# The company Recoup works for, in one place: the app shows it and letters are signed with it.
+DEFAULT_ORG = "Acme Inc."
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="RECOUP_", extra="ignore")
 
@@ -29,12 +33,17 @@ class Settings(BaseSettings):
     as_of: date | None = None
     # Enables the simulated vendor inbox (POST /api/demo/advance). Never on in production.
     demo_mode: bool = False
+    # Replays the demo's past claims (recovered and in flight) on `recoup run` and on a
+    # demo scan. Off, so the scripted demo starts from a clean slate.
+    demo_history: bool = False
 
     # Claude. Read server-side only; the browser never sees the key.
     anthropic_api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")
     llm: Literal["auto", "on", "off"] = "auto"
     llm_model: str = "claude-opus-5-5"
     llm_effort: Literal["low", "medium", "high"] = "medium"
+
+    org_name: str = DEFAULT_ORG
 
     # Where card dispute packets go when a vendor is not in the directory.
     card_dispute_address: str = "disputes@card-issuer.example"

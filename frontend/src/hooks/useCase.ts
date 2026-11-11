@@ -19,7 +19,7 @@ export function useCase(id: number | null, version: number) {
         if (isCurrent) setDetail(data);
       })
       .catch(() => {
-        if (isCurrent) setError("Could not load this case.");
+        if (isCurrent) setError("Couldn't load this claim.");
       });
     return () => {
       isCurrent = false;

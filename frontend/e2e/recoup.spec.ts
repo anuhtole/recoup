@@ -1,67 +1,174 @@
 import { expect, type Page, test } from "@playwright/test";
 
-// One path through the review UI, in order: it changes the demo database, so run `make reset` first.
+// One path through the review UI, in order. It changes the database it runs against, so use
+// `npm run e2e:isolated` (a throwaway DB on :8002 and a Vite on :5175), or `make reset` before `npm run e2e`.
 
+const nav = (page: Page, label: string) => page.getByRole("navigation", { name: "Pages" }).first().getByRole("link", { name: new RegExp(`^${label}`) });
 const tab = (page: Page, label: string) => page.getByRole("tab", { name: new RegExp(`^${label}`) });
 const tabCount = async (page: Page, label: string) => Number((await tab(page, label).innerText()).replace(/\D+/g, ""));
-const row = (page: Page, id: number) => page.locator(`[role=tabpanel]:not([inert]) [data-case-id="${id}"]`);
-const caseTitle = (page: Page) => page.getByRole("article").getByRole("heading", { level: 2 });
+const row = (page: Page, id: number) => page.locator(`tr[data-case-id="${id}"]`);
+const caseTitle = (page: Page) => page.getByRole("article").getByRole("heading", { level: 1 });
+const sidebar = (page: Page) => page.getByRole("complementary", { name: "Claim details" });
 
 test.describe.configure({ mode: "serial" });
 
+// The demo starts from a clean slate (nothing found until the scan runs). These tests cover the app with
+// its data in, so each run resets the demo, connects Gmail and scans through the API first, and puts the
+// clean slate back when it is done.
+test.beforeAll(async ({ request }) => {
+  expect((await request.post("/api/demo/reset")).ok(), "POST /api/demo/reset (the API must run with RECOUP_DEMO_MODE=true)").toBe(true);
+  expect((await request.post("/api/demo/connect", { data: { source: "gmail" } })).ok(), "POST /api/demo/connect").toBe(true);
+  expect((await request.post("/api/demo/scan")).ok(), "POST /api/demo/scan").toBe(true);
+});
+test.afterAll(async ({ request }) => {
+  await request.post("/api/demo/reset");
+});
+
 test("review, send, advance and dismiss", async ({ page, request }) => {
   const summary = await (await request.get("/api/summary")).json();
-  expect(summary.as_of, "Run `make reset` so the demo starts at Oct 1, 2026").toBe("2026-10-01");
+  expect(summary.as_of, "the reset puts the demo clock back to Oct 1, 2026").toBe("2026-10-01");
   expect(summary.demo_mode, "The API must run with RECOUP_DEMO_MODE=true (make api)").toBe(true);
 
   const errors: string[] = [];
   page.on("console", (message) => message.type() === "error" && errors.push(message.text()));
   page.on("pageerror", (error) => errors.push(String(error)));
+  // Every send the UI makes, so the run can prove nothing goes out without the slide.
+  const sends: string[] = [];
+  page.on("request", (r) => r.method() === "POST" && /\/api\/drafts\/\d+\/send$/.test(r.url()) && sends.push(r.url()));
 
-  await test.step("the overview is the landing page", async () => {
+  await test.step("the agent is the landing page, and the overview is one click away", async () => {
     await page.goto("/");
-    await expect(page.getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "page");
-    await expect(page.getByLabel("Totals")).toContainText("$13,710.09");
-    const expiring = page.getByRole("region", { name: "Expiring soon" });
-    await expect(expiring.locator("[data-expiring-id]")).toHaveCount(5);
-    await expect(expiring.locator("[data-expiring-id]").first()).toContainText("Figma");
-    await expect(page.getByRole("region", { name: "Where it comes from" })).toContainText("Duplicate charges");
+    await expect(nav(page, "Agent")).toHaveAttribute("aria-current", "page");
+    await expect(page.getByRole("heading", { level: 1, name: "Agent" })).toBeVisible();
+    await nav(page, "Overview").click();
+    await expect(nav(page, "Overview")).toHaveAttribute("aria-current", "page");
+    await expect(nav(page, "Claims")).toContainText("15");
+    await expect(page.getByRole("button", { name: /Acme Inc/ })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Overview");
+    const hero = page.getByRole("region", { name: "Open claims" });
+    await expect(hero).toContainText("$13,710.09");
+    await expect(hero).toContainText("15 claims");
+    await expect(hero).toContainText("1 expires tomorrow");
+    await expect(page.locator("[data-totals]")).toContainText("Window closed $1,432.73");
+    // Zero totals aren't shown as placeholders.
+    await expect(page.locator("[data-totals]")).not.toContainText("In flight");
+    // No chart until there are two real points.
+    await expect(page.getByRole("figure", { name: /Recovered over time/ })).toHaveCount(0);
+    const soon = page.getByRole("region", { name: "Expiring soon" });
+    await expect(soon.locator("[data-needs-id]")).toHaveCount(5);
+    await expect(soon.locator("[data-needs-id]").first()).toContainText("Figma");
+    await expect(soon.locator("[data-needs-id]").first()).toContainText("1 day left");
+    await expect(page.getByRole("region", { name: "By type" })).toContainText("Duplicate charges");
     await expect(page.getByRole("region", { name: "Top vendors" })).toContainText("Amazon Web Services");
-    await expect(page.getByRole("region", { name: "Progress" })).toContainText("will show here");
+    await expect(page.getByRole("region", { name: "Recently recovered" })).toHaveCount(0);
 
-    await expiring.locator('[data-expiring-id="2"]').click();
+    await soon.locator('[data-needs-id="2"]').click();
     await expect(page).toHaveURL(/#\/claims\/2$/);
     await expect(caseTitle(page)).toHaveText("Figma");
     await page.goBack();
     await expect(page.getByRole("region", { name: "Expiring soon" })).toBeVisible();
-    await page.getByRole("button", { name: /^Review \d+ claims$/ }).click();
-    await expect(page).toHaveURL(/#\/claims/);
+
+    // ⌘K finds a case by its reference; Enter opens it.
+    await page.keyboard.press("ControlOrMeta+k");
+    const palette = page.getByRole("dialog", { name: "Search and commands" });
+    await expect(palette).toBeVisible();
+    await page.keyboard.type("FIG-202606");
+    await expect(palette.getByRole("option").first()).toContainText("Figma");
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/#\/claims\/2$/);
+    await page.goBack();
+
+    await page.getByRole("button", { name: /^Review claims/ }).click();
+    await expect(page).toHaveURL(/#\/claims$/);
   });
 
-  await test.step("switch tabs, move with j/k", async () => {
+  await test.step("tabs, search and type filters live in the hash", async () => {
     await expect(row(page, 2)).toBeVisible();
-    for (const label of ["Waiting", "Done", "To do"]) {
+    // The total lives once on this screen: the table footer.
+    await expect(page.locator("tfoot")).toContainText("15 claims");
+    await expect(page.locator("tfoot")).toContainText("Total $13,710.09");
+    await expect(row(page, 7)).toContainText("Needs review");
+    // Status is a column only where it varies.
+    await expect(page.getByRole("columnheader", { name: "Status" })).toHaveCount(0);
+    await expect(tab(page, "Window closed")).toContainText("5");
+    for (const label of ["Waiting", "Done", "Window closed", "To do"]) {
       await tab(page, label).click();
       await expect(tab(page, label)).toHaveAttribute("aria-selected", "true");
+      // Every Window closed row is closed, so that tab has no Status column either (Waiting and Done do).
+      if (label === "Window closed") {
+        await expect(page.getByRole("columnheader", { name: "Status" })).toHaveCount(0);
+        await expect(page.getByRole("columnheader", { name: "Closed" })).toHaveCount(1);
+      }
     }
-    const current = page.locator('[aria-current="true"]');
-    const first = await current.getAttribute("data-case-id");
-    await page.keyboard.press("j");
-    await expect(current).not.toHaveAttribute("data-case-id", first ?? "");
-    await page.keyboard.press("k");
-    await expect(current).toHaveAttribute("data-case-id", first ?? "");
+    // Export hands over a CSV built in the browser.
+    const download = page.waitForEvent("download");
+    await page.getByRole("button", { name: "Export" }).click();
+    expect((await download).suggestedFilename()).toBe("recoup-claims-2026-10-01.csv");
+    await page.getByRole("searchbox", { name: "Filter claims" }).fill("FIG-202606");
+    await expect(page).toHaveURL(/q=FIG-202606/);
+    await expect(page.locator("tr[data-case-id]")).toHaveCount(1);
+    await page.getByRole("searchbox", { name: "Filter claims" }).fill("nothing like this");
+    await expect(page.getByText(/Nothing in To do matches/)).toBeVisible();
+    await page.getByRole("button", { name: "Clear filters" }).click();
+    const typeFilter = page.getByRole("group", { name: "Filter by type" });
+    await typeFilter.getByRole("button", { name: /^Type/ }).click();
+    await page.getByRole("menuitemradio", { name: "Outage credits" }).click();
+    await expect(page).toHaveURL(/type=sla_credit/);
+    await expect(typeFilter).toContainText("Type: Outage credits");
+    await expect(page.locator("tr[data-case-id]")).toHaveCount(2);
+    await page.reload();
+    await expect(page.locator("tr[data-case-id]")).toHaveCount(2);
+    await typeFilter.getByRole("button", { name: "Clear type filter" }).click();
+    await expect(page).toHaveURL(/#\/claims$/);
   });
 
-  await test.step("Figma case: footnotes and source preview", async () => {
+  await test.step("keyboard: j / k move, x selects, Enter opens, Esc returns", async () => {
+    await page.locator("body").click({ position: { x: 5, y: 5 } });
+    await page.keyboard.press("j");
+    await expect(page.locator("tr[data-cursor]")).toHaveAttribute("data-case-id", "2");
+    await page.keyboard.press("j");
+    const second = await page.locator("tr[data-cursor]").getAttribute("data-case-id");
+    expect(second).not.toBe("2");
+    await page.keyboard.press("k");
+    await expect(page.locator("tr[data-cursor]")).toHaveAttribute("data-case-id", "2");
+    await page.keyboard.press("x");
+    await expect(page.getByRole("region", { name: "Bulk actions" })).toContainText("1 selected");
+    await page.keyboard.press("Escape");
+    await expect(page.getByRole("region", { name: "Bulk actions" })).toHaveCount(0);
+    await page.keyboard.press("Enter");
+    await expect(page).toHaveURL(/#\/claims\/2$/);
+    await expect(caseTitle(page)).toHaveText("Figma");
+    await page.keyboard.press("j");
+    await expect(page).toHaveURL(new RegExp(`#/claims/${second}$`));
+    await expect(caseTitle(page)).not.toHaveText("Figma");
+    await page.keyboard.press("Escape");
+    await expect(page).toHaveURL(/#\/claims$/);
+  });
+
+  await test.step("Figma case: footnotes, plain-language checks, rail", async () => {
     await row(page, 2).click();
     await expect(caseTitle(page)).toHaveText("Figma");
+    await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("Claims");
+    await expect(page.getByRole("navigation", { name: "Breadcrumb" })).toContainText("Figma");
+    await expect(page.getByText("1 of 15")).toBeVisible();
     await expect(page.locator("[data-footnote]")).toHaveCount(2);
     await page.locator('[data-footnote="1"]').hover();
     await expect(page.getByRole("tooltip")).toContainText("FIG-202606");
+    const why = page.getByRole("region", { name: "Why it's owed" });
+    await expect(why).toContainText("Same amount charged twice, one day apart");
+    await expect(why).toContainText("No refund has posted");
+    // Rule ids and developer plurals never reach the screen.
+    await expect(page.getByRole("article")).not.toContainText("duplicates/1");
+    await expect(page.getByRole("article")).not.toContainText("(s)");
+    await expect(page.getByRole("region", { name: "Respond by" })).toContainText("1 day left");
+    await expect(page.locator("[data-reference]")).toHaveText("FIG-202606");
+    await expect(page.locator("[data-case-header]")).toContainText("Duplicate charge");
+    await expect(sidebar(page).getByRole("region", { name: "Details" })).toContainText("4417");
+    await expect(page.getByRole("region", { name: "Evidence" }).locator("[data-txn]")).toHaveCount(2);
   });
 
   await test.step("email footnote opens the original email; Escape closes it", async () => {
-    await row(page, 15).click(); // United Airlines promised a refund by email
+    await page.goto("/#/claims/15"); // United Airlines promised a refund by email
     await expect(caseTitle(page)).toHaveText("United Airlines");
     await page.locator('[data-footnote][aria-label*="Opens the email"]').first().click();
     const sheet = page.getByRole("dialog");
@@ -69,19 +176,38 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(sheet).toContainText("checked word for word");
     await page.keyboard.press("Escape");
     await expect(sheet).toHaveCount(0);
+    await expect(caseTitle(page)).toHaveText("United Airlines");
   });
 
-  await test.step("draft, edit the subject, save, slide to confirm", async () => {
-    await row(page, 2).click();
-    await page.getByRole("button", { name: "Draft request" }).click();
+  await test.step("draft, edit the subject, save, review and slide to send", async () => {
+    await page.goto("/#/claims/2");
+    await sidebar(page).getByRole("button", { name: "Draft request" }).click();
     const subject = page.locator("#draft-subject");
     await subject.fill("Duplicate charge FIG-202606: please refund $480.00");
     await page.getByRole("button", { name: "Save edits" }).click();
     await expect(page.getByRole("button", { name: "Save edits" })).toBeDisabled();
 
-    await page.getByRole("button", { name: "Send request" }).click();
-    const sheet = page.getByRole("dialog");
+    // A draft alone sends nothing.
+    expect(sends, "drafting must not send").toEqual([]);
+    // Holding Enter on "Review and send" opens the sheet and moves focus to the slider; the key's
+    // auto-repeat must not arm or confirm it. Never one keystroke.
+    await sidebar(page).getByRole("button", { name: "Review and send" }).focus();
+    await page.keyboard.down("Enter");
+    for (let i = 0; i < 12; i++) {
+      await page.waitForTimeout(33);
+      await page.keyboard.down("Enter"); // repeat: true
+    }
+    await page.keyboard.up("Enter");
+    const sheet = page.getByRole("dialog", { name: "Approve this request" });
+    await expect(sheet).toBeVisible();
+    await page.waitForTimeout(500);
+    expect(sends, "a held Enter must not send").toEqual([]);
+    await expect(page.getByRole("button", { name: /^Slide to send/ })).toBeVisible();
     await expect(sheet).toContainText("billing@figma.com");
+    await expect(sheet).toContainText("$480.00");
+    await expect(sheet).toContainText("FIG-202606");
+    await expect(sheet).toContainText("Duplicate charge FIG-202606: please refund $480.00");
+    await expect(sheet).toContainText("This can't be edited after it's sent");
     // Let the sheet finish rising before measuring the slider for the drag.
     await page.waitForTimeout(700);
 
@@ -96,31 +222,65 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     }
     await page.mouse.up();
     expect((await sent).postDataJSON()).toEqual({ confirm: true });
+    expect(sends, "exactly one send, from the slide").toHaveLength(1);
     await expect(sheet).toHaveCount(0, { timeout: 8_000 });
+    await expect(page.getByRole("region", { name: "Status" })).toContainText("Waiting on the vendor");
+    await page.goto("/#/claims");
     await expect.poll(() => tabCount(page, "Waiting")).toBe(1);
   });
 
-  await test.step("advance two weeks: notices, overview progress, morphing chip", async () => {
-    await page.getByRole("link", { name: "Overview" }).click();
-    const totals = page.getByLabel("Totals");
+  await test.step("bulk: draft two requests at once, nothing sent", async () => {
+    await row(page, 1).getByRole("checkbox").check();
+    await row(page, 3).getByRole("checkbox").check();
+    const bar = page.getByRole("region", { name: "Bulk actions" });
+    await expect(bar).toContainText("2 selected");
+    await bar.getByRole("button", { name: /Draft requests/ }).click();
+    await expect(page.locator("[aria-live=polite] li").filter({ hasText: "2 drafts ready" })).toBeVisible();
+    await expect(bar).toHaveCount(0);
+    await expect(row(page, 1)).toContainText("Draft ready");
+    await expect.poll(() => tabCount(page, "Waiting")).toBe(1);
+    expect(sends, "bulk drafting must not send").toHaveLength(1);
+  });
+
+  await test.step("advance two weeks: notices, overview totals, recovered feed", async () => {
+    // Sending is not recovering: money counts as recovered only once the ledger shows the credit.
+    const sentSummary = await (await request.get("/api/summary")).json();
+    expect(sentSummary.recovered_minor, "nothing is recovered before a credit posts").toBe(0);
+    await nav(page, "Overview").click();
+    const totals = page.locator("[data-totals]");
     const before = await totals.innerText();
-    await page.getByRole("button", { name: "Advance 2 weeks" }).click();
+    await page.getByRole("button", { name: /^Oct 1/ }).click();
+    await expect(page.getByRole("menu", { name: "Date" })).toContainText("Viewing Oct 1, 2026");
+    await page.getByRole("menuitem", { name: "Advance 2 weeks" }).click();
     await expect(page.locator("[aria-live=polite] li").filter({ hasText: /credit posted/i })).toBeVisible();
-    await expect.poll(() => totals.getByRole("img").getAttribute("aria-label")).not.toContain("$0.00 recovered");
     await expect.poll(() => totals.innerText()).not.toBe(before);
-    await expect(page.getByRole("region", { name: "Progress" })).toContainText("Figma");
-    await page.getByRole("link", { name: "Claims" }).click();
-    await tab(page, "Done").click();
+    await expect(totals).toContainText(/Recovered \$/);
+    await expect(page.getByRole("region", { name: "Recently recovered" })).toContainText("Figma");
+    await nav(page, "Recovered").click();
+    await expect(page).toHaveURL(/#\/recovered$/);
+    // The page opens on what came back; the credited claim is a row in its list, and the row opens it.
+    const credited = page.locator("[data-recovered-id]").filter({ hasText: "Figma" });
+    await expect(credited).toBeVisible();
+    await credited.click();
+    await expect(page).toHaveURL(/#\/claims\/2$/);
+    await expect(page.locator("[data-case-header]")).toContainText("$480.00");
+    await expect(page.locator("[data-case-header]")).toContainText("Recovered");
+    await expect(page.getByRole("region", { name: "Recovered" })).toContainText("Confirmed in your ledger");
+    // The credit that closed it is in the evidence ledger, as money back.
+    await expect(page.getByRole("region", { name: "Evidence" }).locator("[data-txn]").filter({ hasText: "-$480.00" })).toHaveCount(1);
+    await page.goto("/#/claims?tab=done");
     await expect(row(page, 2)).toContainText("Recovered");
-    await tab(page, "To do").click();
   });
 
   await test.step("dismiss a case with a reason", async () => {
+    await page.goto("/#/claims");
     const done = await tabCount(page, "Done");
     await row(page, 7).click(); // Lyft Ride
-    await page.getByRole("button", { name: "Not owed, dismiss" }).click();
+    await sidebar(page).getByRole("button", { name: "Not owed" }).click();
     await page.locator("#dismiss-reason").fill("Two separate rides that evening");
-    await page.getByRole("button", { name: "Dismiss case" }).click();
+    await page.getByRole("button", { name: "Mark not owed" }).click();
+    await expect(page.getByRole("region", { name: "Status" })).toContainText("Not owed: two separate rides that evening");
+    await page.goto("/#/claims");
     await expect.poll(() => tabCount(page, "Done")).toBe(done + 1);
   });
 
@@ -134,18 +294,37 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
     await expect(comparison).toContainText("Over by");
   });
 
-  await test.step("data sources: tag, button, sheet", async () => {
-    await page.goto("/#/overview");
-    await expect(page.getByText("Demo data", { exact: true })).toBeVisible();
-    await page.getByRole("button", { name: /Sample ledger and inbox/ }).click();
-    const sheet = page.getByRole("dialog", { name: "Data sources" });
-    await expect(sheet).toContainText("Ramp transactions");
-    await expect(sheet).toContainText("Gmail vendor email");
-    await expect(sheet).toContainText("No credentials needed");
-    await expect(sheet.getByRole("button", { name: "Sync now" })).toBeEnabled();
-    await page.keyboard.press("Escape");
-    await expect(sheet).toHaveCount(0);
+  await test.step("sources page: both sources connected, sync", async () => {
+    await page.goto("/#/sources");
+    await expect(nav(page, "Sources")).toHaveAttribute("aria-current", "page");
+    const list = page.getByRole("region", { name: "Data sources" });
+    await expect(list).toContainText("Ramp transactions");
+    await expect(list).toContainText("Gmail");
+    await expect(list).toContainText("Public incident feeds");
+    // In the demo Ramp starts connected and Gmail was connected before the scan, so nothing is left to connect.
+    await expect(list.getByRole("button", { name: "Connect" })).toHaveCount(0);
+    await expect(list).not.toContainText("Not connected");
+    await expect(page.getByRole("button", { name: "Sync now" })).toBeEnabled();
   });
 
+  expect(sends, "the only send in the whole run is the one approved by sliding").toHaveLength(1);
   expect(errors, "console errors").toEqual([]);
+});
+
+test("phone layout: top bar, tab bar, list and case", async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  const page = await context.newPage();
+  await page.goto("/#/claims");
+  const tabs = page.getByRole("navigation", { name: "Pages" }).last();
+  await expect(tabs).toBeVisible();
+  await expect(tabs.getByRole("link", { name: /Claims/ })).toHaveAttribute("aria-current", "page");
+  await page.locator("a[data-case-id]").first().click();
+  await expect(page).toHaveURL(/#\/claims\/\d+$/);
+  await expect(page.getByRole("region", { name: "Next step" })).toBeVisible();
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(width, "no horizontal scroll").toBeLessThanOrEqual(390);
+  await page.getByRole("button", { name: "Menu" }).click();
+  await expect(page.getByRole("dialog", { name: "Acme Inc." })).toContainText("Advance 2 weeks");
+  await page.keyboard.press("Escape");
+  await context.close();
 });

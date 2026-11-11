@@ -19,7 +19,7 @@ interface Props {
 }
 
 /**
- * A modal glass sheet. It rises from the bottom edge and leaves the same way, dims what is behind it,
+ * A modal sheet. It rises from the bottom edge and leaves the same way, dims what is behind it,
  * traps focus, closes on Escape, and gives focus back to whatever opened it.
  * Render it inside <AnimatePresence> so it can leave along its entry path.
  */
@@ -81,7 +81,8 @@ export function Sheet({ title, subtitle, labelId, onClose, children, className, 
         aria-labelledby={labelId}
         tabIndex={-1}
         className={cn(
-          "glass-float relative flex max-h-[min(88dvh,760px)] w-full flex-col overflow-hidden rounded-t-panel outline-none sm:max-w-[520px] sm:rounded-panel",
+          "float relative flex max-h-[min(90dvh,780px)] w-full flex-col overflow-hidden rounded-t-md outline-none sm:max-w-[540px] sm:rounded-md",
+          "border border-line bg-paper text-ink",
           className,
         )}
         initial={{ opacity: 0, y: 48 }}
@@ -91,16 +92,16 @@ export function Sheet({ title, subtitle, labelId, onClose, children, className, 
       >
         <div className="flex items-start justify-between gap-4 px-6 pb-2 pt-6">
           <div className="min-w-0">
-            <h2 id={labelId} className="text-20 font-semibold tracking-[-0.01em]">
+            <h2 id={labelId} className="m-0 text-20 font-semibold tracking-[-0.02em]">
               {title}
             </h2>
-            {subtitle && <p className="mt-1 text-14 text-dim">{subtitle}</p>}
+            {subtitle && <p className="m-0 mt-1 text-14 text-dim">{subtitle}</p>}
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="-mr-2 -mt-1 grid size-9 flex-none place-items-center rounded-full text-dim transition-[transform,background-color,color] duration-150 hover:bg-tint hover:text-ink active:scale-[0.94]"
+            className="-mr-2 -mt-1 grid size-9 flex-none place-items-center rounded-sm text-dim transition-[transform,background-color,color] duration-150 hover:bg-wash hover:text-ink active:scale-[0.94]"
           >
             <svg viewBox="0 0 16 16" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
               <path d="M4 4l8 8M12 4l-8 8" />

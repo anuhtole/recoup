@@ -4,187 +4,157 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 /*
- * Recoup design tokens: pine and stone.
- * Every colour, radius and font lives here, once, and Tailwind reads them through @theme.
- * A flat stone ground, white panels, and pine green for the one action and for money coming back.
+ * Recoup design tokens: ink and mint (v2, white chrome).
+ * White everywhere, sidebar included, split by hairlines. One accent, green, and it is never a block:
+ * deep green (--mint-ink) is text, icons and lines (the current page, links, bars); pale mint is money
+ * coming back. The primary button is the one filled green thing. Ink surfaces are only what floats
+ * (notices, the bulk bar, the send sheet's footer). Amber is urgency. Every colour, radius and font
+ * lives here, once; Tailwind reads them through @theme.
  */
 
 :root {
   color-scheme: light;
 
-  /* Ground: flat stone, no gradient */
-  --base: #f2f3ef;
+  /* Ink: text is a soft green-slate, not black. Panels are the dark floating surfaces. */
+  --ink: #1b2a23;
+  --panel: #0e100f;
+  --panel-2: #171a18;
+  --rule: #2b302d;
 
-  /* Panels: solid white with a hairline edge. (Token names kept from the glass era so components don't change.) */
-  --glass: #ffffff;
-  --glass-strong: #ffffff; /* sheets, previews and notices that float over content */
-  --glass-edge: #e1e3dc;
-  --glass-highlight: transparent;
-  --blur: 0px;
-  --blur-lg: 0px;
-  /* Resting surfaces cast no shadow; only what floats (sheets, previews, notices) does. */
-  --shadow-float: 0 2px 6px rgba(27, 33, 28, 0.06), 0 24px 64px rgba(27, 33, 28, 0.14);
+  /* Paper: content */
+  --paper: #ffffff;
+  --ground: #f3f5f3;
+  --wash: #f7f8f7; /* hover tint on paper */
+  --line: #e2e5e2;
+  --line-strong: #c4cbc6; /* field edges and stronger hairlines */
+  --dim: #5f6862;
+  --sub: #9aa59f;
 
-  /* Ink */
-  --ink: #1b211c;
-  --dim: #5f665f;
-  --accent: #2d5a3d;
-  --money: #25764a;
-  --amber: #7a4f00;
+  /* The one accent */
+  --mint: #9bf0c8;
+  --mint-press: #84e4b6;
+  --mint-ink: #0f7a52;
+  --mint-ink-press: #0c6644; /* the primary button, hovered */
+  --mint-wash: #e6fbf1;
 
-  /* Soft pine fills carry dark green text (tabs, selection) */
-  --accent-fill: #dbe5dc;
-  --on-accent: #1e3a28;
-  /* The one primary action per screen: deep pine with white text */
-  --primary: #2d5a3d;
-  --primary-hover: #264e35;
-  --on-primary: #ffffff;
-  --money-ink: color-mix(in srgb, var(--money) 70%, var(--ink));
-  --tint: #f7f8f5; /* flat rows inside panels */
-  --tint-hover: #f4f5f3;
-  --selected: #f2f7f3; /* soft pine wash; the selected row also gets a pine bar on its left edge */
-  --line: rgba(27, 33, 28, 0.08);
-  --line-strong: rgba(27, 33, 28, 0.16);
-  --field: #ffffff;
-  --scrim: rgba(27, 33, 28, 0.28);
-  --mark: color-mix(in srgb, var(--accent) 18%, transparent);
+  /* Share ramp: the segments of a stacked bar, largest first, deep green fading to a hairline. */
+  --share-1: var(--mint-ink);
+  --share-2: color-mix(in oklab, var(--mint-ink) 55%, var(--mint));
+  --share-3: var(--mint);
+  --share-4: color-mix(in oklab, var(--mint) 45%, var(--paper));
+  --share-5: var(--line);
 
-  /* Shape and type */
-  --radius-panel: 24px;
-  --radius-card: 16px;
-  --radius-row: 12px;
-  --radius-control: 999px;
-  /* Type scale: six steps, each with its own line height */
-  --size-12: 12px;
-  --size-14: 14px;
-  --size-16: 16px;
-  --size-20: 20px;
-  --size-26: 26px;
-  --size-40: 40px;
+  /* Urgency */
+  --amber: #f2b04b;
+  --amber-ink: #8a5a00;
+  --amber-wash: #fdf3e1;
+  --danger: #b4372e;
 
-  --font-sans-stack: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Inter Tight", "Segoe UI", sans-serif;
+  /* Monogram tints for vendors without a logo: soft, neutral hues, each with an ink that passes AA on it. */
+  --tint-1: #e4eee8;
+  --tint-1-ink: #2f5b45;
+  --tint-2: #f1eadb;
+  --tint-2-ink: #6b5326;
+  --tint-3: #f3e3dd;
+  --tint-3-ink: #7a3f2e;
+  --tint-4: #e3e8ef;
+  --tint-4-ink: #34495e;
+  --tint-5: #ece6f2;
+  --tint-5-ink: #55416e;
+  --tint-6: #dfecf1;
+  --tint-6-ink: #285468;
 
-  /* Bklit charts read these; they point at the theme tokens */
-  --chart-1: var(--accent);
-  --chart-2: var(--money);
-  --chart-3: var(--dim);
-  --chart-4: color-mix(in srgb, var(--dim) 50%, transparent);
-  --chart-5: var(--ink);
-  --chart-positive: var(--money);
-  --chart-negative: var(--amber);
-  --chart-background: transparent;
-  --chart-foreground: var(--ink);
-  --chart-foreground-muted: var(--dim);
-  --chart-label: var(--dim);
-  --chart-line-primary: var(--chart-1);
-  --chart-line-secondary: var(--chart-2);
-  --chart-crosshair: var(--line-strong);
-  --chart-grid: var(--line);
-  --chart-brush-border: var(--line);
-  --chart-tooltip-background: var(--glass-strong);
-  --chart-tooltip-foreground: var(--ink);
-  --chart-tooltip-muted: var(--dim);
-  --chart-indicator-color: var(--ink);
-  --chart-indicator-secondary-color: var(--base);
-  --chart-marker-background: var(--base);
-  --chart-marker-border: var(--line-strong);
-  --chart-marker-foreground: var(--ink);
-  --chart-marker-badge-background: var(--ink);
-  --chart-marker-badge-foreground: var(--base);
-  --chart-segment-background: var(--tint);
-  --chart-segment-line: var(--line);
+  --scrim: rgba(10, 11, 10, 0.44);
+  /* Resting surfaces cast no shadow; only what floats (sheets, notices, the bulk bar) does. */
+  --shadow-float: 0 1px 2px rgba(10, 11, 10, 0.08), 0 24px 56px -12px rgba(10, 11, 10, 0.32);
+  /* Small floating things (menus, popovers) cast a tighter shadow than sheets. */
+  --shadow-pop: 0 1px 2px rgba(10, 11, 10, 0.06), 0 8px 24px -6px rgba(10, 11, 10, 0.18);
+
+  --font-sans-stack: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono-stack: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
 }
 
-/* Reduced transparency: solid surfaces, no blur, no glows. */
-@media (prefers-reduced-transparency: reduce) {
+/* More contrast: hairlines become edges, secondary text moves toward ink. */
+@media (prefers-contrast: more) {
   :root {
-    --glass: #ffffff;
-    --glass-strong: #ffffff;
-    --tint: #f7f8f5;
-    --tint-hover: #eff1ec;
-    --blur: 0px;
-    --blur-lg: 0px;
+    --line: #8d968f;
+    --line-strong: var(--ink);
+    --dim: #3a413c;
+    --sub: #c9d1cc;
+    --rule: #59615b;
   }
 }
 
-/* More contrast: near-solid surfaces, defined edges, dim text pulled toward ink. */
-@media (prefers-contrast: more) {
+/* Reduced transparency: the scrim behind sheets becomes solid. */
+@media (prefers-reduced-transparency: reduce) {
   :root {
-    --glass: color-mix(in srgb, var(--base) 92%, #fff);
-    --glass-strong: var(--glass);
-    --glass-edge: var(--ink);
-    --line: color-mix(in srgb, var(--ink) 40%, transparent);
-    --line-strong: var(--ink);
-    --dim: color-mix(in srgb, var(--ink) 80%, var(--base));
-    --blur: 0px;
-    --blur-lg: 0px;
+    --scrim: #3b403d;
   }
 }
 
 @theme inline {
-  --color-ground: var(--base);
   --color-ink: var(--ink);
-  --color-dim: var(--dim);
-  --color-accent: var(--accent);
-  --color-accent-fill: var(--accent-fill);
-  --color-on-accent: var(--on-accent);
-  --color-money: var(--money);
-  --color-money-ink: var(--money-ink);
-  --color-amber: var(--amber);
-  --color-glass: var(--glass);
-  --color-glass-strong: var(--glass-strong);
-  --color-glass-edge: var(--glass-edge);
-  --color-tint: var(--tint);
-  --color-tint-hover: var(--tint-hover);
-  --color-selected: var(--selected);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-rule: var(--rule);
+  --color-paper: var(--paper);
+  --color-ground: var(--ground);
+  --color-wash: var(--wash);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
-  --color-field: var(--field);
+  --color-dim: var(--dim);
+  --color-sub: var(--sub);
+  --color-mint: var(--mint);
+  --color-mint-press: var(--mint-press);
+  --color-mint-ink: var(--mint-ink);
+  --color-mint-ink-press: var(--mint-ink-press);
+  --color-mint-wash: var(--mint-wash);
+  --color-amber: var(--amber);
+  --color-amber-ink: var(--amber-ink);
+  --color-amber-wash: var(--amber-wash);
+  --color-danger: var(--danger);
   --color-scrim: var(--scrim);
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-on-primary: var(--on-primary);
+  --color-tint-1: var(--tint-1);
+  --color-tint-2: var(--tint-2);
+  --color-tint-3: var(--tint-3);
+  --color-tint-4: var(--tint-4);
+  --color-tint-5: var(--tint-5);
+  --color-tint-6: var(--tint-6);
 
-  --text-12: var(--size-12);
+  /* Type scale: 12 / 13 / 14 / 16 / 20 / 28 / 44 / 56. Body is 14. */
+  --text-12: 12px;
   --text-12--line-height: 16px;
-  --text-14: var(--size-14);
+  --text-13: 13px;
+  --text-13--line-height: 20px;
+  --text-14: 14px;
   --text-14--line-height: 20px;
-  --text-16: var(--size-16);
+  --text-16: 16px;
   --text-16--line-height: 24px;
-  --text-20: var(--size-20);
+  --text-20: 20px;
   --text-20--line-height: 28px;
-  --text-26: var(--size-26);
-  --text-26--line-height: 32px;
-  --text-40: var(--size-40);
-  --text-40--line-height: 44px;
-  --color-mark: var(--mark);
+  --text-28: 28px;
+  --text-28--line-height: 32px;
+  --text-44: 44px;
+  --text-44--line-height: 48px;
+  --text-56: 56px;
+  --text-56--line-height: 60px;
 
-  --radius-panel: var(--radius-panel);
-  --radius-card: var(--radius-card);
-  --radius-row: var(--radius-row);
-  --radius-control: var(--radius-control);
+  /* Radii: 2 chips and fields, 4 buttons and rows, 6 cards and panels */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+
+  --shadow-float: var(--shadow-float);
+  --shadow-pop: var(--shadow-pop);
 
   --font-sans: var(--font-sans-stack);
+  --font-mono: var(--font-mono-stack);
 
-  /* Bklit chart tokens */
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
-  --color-chart-positive: var(--chart-positive);
-  --color-chart-negative: var(--chart-negative);
-  --color-chart-background: var(--chart-background);
-  --color-chart-foreground: var(--chart-foreground);
-  --color-chart-foreground-muted: var(--chart-foreground-muted);
-  --color-chart-label: var(--chart-label);
-  --color-chart-grid: var(--chart-grid);
-  --color-chart-crosshair: var(--chart-crosshair);
-  --color-chart-tooltip-background: var(--chart-tooltip-background);
-  --color-chart-tooltip-foreground: var(--chart-tooltip-foreground);
-  --color-chart-tooltip-muted: var(--chart-tooltip-muted);
-  --color-foreground: var(--ink);
-  --color-muted-foreground: var(--dim);
+  /* The shell switches from the sidebar to the phone bars at 900px. */
+  --breakpoint-md: 900px;
+  /* 1440px, the width the agent page was drawn at: its reply box is full size from here up.
+     In rem like Tailwind's own breakpoints, so it sorts after lg and xl. */
+  --breakpoint-wide: 90rem;
 }
 
 @layer base {
@@ -192,21 +162,24 @@
     font-size: 16px;
     line-height: 24px;
     color: var(--ink);
+    background-color: var(--paper);
     font-family: var(--font-sans-stack);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    min-height: 100%;
   }
   body {
     margin: 0;
     min-height: 100dvh;
-  }
-  html {
-    background-color: var(--base);
-    min-height: 100%;
+    background-color: var(--paper);
   }
   :focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--mint-ink);
     outline-offset: 2px;
+  }
+  .on-ink :focus-visible,
+  .on-ink:focus-visible {
+    outline-color: var(--mint);
   }
   summary {
     list-style: none;
@@ -215,57 +188,89 @@
     display: none;
   }
   ::selection {
-    background: var(--mark);
+    background: var(--mint);
+    color: var(--ink);
   }
 }
 
-/* Reduced motion: nothing slides or scales on its own; state changes cross-fade (Motion handles its own). */
+/* Reduced motion: nothing slides on its own; Motion handles its own through MotionConfig. */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
   ::after {
     transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
 }
 
 @layer components {
-  /* The one glass material, used only by the queue and case panels. No resting shadow; rows inside are flat tints. */
-  .glass-lg {
-    background: var(--glass);
-    border: 1px solid var(--glass-edge);
-    box-shadow: inset 0 1px 0 var(--glass-highlight);
-    -webkit-backdrop-filter: blur(var(--blur-lg)) saturate(180%);
-    backdrop-filter: blur(var(--blur-lg)) saturate(180%);
-  }
-  /* What floats over content (sheets, previews, notifications) is frostier so text stays legible. */
-  .glass-float {
-    background: var(--glass-strong);
-    border: 1px solid var(--glass-edge);
-    box-shadow:
-      inset 0 1px 0 var(--glass-highlight),
-      var(--shadow-float);
-    -webkit-backdrop-filter: blur(var(--blur-lg)) saturate(180%);
-    backdrop-filter: blur(var(--blur-lg)) saturate(180%);
-  }
-  /* Money and dates: the sans family with tabular figures so digits keep their width. */
+  /* Money, dates and counts keep their width. */
   .figure {
     font-variant-numeric: tabular-nums;
   }
-  /* References and IDs (FIG-202606, file names): the sans face, tabular, muted by the caller. */
+  /* A hero figure's cents: a little over half size and dimmer, so the dollars read first. */
+  .cents {
+    font-size: 0.55em;
+    color: var(--dim);
+    letter-spacing: 0;
+    margin-left: 0.04em;
+  }
+  /* References and IDs: mono, tabular. */
   .ref {
+    font-family: var(--font-mono-stack);
     font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
-}
+  /* A paper card: hairline edge, no shadow. */
+  .card {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+  }
+  /* What floats over content: sheets, notices, the bulk bar. */
+  .float {
+    box-shadow: var(--shadow-float);
+  }
+  /* Menus, popovers and the command palette's list. */
+  .pop {
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-pop);
+  }
+  /* A keyboard hint: ⌘K, /, J. */
+  .kbd {
+    display: inline-grid;
+    place-items: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 5px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-xs);
+    background: var(--paper);
+    color: var(--dim);
+    font-family: var(--font-mono-stack);
+    font-size: 12px;
+    line-height: 1;
+  }
+  .on-ink .kbd {
+    border-color: var(--rule);
+    background: var(--panel-2);
+    color: var(--sub);
+  }
 
-/* Reduced transparency and more contrast: the surfaces are solid, so drop the backdrop filter entirely. */
-@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  html {
-    background-image: none;
-  }
-  .glass-lg,
-  .glass-float {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
+  /* On phones the agent's composer sits just above the tab bar (14 spacing units tall, plus the home-indicator inset). */
+  .agent-composer { bottom: calc(var(--spacing) * 14 + env(safe-area-inset-bottom)); }
+  /* On desktop the agent page is one screen tall: the coin stays put and only the reply box scrolls.
+     36 spacing units = the top bar plus the page's top and bottom padding. */
+  @media (width >= 900px) {
+    .agent-frame { height: calc(100dvh - var(--spacing) * 36); }
+    /* The coin is 100 units (400px) across in a 900px-tall window and gives way in shorter ones, so its
+       caption and the input stay on screen. 125 units = everything else in its column, top to bottom. */
+    .agent-coin {
+      width: clamp(calc(var(--spacing) * 48), calc(100dvh - var(--spacing) * 125), calc(var(--spacing) * 100));
+      max-width: 100%;
+    }
   }
 }

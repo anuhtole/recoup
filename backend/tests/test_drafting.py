@@ -61,3 +61,34 @@ def test_claude_draft_that_drops_a_fact_or_adds_an_address_falls_back() -> None:
         None,
     ):
         assert ClaudeDrafter(_FakeLlm(body), TemplateDrafter()).draft(FACTS) == template
+
+
+def test_letters_are_signed_with_the_org_and_list_charges_in_plain_words() -> None:
+    draft = TemplateDrafter().draft(FACTS)
+
+    assert draft.body.endswith(f"Thanks,\n{FACTS.company} Finance")
+    assert "- Jun 3, 2026 · Figma · $480.00 · FIG-202606" in draft.body
+    assert "(s)" not in draft.body
+
+
+def test_dispute_packet_has_a_plain_reason_and_no_rule_rows() -> None:
+    facts = CaseFacts(
+        **{
+            **FACTS.__dict__,
+            "vendor": None,
+            "reason": "FIGMA charged $480.00 twice. A person should confirm it.",
+            "evidence": (
+                *FACTS.evidence,
+                Evidence(kind="rule", ref="duplicates/1", detail="1 day(s) apart (window: 3)"),
+                Evidence(
+                    kind="email", ref="e1", detail='Figma wrote on 2026-06-02: "Refund sent."'
+                ),
+            ),
+        }
+    )
+
+    body = TemplateDrafter().draft(facts).body
+
+    assert "Reason: We were charged $480.00 twice for FIG-202606, on Jun 3 and Jun 4, 2026." in body
+    assert "- Email from Figma, Jun 2, 2026: “Refund sent.”" in body
+    assert "[" not in body and "window:" not in body and "a person" not in body.lower()

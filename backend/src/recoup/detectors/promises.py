@@ -86,6 +86,11 @@ def _claim_credit(promise: Promise, original: Transaction, ledger: _Ledger, lead
     return False
 
 
+def _more_times(n: int) -> str:
+    """ "once more", "3 more times": never "time(s)"."""
+    return "once more" if n == 1 else f"{n} more times"
+
+
 def _email_evidence(promise: Promise) -> Evidence:
     return Evidence(
         kind="email",
@@ -170,7 +175,7 @@ def _billed_after_cancel(
         currency=currency,
         reason=(
             f"{promise.vendor_name} confirmed the cancellation on {human_date(effective)}, "
-            f"then charged {len(after)} more time(s), {money} in total."
+            f"then charged {_more_times(len(after))}, {money} in total."
         ),
         evidence=(_email_evidence(promise), *(_txn_evidence(t) for t in after), rule),
         detector_version=DETECTOR_VERSION,

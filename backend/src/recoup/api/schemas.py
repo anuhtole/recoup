@@ -42,6 +42,8 @@ class FindingOut(BaseModel):
     source_refs: list[str]
     next_action: NextActionOut
     created_at: datetime
+    # When the credit posted (demo clock), so a chart of money back reads the same for everyone.
+    recovered_at: datetime | None = None
 
 
 class EmailOut(BaseModel):
@@ -101,6 +103,9 @@ class FindingDetailOut(FindingOut):
     drafts: list[DraftOut]
     timeline: list[TimelineEventOut]
     trace: list[AuditEventOut]
+    # Where the next draft would go: the vendor, or the card issuer when the vendor is unknown
+    # or has declined. Lets the action say "Draft card dispute" before anything is drafted.
+    draft_channel: Literal["vendor_email", "card_dispute"]
 
 
 class OutcomeTotal(BaseModel):
@@ -120,6 +125,7 @@ class SummaryOut(BaseModel):
     mode: str
     demo_mode: bool
     data_mode: Literal["demo", "live"]
+    org_name: str
     claimable_minor: int
     in_flight_minor: int
     recovered_minor: int
@@ -169,6 +175,23 @@ class DismissIn(BaseModel):
 
 class AdvanceIn(BaseModel):
     days: int = Field(default=14, ge=1, le=60)
+
+
+class ConnectIn(BaseModel):
+    # Only Gmail is staged; Ramp reads as connected from the start.
+    source: Literal["gmail"]
+
+
+class DemoStateOut(BaseModel):
+    scanned: bool
+    gmail_connected: bool
+    gmail_address: str
+    as_of: str
+    start_as_of: str
+
+
+class ResetOut(BaseModel):
+    ok: bool
 
 
 MAX_CHAT_CHARS = 24_000

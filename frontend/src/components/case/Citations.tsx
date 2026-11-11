@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import { formatDate, formatMoney } from "../../format";
 import { SPRING } from "../../motion";
 import { titleCase } from "../../queue";
-import { type Citation, type CitedReason, type Source, splitIncident } from "./cite";
+import { type Citation, type CitedReason, incidentParts, type Source, splitIncident } from "./cite";
 
 const PREVIEW_WIDTH = 300;
 const GAP = 10;
@@ -14,48 +14,54 @@ function Preview({ source }: { source: Source }) {
     case "charge":
       return (
         <>
-          <p className="text-12 font-medium text-dim">{source.transactions.length > 1 ? "Charges on your card" : "Charge on your card"}</p>
+          <p className="text-12 text-sub">{source.transactions.length > 1 ? "Charges on your card" : "Charge on your card"}</p>
           <ul className="mt-2 flex flex-col gap-2">
             {source.transactions.map((t) => (
               <li key={t.id} className="grid grid-cols-[auto_1fr_auto] items-baseline gap-3 text-14">
-                <span className="figure text-dim">{formatDate(t.posted_at)}</span>
+                <span className="figure text-sub">{formatDate(t.posted_at)}</span>
                 <span className="truncate">{titleCase(t.merchant)}</span>
                 <span className="figure">{formatMoney(t.amount_minor, t.currency)}</span>
               </li>
             ))}
           </ul>
           {source.transactions[0]?.reference && (
-            <p className="mt-2 text-12 text-dim">Reference <span className="ref"> {source.transactions[0].reference}</span></p>
+            <p className="mt-2 text-12 text-sub">
+              Reference <span className="ref text-white">{source.transactions[0].reference}</span>
+            </p>
           )}
         </>
       );
     case "email":
       return (
         <>
-          <p className="text-12 font-medium text-dim">
+          <p className="text-12 text-sub">
             {source.quote.vendor}, <span className="figure">{formatDate(source.quote.day)}</span>
           </p>
           <p className="mt-2 text-14">“{source.quote.quote}”</p>
-          {source.email && <p className="mt-2 text-12 text-dim">Click to read the whole email.</p>}
+          {source.email && <p className="mt-2 text-12 text-sub">Click to read the email.</p>}
         </>
       );
     case "contract":
       return (
         <>
-          <p className="ref truncate text-12 text-dim">{source.evidence.ref}</p>
+          <p className="truncate text-12 text-sub">{source.evidence.ref}</p>
           <p className="mt-2 line-clamp-5 text-14">{source.evidence.detail}</p>
         </>
       );
     case "incident":
       return (
         <>
-          <p className="text-12 font-medium text-dim">Vendor status page</p>
+          <p className="text-12 text-sub">Vendor status page</p>
           <ul className="mt-2 flex flex-col gap-2">
-            {source.items.map((item) => (
-              <li key={item.ref} className="text-14">
-                {splitIncident(item.detail).text}
-              </li>
-            ))}
+            {source.items.map((item) => {
+              const { name, when } = incidentParts(splitIncident(item.detail).text);
+              return (
+                <li key={item.ref} className="flex flex-col text-14">
+                  <span>{name}</span>
+                  {when && <span className="figure text-12 text-sub">{when}</span>}
+                </li>
+              );
+            })}
           </ul>
         </>
       );
@@ -96,12 +102,19 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
   useEffect(() => {
     if (!isOpen) return;
     const close = () => setIsOpen(false);
-    const onKey = (event: KeyboardEvent) => event.key === "Escape" && close();
+    // Capture phase, so it runs before the case page's own Escape (back to the list), which skips a
+    // handled key: Esc closes the preview and leaves you where you are (WCAG 1.4.13).
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      close();
+    };
     window.addEventListener("scroll", close, true);
-    window.addEventListener("keydown", onKey);
+    window.addEventListener("keydown", onKey, true);
     return () => {
       window.removeEventListener("scroll", close, true);
-      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keydown", onKey, true);
     };
   }, [isOpen]);
 
@@ -136,10 +149,11 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
             setIsOpen((open) => !open);
           }
         }}
-        // A 24px target around an 18px chip, so the citation is easy to hit without looking bigger.
-        className="group/fn -my-1 inline-grid size-6 -translate-y-[0.4em] place-items-center align-baseline transition-transform duration-150 active:scale-90"
+        // An unboxed mono superscript at line-height 0, so the sentence keeps its rhythm; the padding and
+        // negative margins give a 24px target without pushing the line apart.
+        className="group/fn relative -mx-1 -my-3 inline-block px-1 py-3 align-super leading-[0] text-dim transition-colors duration-150 hover:text-ink"
       >
-        <span className="figure inline-grid h-[18px] min-w-[18px] place-items-center rounded-full bg-selected px-1 text-12 font-medium text-dim transition-colors duration-150 group-hover/fn:bg-tint-hover group-hover/fn:text-ink">
+        <span className="figure text-12 font-semibold leading-[0] underline decoration-transparent underline-offset-2 transition-colors group-hover/fn:decoration-current">
           {citation.n}
         </span>
       </button>
@@ -149,7 +163,7 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
             <motion.div
               id={id}
               role="tooltip"
-              className="glass-float pointer-events-none fixed z-50 rounded-card px-4 py-3 text-ink"
+              className="on-ink float pointer-events-none fixed z-50 rounded-md border border-rule bg-panel px-4 py-3 text-white"
               style={{
                 left: place.left,
                 top: place.top,
@@ -175,10 +189,23 @@ function Footnote({ citation, onOpenEmail }: { citation: Citation; onOpenEmail: 
 /** The one-sentence reason, with a numbered footnote on every claim we hold a source for. */
 export function Reason({ cited, onOpenEmail }: { cited: CitedReason; onOpenEmail: (source: Extract<Source, { kind: "email" }>) => void }) {
   return (
-    <p className="max-w-[62ch] text-16 text-ink text-pretty">
-      {cited.parts.map((part, i) =>
-        typeof part === "string" ? <span key={i}>{part}</span> : <Footnote key={`fn-${part.n}`} citation={part} onOpenEmail={onOpenEmail} />,
-      )}
+    <p className="m-0 max-w-[64ch] text-16 text-ink text-pretty">
+      {cited.parts.map((part, i) => {
+        if (typeof part !== "string") return null;
+        const next = cited.parts[i + 1];
+        if (!next || typeof next === "string") return <span key={i}>{part}</span>;
+        // The word a footnote marks stays on its line, so a number never wraps on its own.
+        const at = part.search(/\S+$/);
+        return (
+          <span key={i}>
+            {part.slice(0, Math.max(at, 0))}
+            <span className="whitespace-nowrap">
+              {at >= 0 ? part.slice(at) : ""}
+              <Footnote citation={next} onOpenEmail={onOpenEmail} />
+            </span>
+          </span>
+        );
+      })}
     </p>
   );
 }

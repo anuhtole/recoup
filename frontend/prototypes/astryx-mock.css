@@ -1,0 +1,87 @@
+/* Prototype only. Page chrome for the Astryx mock; the screen itself is Astryx's own CSS. */
+body {
+  margin: 0;
+  font-family: var(--font-family-body);
+}
+
+/* The look switcher: prototype chrome, not part of the mock. */
+#look {
+  position: fixed;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  z-index: 50;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: 999px;
+  background: #0e100f;
+  box-shadow: 0 8px 24px -6px rgba(10, 11, 10, 0.4);
+  font: 500 13px/20px "Geist", system-ui, sans-serif;
+}
+#look button,
+#look a {
+  border: 0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  background: transparent;
+  color: #9aa59f;
+  font: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+#look button[aria-pressed="true"] {
+  background: #9bf0c8;
+  color: #0a0b0a;
+}
+
+/* Mock-only layout helpers. */
+.mock-figure {
+  font-size: 44px;
+  line-height: 1.1;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-primary);
+}
+.mock-num {
+  font-variant-numeric: tabular-nums;
+}
+.mock-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* "Themed toward Recoup": the same Astryx components with Recoup's tokens laid over Astryx's variables. */
+html.recoup {
+  --font-family-body: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-family-heading: "Geist", ui-sans-serif, system-ui, sans-serif;
+  --font-family-code: "Geist Mono", ui-monospace, monospace;
+  --color-accent: light-dark(#0a0b0a, #9bf0c8);
+  --color-on-accent: light-dark(#ffffff, #0a0b0a);
+  --color-background-body: light-dark(#ffffff, #0a0b0a);
+  --color-background-surface: light-dark(#ffffff, #0e100f);
+  --color-text-primary: light-dark(#0a0b0a, #ffffff);
+  --color-text-secondary: light-dark(#5f6862, #9aa59f);
+  --color-border: light-dark(#e2e5e2, #2b302d);
+  --color-warning: #f2b04b;
+  --radius-inner: 2px;
+  --radius-element: 4px;
+  --radius-container: 6px;
+}
+/* Recoup's ink sidebar: the nav flips to the dark half of every light-dark() token. */
+html.recoup .astryx-side-nav {
+  color-scheme: dark;
+  background: #0e100f;
+}
+/* Astryx's colour tokens resolve on <html>, so the nav restates the ones it uses. */
+html.recoup .astryx-side-nav {
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #9aa59f;
+  --color-accent: #9bf0c8;
+  --color-on-accent: #0a0b0a;
+  --color-border: #2b302d;
+  color: #ffffff;
+}

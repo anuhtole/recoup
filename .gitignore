@@ -30,5 +30,7 @@ frontend/dist/
 frontend/test-results/
 frontend/playwright-report/
 
+# Throwaway e2e world and local pipeline output
+.pipeline/
 # TypeScript incremental build cache
 *.tsbuildinfo

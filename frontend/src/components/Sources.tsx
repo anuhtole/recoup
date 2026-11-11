@@ -1,112 +1,82 @@
-import { useState } from "react";
+import { Lock } from "lucide-react";
+import { useRef, useState } from "react";
 import type { Sources, SyncReport, SyncRun } from "../api";
-import { formatDateTime } from "../format";
+import { CONNECT } from "../demo/script";
+import { formatDateTime, plural } from "../format";
 import { cn } from "@/lib/utils";
 import { Button } from "./Button";
 import { Sheet } from "./Sheet";
+import { Dialog } from "./ui";
+import { VendorLogo } from "./VendorLogo";
 
 const STALE_MS = 24 * 60 * 60 * 1000;
-const FEED_LABEL: Record<string, string> = { jira: "Jira", confluence: "Confluence", github: "GitHub" };
+export const FEED_LABEL: Record<string, string> = { jira: "Jira", confluence: "Confluence", github: "GitHub" };
 
 export type SourcesHealth = "ok" | "attention" | "none";
 
-/** "just now", "2 min ago", "3 h ago", then the date. */
+/** "just now", "2 min ago", "3 hours ago", "2 days ago", then the date. */
 export function relativeTime(iso: string, now = Date.now()): string {
   const seconds = Math.max(0, Math.round((now - new Date(iso).getTime()) / 1000));
   if (seconds < 60) return "just now";
   const minutes = Math.round(seconds / 60);
   if (minutes < 60) return `${minutes} min ago`;
   const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours} h ago`;
+  if (hours < 24) return `${plural(hours, "hour")} ago`;
   const days = Math.round(hours / 24);
-  return days < 7 ? `${days} d ago` : formatDateTime(iso);
+  return days < 7 ? `${plural(days, "day")} ago` : formatDateTime(iso);
 }
 
-function configured(sources: Sources) {
+export function configured(sources: Sources) {
   return sources.connectors.filter((c) => c.configured);
 }
 
-/** Green when every connected source last synced fine and recently, amber when one failed or is stale, dim when nothing has synced. */
+/** Green when every source that has synced did so fine and recently, amber when one failed or is stale, dim when nothing has synced. */
 export function sourcesHealth(sources: Sources | null): SourcesHealth {
   if (!sources) return "none";
-  const runs = configured(sources).map((c) => c.last_sync);
-  if (runs.length === 0 || runs.every((r) => r === null)) return "none";
+  // A source that has never synced is not a problem; only a failed or stale run is.
+  const runs = configured(sources)
+    .map((c) => c.last_sync)
+    .filter((r): r is SyncRun => r !== null);
+  if (runs.length === 0) return "none";
   const fresh = (r: SyncRun) => Date.now() - new Date(r.finished_at).getTime() < STALE_MS;
-  return runs.every((r) => r !== null && r.ok && fresh(r)) ? "ok" : "attention";
-}
-
-/** Demo data comes bundled, so there is nothing to connect or sync: say so instead of "not synced". */
-export function sourcesLabel(sources: Sources | null, isDemo = false): string {
-  if (isDemo) return "Sample ledger and inbox";
-  if (!sources) return "Sources";
-  const total = sources.connectors.length;
-  const on = configured(sources).length;
-  const latest = configured(sources)
-    .map((c) => c.last_sync?.finished_at)
-    .filter((t): t is string => Boolean(t))
-    .sort()
-    .at(-1);
-  return `${on} of ${total} sources · ${latest ? `synced ${relativeTime(latest)}` : "not synced"}`;
+  return runs.every((r) => r.ok && fresh(r)) ? "ok" : "attention";
 }
 
 const DOT: Record<SourcesHealth, string> = {
-  ok: "bg-money",
+  ok: "bg-mint-ink",
   attention: "bg-amber",
-  none: "bg-dim/40",
+  none: "bg-sub/50",
 };
 
-export function StatusDot({ health }: { health: SourcesHealth }) {
-  return <span aria-hidden className={cn("inline-block size-2 flex-none rounded-full", DOT[health])} />;
+export function StatusDot({ health, className }: { health: SourcesHealth; className?: string }) {
+  return <span aria-hidden className={cn("inline-block size-2 flex-none rounded-full", DOT[health], className)} />;
 }
 
-/** The quiet top-bar button: how many sources are on and when they last synced. */
-export function SourcesButton({ sources, isDemo, onOpen }: { sources: Sources | null; isDemo: boolean; onOpen: () => void }) {
-  const health = isDemo ? "ok" : sourcesHealth(sources);
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      aria-haspopup="dialog"
-      title={health === "attention" ? "A source needs attention" : "Data sources"}
-      className="inline-flex h-9 items-center gap-2 rounded-full px-3 text-14 font-medium text-dim transition-[transform,background-color,color] duration-150 hover:bg-tint hover:text-ink active:scale-[0.97]"
-    >
-      <StatusDot health={health} />
-      <span className="figure whitespace-nowrap">{sourcesLabel(sources, isDemo)}</span>
-    </button>
-  );
-}
-
-function num(detail: Record<string, unknown> | null | undefined, key: string): number | null {
+export function num(detail: Record<string, unknown> | null | undefined, key: string): number | null {
   const value = detail?.[key];
   return typeof value === "number" ? value : null;
 }
 
-function plural(n: number, one: string, many = `${one}s`): string {
-  return `${n} ${n === 1 ? one : many}`;
+
+/** The server's own words for a failed run, for a tooltip; the page itself says it in plain words. */
+export function runError(run: SyncRun | null): string | undefined {
+  const error = run?.detail?.error;
+  return run && !run.ok && typeof error === "string" && error ? error : undefined;
 }
 
-/** One line about the last sync, in plain words. */
-function runResult(key: string, run: SyncRun): string {
-  const error = run.detail?.error;
-  if (!run.ok) return typeof error === "string" && error ? `Didn't finish: ${error}` : "Didn't finish.";
-  if (key === "ramp") {
-    const inserted = num(run.detail, "inserted");
-    const pulled = num(run.detail, "pulled");
-    return inserted !== null && pulled !== null ? `${plural(inserted, "new transaction")} of ${pulled} read.` : "Finished.";
-  }
-  if (key === "gmail") {
-    const inserted = num(run.detail, "inserted");
-    const fetched = num(run.detail, "fetched");
-    return inserted !== null && fetched !== null ? `${plural(inserted, "new vendor email")} of ${fetched} read.` : "Finished.";
-  }
-  return "Finished.";
+/** One line about the last sync, in plain words: "40 read, 3 new". */
+export function runResult(key: string, run: SyncRun): string {
+  if (!run.ok) return "Didn't finish. Try Sync now again.";
+  const inserted = num(run.detail, "inserted");
+  const read = key === "ramp" ? num(run.detail, "pulled") : key === "gmail" ? num(run.detail, "fetched") : null;
+  return inserted !== null && read !== null ? `${read} read, ${inserted} new` : "Finished";
 }
 
-function Copyable({ text }: { text: string }) {
+export function Copyable({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
   return (
-    <span className="inline-flex flex-wrap items-center gap-2">
-      <code className="whitespace-pre-wrap rounded-row bg-glass px-2 py-1 text-12 text-ink">{text}</code>
+    <div className="flex max-w-xl items-start justify-between gap-3 rounded-sm border border-line bg-wash py-1.5 pl-3 pr-1">
+      <code className="ref min-w-0 whitespace-pre-wrap break-all py-1 text-13 text-ink">{text}</code>
       <button
         type="button"
         onClick={() => {
@@ -118,134 +88,11 @@ function Copyable({ text }: { text: string }) {
             })
             .catch(() => undefined);
         }}
-        className="rounded-full px-2 py-1 text-12 font-medium text-dim transition-colors hover:bg-tint hover:text-ink"
+        className="h-7 flex-none rounded-sm px-2 text-12 font-medium text-dim transition-colors hover:bg-paper hover:text-ink"
       >
         {copied ? "Copied" : "Copy"}
       </button>
-    </span>
-  );
-}
-
-function When({ run }: { run: SyncRun | null }) {
-  if (!run) return <span>Not synced yet</span>;
-  return (
-    <span title={formatDateTime(run.finished_at)}>
-      Synced <span className="figure">{relativeTime(run.finished_at)}</span>
-    </span>
-  );
-}
-
-function Row({
-  name,
-  source,
-  connected,
-  note,
-  run,
-  children,
-}: {
-  name: string;
-  source: "ramp" | "gmail" | "status";
-  connected: boolean;
-  note?: string;
-  run: SyncRun | null;
-  children?: React.ReactNode;
-}) {
-  return (
-    <li className="flex list-none flex-col gap-2 rounded-row bg-tint px-4 py-3">
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-        <span className="text-16 font-medium">{name}</span>
-        <span className="flex items-center gap-2 text-14 text-dim">
-          <StatusDot health={!connected ? "none" : run && !run.ok ? "attention" : run ? "ok" : "none"} />
-          {connected ? "Connected" : "Not connected"}
-          {note && <span>· {note}</span>}
-        </span>
-      </div>
-      {connected && (
-        <p className="flex flex-wrap gap-x-2 text-14 text-dim">
-          <When run={run} />
-          {run && source !== "status" && <span>· {runResult(source, run)}</span>}
-        </p>
-      )}
-      {children}
-    </li>
-  );
-}
-
-interface SheetProps {
-  sources: Sources | null;
-  isAvailable: boolean;
-  isSyncing: boolean;
-  onSync: () => void;
-  onClose: () => void;
-}
-
-/** Every source, where it stands, how to connect the missing ones, and one "Sync now". */
-export function SourcesSheet({ sources, isAvailable, isSyncing, onSync, onClose }: SheetProps) {
-  const status = sources?.connectors.find((c) => c.kind === "status");
-  return (
-    <Sheet labelId="sources-title" title="Data sources" subtitle="Read-only. Credentials stay on the server." onClose={onClose}>
-      <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-6 pb-2 pt-2">
-        {!sources ? (
-          <p className="rounded-row bg-tint px-4 py-3 text-14 text-dim">
-            {isAvailable ? "Loading sources…" : "This server doesn't report its sources. Detection still runs on the data it has."}
-          </p>
-        ) : (
-          <ul className="m-0 flex flex-col gap-2 p-0">
-            <Row
-              name="Ramp transactions"
-              source="ramp"
-              connected={sources.ramp.connected}
-              note={sources.ramp.connected ? (sources.ramp.environment === "sandbox" ? "Sandbox" : "Production") : undefined}
-              run={sources.ramp.last_sync}
-            >
-              {!sources.ramp.connected && (
-                <p className="flex flex-col gap-2 text-14 text-dim">
-                  Add the app's credentials to backend/.env on the server:
-                  <Copyable text={"RECOUP_RAMP_CLIENT_ID=\nRECOUP_RAMP_CLIENT_SECRET="} />
-                </p>
-              )}
-            </Row>
-            <Row name="Gmail vendor email" source="gmail" connected={sources.gmail.connected} run={sources.gmail.last_sync}>
-              {!sources.gmail.connected && (
-                <p className="flex flex-col gap-2 text-14 text-dim">
-                  With RECOUP_GMAIL_CLIENT_ID and RECOUP_GMAIL_CLIENT_SECRET in backend/.env, run this in backend/ on the server:
-                  <Copyable text="recoup connect gmail" />
-                </p>
-              )}
-            </Row>
-            <Row name="Status pages" source="status" connected={status?.configured ?? true} note="No credentials needed" run={status?.last_sync ?? null}>
-              <ul className="m-0 flex flex-col gap-1 p-0">
-                {sources.status_feeds.map((feed) => {
-                  const seen = num(feed.last_sync?.detail, "incidents_seen");
-                  return (
-                    <li key={feed.key} className="flex list-none flex-wrap items-baseline justify-between gap-x-4 text-14">
-                      <a href={feed.page_url} target="_blank" rel="noopener noreferrer" className="text-ink underline decoration-line-strong underline-offset-4 hover:decoration-current">
-                        {FEED_LABEL[feed.key] ?? feed.key}
-                      </a>
-                      <span className="text-dim">
-                        {!feed.last_sync
-                          ? "Not read yet"
-                          : !feed.last_sync.ok
-                            ? "Couldn't reach the page"
-                            : seen !== null
-                              ? `${plural(seen, "incident")} read`
-                              : "Read"}
-                      </span>
-                    </li>
-                  );
-                })}
-              </ul>
-            </Row>
-          </ul>
-        )}
-      </div>
-      <div className="flex flex-wrap items-center gap-4 px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4">
-        <Button variant="primary" onClick={onSync} isBusy={isSyncing} disabled={!isAvailable}>
-          Sync now
-        </Button>
-        <p className="text-14 text-dim">Pulls every connected source, then looks for new money owed.</p>
-      </div>
-    </Sheet>
+    </div>
   );
 }
 
@@ -257,7 +104,7 @@ export function syncNotice(report: SyncReport): { title: string; body: string; o
     if (!outcome.ok) {
       ok = false;
       const name = outcome.connector === "ramp" ? "Ramp" : outcome.connector === "gmail" ? "Gmail" : "Status pages";
-      parts.push(`${name} didn't finish${outcome.error ? `: ${outcome.error}` : "."}`);
+      parts.push(`${name} didn't finish. Try Sync now again.`);
       continue;
     }
     if (outcome.connector === "ramp") parts.push(`Ramp: ${plural(num(outcome.detail, "inserted") ?? 0, "new transaction")}.`);
@@ -277,7 +124,87 @@ export function syncNotice(report: SyncReport): { title: string; body: string; o
   const title = !ok
     ? "Sync couldn't reach every source"
     : created > 0
-      ? `Synced · ${plural(created, "new case")} found`
+      ? `Synced · ${plural(created, "new claim")} found`
       : "Synced · nothing new";
   return { title, body: parts.join(" ") || "No sources are connected yet.", ok };
+}
+
+/** The sources a person connects; status pages are public and need no setup. */
+export type Connect = "ramp" | "gmail";
+
+/** How to connect a source: server setup, so it lives in a sheet an admin opens, not on the page. */
+export function ConnectSheet({ source, onClose }: { source: Connect; onClose: () => void }) {
+  const isRamp = source === "ramp";
+  return (
+    <Sheet labelId="connect-title" title={isRamp ? "Connect Ramp" : "Connect Gmail"} subtitle="An admin sets this up on the Recoup server." onClose={onClose}>
+      <div className="flex flex-col gap-4 overflow-y-auto px-6 pb-6 pt-2 text-14">
+        {isRamp ? (
+          <>
+            <p className="m-0">Add the Ramp app's client ID and secret to the server's backend/.env:</p>
+            <Copyable text={"RECOUP_RAMP_CLIENT_ID=\nRECOUP_RAMP_CLIENT_SECRET="} />
+            <p className="m-0 text-dim">Then press Sync now. Recoup only reads transactions.</p>
+          </>
+        ) : (
+          <>
+            <p className="m-0">Add the Google app's client ID and secret to the server's backend/.env:</p>
+            <Copyable text={"RECOUP_GMAIL_CLIENT_ID=\nRECOUP_GMAIL_CLIENT_SECRET="} />
+            <p className="m-0">Then run this in backend/ and sign in with the finance inbox:</p>
+            <Copyable text="recoup connect gmail" />
+            <p className="m-0 text-dim">Access is read-only.</p>
+          </>
+        )}
+      </div>
+    </Sheet>
+  );
+}
+
+/**
+ * The demo's Gmail pop-up, shared by the Agent page and the Sources page: the inbox, what Recoup may do
+ * with it, Cancel and Connect. Connecting is staged (no Google sign-in); `onConnect` makes the call.
+ */
+export function GmailConnectDialog({
+  address,
+  isConnecting,
+  error,
+  onConnect,
+  onClose,
+  returnFocus,
+}: {
+  address: string;
+  isConnecting: boolean;
+  /** Why the last try failed, in plain words. Connect stays, to try again. */
+  error: string | null;
+  onConnect: () => void;
+  onClose: () => void;
+  returnFocus?: () => HTMLElement | null;
+}) {
+  const confirm = useRef<HTMLButtonElement>(null);
+  return (
+    <Dialog labelId="gmail-connect-title" title={CONNECT.title} onClose={onClose} isLocked={isConnecting} initialFocus={confirm} returnFocus={returnFocus}>
+      <div className="flex items-center gap-3 rounded-sm border border-line px-3 py-3">
+        <VendorLogo name="Gmail" size={28} />
+        <span className="flex min-w-0 flex-col">
+          <span className="truncate text-14 font-medium">{address}</span>
+          <span className="text-13 text-dim">{CONNECT.account}</span>
+        </span>
+      </div>
+      <p className="m-0 flex items-start gap-2 text-13 text-dim">
+        <Lock aria-hidden className="mt-0.5 size-4 flex-none" strokeWidth={1.75} />
+        <span className="text-pretty">{CONNECT.note}</span>
+      </p>
+      {error && (
+        <p role="alert" className="m-0 rounded-sm bg-amber-wash px-3 py-2 text-13 text-amber-ink">
+          {error}
+        </p>
+      )}
+      <div className="flex justify-end gap-2 pt-1">
+        <Button onClick={onClose} disabled={isConnecting}>
+          {CONNECT.cancel}
+        </Button>
+        <Button variant="primary" buttonRef={confirm} onClick={onConnect} isBusy={isConnecting} busyLabel={CONNECT.busy}>
+          {CONNECT.confirm}
+        </Button>
+      </div>
+    </Dialog>
+  );
 }

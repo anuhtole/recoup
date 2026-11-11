@@ -20,6 +20,7 @@ import {
   useTransform,
 } from "motion/react";
 import {
+  type KeyboardEvent,
   type MouseEvent,
   type PointerEvent,
   type RefObject,
@@ -44,6 +45,11 @@ const FLICK_FROM = 0.45;
 const OVERDRAG = 8;
 /** A press that moves less than this is a tap. */
 const TAP_SLOP = 4;
+/**
+ * Key presses this soon after mounting are ignored: the key that opened the sheet (focus lands on the
+ * thumb while it is still down) must never count as the first of the two presses.
+ */
+const KEY_GUARD_MS = 300;
 
 type Phase = "idle" | "dragging" | "confirming" | "done";
 
@@ -64,6 +70,8 @@ export interface SlideToConfirmProps {
   /** Go back to the start this many ms after it's done. `null` stays done. */
   resetAfter?: number | null;
   disabled?: boolean;
+  /** What it sits on: an ink panel (the default), or a light surface such as paper or a wash. */
+  surface?: "ink" | "paper";
   className?: string;
   /** Ref to the thumb button, e.g. so a dialog can focus it first. */
   thumbRef?: RefObject<HTMLButtonElement>;
@@ -91,9 +99,11 @@ export default function SlideToConfirm({
   onConfirm = () => wait(1200),
   resetAfter = 2600,
   disabled = false,
+  surface = "ink",
   className,
   thumbRef,
 }: SlideToConfirmProps) {
+  const onPaper = surface === "paper";
   const [phase, setPhase] = useState<Phase>("idle");
   const [armed, setArmed] = useState(false);
   // Keyboard path: the first Enter arms (the label asks again), the second
@@ -104,6 +114,9 @@ export default function SlideToConfirm({
   const trackRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef({ pointer: 0, from: 0, moved: false });
   const runRef = useRef(0);
+  const mountedAt = useRef(0);
+  // True between a handled keydown and its keyup: one physical press counts once, however long it is held.
+  const keyDownRef = useRef(false);
   const confirmRef = useRef(onConfirm);
   confirmRef.current = onConfirm;
 
@@ -119,7 +132,8 @@ export default function SlideToConfirm({
   const fillClip = useTransform(
     [x, width, cover],
     ([value, total, covered]: number[]) =>
-      `inset(0px ${(1 - covered) * Math.max(0, total - value - INSET - THUMB / 2)}px 0px 0px round ${HEIGHT}px)`
+      // On paper the flooded track shows its corners, so the fill takes the track's radius.
+      `inset(0px ${(1 - covered) * Math.max(0, total - value - INSET - THUMB / 2)}px 0px 0px round ${onPaper ? "var(--radius-sm)" : `${HEIGHT}px`})`
   );
   // Hidden at rest, so no ink shows round the thumb before it moves.
   const fillOpacity = useTransform(x, (value) => Math.min(1, value / 20));
@@ -145,12 +159,12 @@ export default function SlideToConfirm({
     return () => observer.disconnect();
   }, [width, x]);
 
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    mountedAt.current = performance.now();
+    return () => {
       runRef.current += 1;
-    },
-    []
-  );
+    };
+  }, []);
 
   const spring = (velocity = 0) =>
     reduceMotion
@@ -262,20 +276,59 @@ export default function SlideToConfirm({
     }
   };
 
+  // The non-pointer path: the first press arms (the label asks again), the second confirms.
+  const activateByKey = () => {
+    if (disabled || phase !== "idle") {
+      return;
+    }
+    if (keyArmed) {
+      setKeyArmed(false);
+      commit(0, true);
+    } else {
+      // The thumb stays put so the question stays readable; the arrow leans forward.
+      setKeyArmed(true);
+      setArmed(true);
+    }
+  };
+
+  // Enter and Space are handled here, not by the browser's click: auto-repeat from a held key
+  // (event.repeat), a key still down from before the sheet opened, or a second keydown without a keyup
+  // in between can never arm or confirm. Only two separate, deliberate presses send.
+  const onKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "Escape" && keyArmed) {
+      event.stopPropagation();
+      setKeyArmed(false);
+      settleBack();
+      return;
+    }
+    if (event.key !== "Enter" && event.key !== " ") {
+      return;
+    }
+    event.preventDefault();
+    if (event.repeat || keyDownRef.current) {
+      return;
+    }
+    if (performance.now() - mountedAt.current < KEY_GUARD_MS) {
+      return;
+    }
+    keyDownRef.current = true;
+    activateByKey();
+  };
+
+  const onKeyUp = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      keyDownRef.current = false;
+    }
+  };
+
   const onClick = async (event: MouseEvent<HTMLButtonElement>) => {
     if (disabled || phase !== "idle") {
       return;
     }
-    // Enter and Space click with no pointer: the first arms, the second confirms.
+    // A click with no pointer and no key we handled: assistive tech activating the button. Same two steps.
     if (event.detail === 0) {
-      if (keyArmed) {
-        setKeyArmed(false);
-        commit(0, true);
-      } else {
-        // The thumb stays put so the question stays readable; the arrow leans forward.
-        setKeyArmed(true);
-        setArmed(true);
-      }
+      activateByKey();
       return;
     }
     if (dragRef.current.moved || reduceMotion) {
@@ -307,8 +360,8 @@ export default function SlideToConfirm({
     >
       <motion.div
         className={cn(
-          "relative overflow-hidden rounded-full border",
-          "border-line bg-tint",
+          "relative overflow-hidden rounded-sm border",
+          onPaper ? "border-line-strong bg-paper" : "border-rule bg-panel-2",
           disabled && "opacity-50"
         )}
         ref={trackRef}
@@ -319,7 +372,10 @@ export default function SlideToConfirm({
             centers and reads as centered. */}
         <motion.span
           aria-hidden
-          className="absolute inset-0 flex items-center justify-center whitespace-nowrap pl-6 font-medium text-14 text-dim"
+          className={cn(
+            "absolute inset-0 flex items-center justify-center whitespace-nowrap pl-6 font-medium text-14",
+            onPaper ? "text-dim" : "text-sub"
+          )}
           style={{ opacity: labelOpacity }}
         >
           {keyArmed ? armedLabel : label}
@@ -331,7 +387,7 @@ export default function SlideToConfirm({
           aria-hidden
           className={cn(
             "absolute inset-0 transition-colors duration-300 ease-out motion-reduce:transition-none",
-            "bg-primary"
+            onPaper ? "bg-mint-ink" : "bg-mint"
           )}
           style={{ clipPath: fillClip, opacity: fillOpacity }}
         >
@@ -340,7 +396,7 @@ export default function SlideToConfirm({
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               className={cn(
                 "absolute inset-0 flex items-center justify-center gap-2 whitespace-nowrap font-medium text-14",
-                "text-on-primary",
+                onPaper ? "text-white" : "text-ink",
                 phase === "idle" || phase === "dragging" ? "pl-6" : "pr-6"
               )}
               exit={{ opacity: 0, y: -8, filter: "blur(2px)" }}
@@ -361,26 +417,24 @@ export default function SlideToConfirm({
           aria-disabled={disabled || phase !== "idle"}
           aria-label={keyArmed ? armedLabel : `${label}. Or press Enter twice.`}
           className={cn(
-            "absolute flex touch-none items-center justify-center rounded-full outline-none",
-            "bg-ground text-ink border border-line-strong",
-            "focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-transparent",
+            "absolute flex touch-none items-center justify-center rounded-xs outline-none",
+            "border focus-visible:ring-2 focus-visible:ring-offset-2",
+            onPaper
+              ? "border-mint-ink bg-mint-ink text-white focus-visible:ring-mint-ink focus-visible:ring-offset-paper"
+              : "border-mint bg-mint text-ink focus-visible:ring-mint focus-visible:ring-offset-panel",
             phase === "idle" && !disabled && "cursor-grab",
             phase === "dragging" && "cursor-grabbing"
           )}
           onBlur={() => {
+            keyDownRef.current = false;
             if (keyArmed) {
               setKeyArmed(false);
               settleBack();
             }
           }}
           onClick={onClick}
-          onKeyDown={(event) => {
-            if (event.key === "Escape" && keyArmed) {
-              event.stopPropagation();
-              setKeyArmed(false);
-              settleBack();
-            }
-          }}
+          onKeyDown={onKeyDown}
+          onKeyUp={onKeyUp}
           onPointerCancel={onPointerUp}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
@@ -408,7 +462,7 @@ export default function SlideToConfirm({
             <Check
               aria-hidden
               className={cn(
-                "absolute inset-0 size-5 text-primary transition-[opacity,scale,filter] duration-200 ease-out motion-reduce:transition-none",
+                "absolute inset-0 size-5 transition-[opacity,scale,filter] duration-200 ease-out motion-reduce:transition-none",
                 done ? "scale-100 opacity-100" : "scale-50 opacity-0 blur-[2px]"
               )}
               strokeWidth={2.5}

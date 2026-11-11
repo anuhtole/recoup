@@ -99,7 +99,8 @@ def _credit_pct(contract: Contract, uptime_bp: int) -> int:
 
 
 def _percent(bp: int) -> str:
-    return f"{bp / 100:.2f}%"
+    """99.90% reads 99.9%, 100.00% reads 100%: the figure as people write it."""
+    return f"{bp / 100:.2f}".rstrip("0").rstrip(".") + "%"
 
 
 def _uptime_bp(incidents: Sequence[Incident], start: date, end: date) -> int:
@@ -208,21 +209,18 @@ def _reason(
                 f"{human_date(deadline)}."
             )
         return (
-            f"{vendor_name} owed a {money} credit for {period.label} ({uptime} uptime), but the "
-            f"claim window closed on {human_date(deadline)}."
+            f"{vendor_name} owed a {money} credit for {period.label}, when uptime was {uptime}, "
+            f"but the claim window closed on {human_date(deadline)}."
         )
     target = _percent(contract.sla_target_bp or _BP)
-    claim = (
-        f"The contract owes a {period.credit_pct}% credit, {money}; "
-        f"claim by {human_date(deadline)}."
-    )
+    # The deadline has its own home on the case (the rail), so the sentence doesn't repeat it.
+    claim = f"The contract owes a {period.credit_pct}% credit, {money}."
     partial = "" if period.is_confirmed else " if partial outages count"
     summary = f"{subject} ran at {uptime} uptime in {period.label}{partial}, under its {target} "
     if contract.needs_customer_confirmation:
         return (
             f"{summary}published commitment. If your site was affected and your order form has "
-            f"these terms, that is a {period.credit_pct}% credit, {money}; claim by "
-            f"{human_date(deadline)}."
+            f"these terms, that is a {period.credit_pct}% credit, {money}."
         )
     if period.is_confirmed:
         return f"{summary}commitment. {claim}"

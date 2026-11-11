@@ -43,6 +43,8 @@ export interface Finding {
   source_refs: string[];
   next_action: NextAction;
   created_at: string;
+  /** When the credit posted, on the demo clock. Older APIs omit it. */
+  recovered_at?: string | null;
 }
 
 export type EvidenceKind = "transaction" | "email" | "contract" | "incident" | "rule" | "note";
@@ -120,6 +122,8 @@ export interface FindingDetail extends Finding {
   drafts: Draft[];
   timeline: TimelineEvent[];
   trace: AuditEvent[];
+  /** Where the next draft would go: the vendor, or the card issuer. Older APIs omit it. */
+  draft_channel?: "vendor_email" | "card_dispute";
 }
 
 export interface Summary {
@@ -129,6 +133,8 @@ export interface Summary {
   demo_mode: boolean;
   /** "demo" for the generated world, "live" for data that arrived by sync. Older APIs omit it. */
   data_mode?: "demo" | "live";
+  /** The company Recoup works for; letters are signed with it. Older APIs omit it. */
+  org_name?: string;
   claimable_minor: number;
   in_flight_minor: number;
   recovered_minor: number;
@@ -163,6 +169,8 @@ export interface SyncReport {
 
 export interface RunSummary {
   as_of: string;
+  /** Ledger rows the run looked at. Older APIs omit it. */
+  transactions?: number;
   emails_read: number;
   promises: number;
   rejected: number;
@@ -179,6 +187,15 @@ export interface AdvanceResult {
   replies: number;
   credits: number;
   run: RunSummary;
+}
+
+// GET /api/demo/state: where the scripted demo stands on the server. Demo mode only.
+export interface DemoServer {
+  scanned: boolean;
+  gmail_connected: boolean;
+  gmail_address: string;
+  as_of: string;
+  start_as_of: string;
 }
 
 // Setup: plugging one company's data into Recoup. Mirrors api/routes/{company,ledger,discovery}.py.
@@ -298,10 +315,23 @@ export class ApiError extends Error {
   }
 }
 
+/** No call waits longer than this, so nothing that is running can hang the page. */
+const TIMEOUT_MS = 20_000;
+
+/** A failed call in plain words: the server's own sentence when it sent one. */
+export function errorText(error: unknown): string {
+  if (error instanceof ApiError) return error.message;
+  if (error instanceof DOMException && error.name === "TimeoutError") return "Recoup took too long to answer. Try again in a moment.";
+  // fetch rejects with a TypeError when the server can't be reached at all.
+  if (error instanceof TypeError) return "Couldn't connect to Recoup. Try again in a moment.";
+  return "Something went wrong. Try again.";
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const response = await fetch(path, {
     ...init,
     headers: init?.body ? { "Content-Type": "application/json" } : undefined,
+    signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!response.ok) {
     let detail = `${response.status} ${response.statusText}`;
@@ -336,6 +366,11 @@ export const api = {
   advance: (days: number) => post<AdvanceResult>("/api/demo/advance", { days }),
   sources: () => request<Sources>("/api/sources"),
   sync: () => post<SyncReport>("/api/sync"),
+  // The scripted demo (demo mode only). Connecting is staged: no Google sign-in happens.
+  demoState: () => request<DemoServer>("/api/demo/state"),
+  demoConnect: () => post<Sources>("/api/demo/connect", { source: "gmail" }),
+  demoScan: () => post<RunSummary>("/api/demo/scan"),
+  demoReset: () => post<{ ok: boolean }>("/api/demo/reset"),
 
   setup: () => request<Setup>("/api/setup"),
   company: () => request<Company>("/api/company"),

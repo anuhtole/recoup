@@ -215,8 +215,9 @@ def test_sources_lists_every_connector_without_secrets(
         "sends_approved_mail": False,
         "last_sync": None,
     }
+    # Demo mode stages the ledger as connected (the demo's Ramp data is a file).
     assert [(c["key"], c["configured"]) for c in body["connectors"]] == [
-        ("ramp", False),
+        ("ramp", True),
         ("gmail", True),
         ("status_pages", True),
     ]

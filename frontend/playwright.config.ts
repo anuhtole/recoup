@@ -10,7 +10,7 @@ export default defineConfig({
   timeout: 60_000,
   reporter: [["list"]],
   use: {
-    baseURL: "http://localhost:5173",
+    baseURL: "http://localhost:5174",
     viewport: { width: 1440, height: 900 },
     trace: "retain-on-failure",
   },
@@ -26,7 +26,7 @@ export default defineConfig({
     // Vite's proxy to the API, so tests start only once both are up.
     command: "make dev",
     cwd: "..",
-    url: "http://localhost:5173/api/summary",
+    url: "http://localhost:5174/api/summary",
     reuseExistingServer: true,
     timeout: 120_000,
   },

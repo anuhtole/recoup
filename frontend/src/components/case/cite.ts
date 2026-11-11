@@ -1,5 +1,5 @@
 import type { Email, Evidence, FindingDetail, Transaction } from "../../api";
-import { formatDate, formatMoney } from "../../format";
+import { formatClock, formatDate, formatMoney } from "../../format";
 
 // "Amazon wrote on 2026-06-02: "…"" is how the API words a verified vendor quote.
 const QUOTE = /^(.*?) wrote on (\d{4}-\d{2}-\d{2}): "(.*)"$/s;
@@ -34,6 +34,9 @@ export interface CitedReason {
   /** Footnote number for each evidence ref or transaction id, so evidence can echo it. */
   numberOf: Map<string, number>;
 }
+
+/** Words too small to carry a footnote mark. */
+const LITTLE = new Set(["a", "an", "the", "of", "for", "at", "by", "to", "on", "in", "and", "or", "over", "under", "but"]);
 
 interface Span {
   start: number;
@@ -85,7 +88,23 @@ export function citeReason(detail: FindingDetail): CitedReason {
 
   const uncited: Transaction[] = [];
   for (const txn of detail.transactions) {
-    if (!claim(formatDate(txn.posted_at), { kind: "charge", transactions: [txn] })) uncited.push(txn);
+    const date = formatDate(txn.posted_at);
+    if (claim(date, { kind: "charge", transactions: [txn] })) continue;
+    // "charged twice on Jun 19": the second charge shares the first one's date, and its footnote.
+    const sameDay = spans.find((sp) => sp.source.kind === "charge" && sp.source.transactions.some((t) => formatDate(t.posted_at) === date));
+    if (sameDay && sameDay.source.kind === "charge") sameDay.source.transactions.push(txn);
+    else uncited.push(txn);
+  }
+  // Some charges are dated in the sentence and some aren't ("3 charges since Jul 3"): cite them as one
+  // group on the count, so every charge in the ledger carries a number, not just the first.
+  if (uncited.length > 0 && uncited.length < detail.transactions.length) {
+    const group: Source = { kind: "charge", transactions: detail.transactions };
+    const singles = spans.filter((sp) => sp.source.kind === "charge");
+    const kept = spans.filter((sp) => sp.source.kind !== "charge");
+    spans.length = 0;
+    spans.push(...kept);
+    if (claimPattern(new RegExp(`\\b${detail.transactions.length} charges\\b`, "g"), group)) uncited.length = 0;
+    else spans.push(...singles);
   }
   if (uncited.length > 0 && uncited.length === detail.transactions.length) {
     const total = uncited.reduce((sum, t) => sum + Math.abs(t.amount_minor), 0);
@@ -96,13 +115,25 @@ export function citeReason(detail: FindingDetail): CitedReason {
   }
 
   const incidents = detail.evidence.filter((e) => e.kind === "incident");
-  if (incidents.length > 0) claimPattern(/\d+(?:\.\d+)?% uptime/g, { kind: "incident", items: incidents });
+  // "99.57% uptime" or "when uptime was 99.46%": the footnote goes on the word "uptime", never on a bare number.
+  if (incidents.length > 0) claimPattern(/\d+(?:\.\d+)?% uptime|\buptime\b/g, { kind: "incident", items: incidents });
 
   const contract = detail.evidence.find((e) => e.kind === "contract");
-  if (contract) claimPattern(/\d+(?:\.\d+)?% commitment|commitment|contract/g, { kind: "contract", evidence: contract });
+  if (contract) claimPattern(/\d+(?:\.\d+)?% commitment|commitment|contract|agreement/g, { kind: "contract", evidence: contract });
 
   spans.sort((a, b) => a.start - b.start);
-  const citations = spans.map((span, i) => ({ n: i + 1, at: span.end, source: span.source }));
+  // A mark right after an amount reads as a power ("$385.71³"), so it moves to a neighbouring word:
+  // the one after ("a $37.48 credit¹ for May"), else the one before ("credit³, $385.71"), skipping
+  // little words ("a", "in"). Dates and phrases that end in a word keep the mark where they end.
+  const anchor = (span: Span) => {
+    if (!/^\$[\d,]+\.\d{2}$/.test(reason.slice(span.start, span.end))) return span.end;
+    const after = /^ ([A-Za-z]+)/.exec(reason.slice(span.end));
+    if (after && !LITTLE.has(after[1].toLowerCase())) return span.end + after[0].length;
+    const before = /([A-Za-z]+)[\s,;:]*$/.exec(reason.slice(0, span.start));
+    if (before && !LITTLE.has(before[1].toLowerCase())) return (before.index ?? 0) + before[1].length;
+    return span.end;
+  };
+  const citations = spans.map((span, i) => ({ n: i + 1, at: anchor(span), source: span.source })).sort((a, b) => a.at - b.at);
   const numberOf = new Map<string, number>();
   for (const c of citations) {
     const { source } = c;
@@ -176,3 +207,13 @@ export function parsePriceComparison(evidence: Evidence[]): PriceComparison | nu
 export function needsCustomerConfirmation(leakType: string, reason: string): boolean {
   return leakType === "sla_credit" && /status page showed|published (commitment|terms)|If your site was affected/.test(reason);
 }
+
+/** "Elevated error rates…: 2026-08-11 16:05 to 18:15 UTC" → the name, and "Aug 11, 2026 · 4:05–6:15 PM UTC". */
+export function incidentParts(text: string): { name: string; when: string | null } {
+  const m = /^(.*?):\s*(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}) to (\d{2}):(\d{2}) UTC$/.exec(text);
+  if (!m) return { name: text, when: null };
+  const [h1, m1, h2, m2] = [m[3], m[4], m[5], m[6]].map(Number);
+  const sameHalf = h1 < 12 === h2 < 12;
+  return { name: m[1], when: `${formatDate(m[2])} · ${formatClock(h1, m1, !sameHalf)}–${formatClock(h2, m2)} UTC` };
+}
+

@@ -1,0 +1,11 @@
+/* Prototype only: the app styles plus the classes this folder uses. */
+@import "../src/index.css";
+@source ".";
+
+/* On desktop the page is one screen tall: the icon stays put and only the conversation scrolls.
+   36 spacing units = the top bar plus the page's top and bottom padding. */
+@media (width >= 900px) {
+  .agent-frame {
+    height: calc(100dvh - var(--spacing) * 36);
+  }
+}

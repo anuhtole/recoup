@@ -1,6 +1,7 @@
 """Command line entry point.
 
-`recoup generate | ingest | run | advance | sync | connect | contracts | watch | serve`.
+`recoup generate | ingest | run | advance | demo-reset | sync | connect | contracts | watch |
+serve`.
 """
 
 import argparse
@@ -21,7 +22,11 @@ from recoup.connectors.registry import build_connectors
 from recoup.connectors.scheduler import BackgroundSync
 from recoup.db.session import has_schema, make_engine, make_session_factory, session_scope
 from recoup.db.state import get_as_of
+from recoup.demo.history import replay_history
 from recoup.demo.simulator import advance
+from recoup.demo.staging import connect_gmail as connect_demo_gmail
+from recoup.demo.staging import demo_state, reset_demo
+from recoup.demo.staging import scan as scan_demo
 from recoup.extract.claude import ClaudeStructured, LlmError
 from recoup.extract.contract_reader import (
     ClaudeContractReader,
@@ -75,7 +80,16 @@ def _run(_: argparse.Namespace) -> None:
     services = build_services(settings)
     with _session() as session:
         summary = run_pipeline(session, settings, services, _sources(session, settings))
-    print(json.dumps({**asdict(summary), "mode": services.mode}))
+        # The demo's past claims, replayed once, only with RECOUP_DEMO_HISTORY=true.
+        history = (
+            replay_history(session, settings, services, _sources(session, settings))
+            if settings.data_mode == "demo"
+            else None
+        )
+    output: dict[str, object] = {**asdict(summary), "mode": services.mode}
+    if history is not None:
+        output["history"] = asdict(history)
+    print(json.dumps(output))
 
 
 def _advance(args: argparse.Namespace) -> None:
@@ -84,6 +98,24 @@ def _advance(args: argparse.Namespace) -> None:
     with _session() as session:
         result = advance(session, settings, services, _sources(session, settings), args.days)
     print(json.dumps(asdict(result)))
+
+
+def _demo_reset(args: argparse.Namespace) -> None:
+    """The scripted demo's clean slate; --scan also connects Gmail and scans, as the
+    presenter would. Rows are cleared, not the file, so a running server keeps working."""
+    settings = get_settings()
+    started = time.perf_counter()
+    output: dict[str, object] = {}
+    with _session() as session:
+        output["transactions"] = reset_demo(session, settings)
+        if args.scan:
+            connect_demo_gmail(session)
+            services = build_services(settings)
+            run = scan_demo(session, settings, services, _sources(session, settings))
+            output["scan"] = {**asdict(run), "mode": services.mode}
+        output["state"] = asdict(demo_state(session, settings))
+    output["seconds"] = round(time.perf_counter() - started, 3)
+    print(json.dumps(output))
 
 
 def _sources(session: Session, settings: Settings) -> Sources:
@@ -256,12 +288,20 @@ def main() -> None:
     commands.add_parser("ingest", help="Load ledger and inbox into the database").set_defaults(
         handler=_ingest
     )
-    commands.add_parser("run", help="Read the inbox, detect, and persist findings").set_defaults(
-        handler=_run
-    )
+    commands.add_parser(
+        "run", help="Read the inbox, detect, and persist findings (plus past claims if enabled)"
+    ).set_defaults(handler=_run)
     demo = commands.add_parser("advance", help="Demo: move the clock and play the vendors' side")
     demo.add_argument("--days", type=int, default=14)
     demo.set_defaults(handler=_advance)
+
+    reset = commands.add_parser(
+        "demo-reset", help="Demo: back to the clean slate (ledger in, nothing found, Oct 1)"
+    )
+    reset.add_argument(
+        "--scan", action="store_true", help="Then connect Gmail and scan, as the presenter would"
+    )
+    reset.set_defaults(handler=_demo_reset)
 
     sync = commands.add_parser("sync", help="Pull real data, then re-run detection")
     targets = sync.add_subparsers(dest="target", required=True)

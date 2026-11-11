@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "blender": "5.2.1 LTS",
+  "seed": 7,
+  "count": 6300,
+  "scale": 2.4964453874400547,
+  "poses": [
+    "coin",
+    "burst",
+    "swirl",
+    "scatter",
+    "ring"
+  ],
+  "groups": {
+    "mark": [
+      0,
+      2600
+    ],
+    "face": [
+      2600,
+      1100
+    ],
+    "rim": [
+      3700,
+      2600
+    ]
+  },
+  "ring": {
+    "radius": 0.78,
+    "tube": 0.07
+  }
+}

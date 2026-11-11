@@ -19,6 +19,7 @@ from recoup.api.schemas import (
 from recoup.api.views import finding_detail, finding_list
 from recoup.db.models import FindingRow
 from recoup.db.state import get_as_of
+from recoup.demo import staging
 from recoup.domain.types import Outcome
 from recoup.domain.workflow import STAGE_OF, Stage
 from recoup.ingest.company import get_profile
@@ -39,7 +40,7 @@ def _is_past(days_left: int | None) -> bool:
 def _get(session: SessionDep, finding_id: int) -> FindingRow:
     row = session.get(FindingRow, finding_id)
     if row is None:
-        raise HTTPException(status_code=404, detail="Case not found")
+        raise HTTPException(status_code=404, detail="Claim not found")
     return row
 
 
@@ -61,6 +62,7 @@ def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
         mode=context.services.mode,
         demo_mode=context.settings.demo_mode,
         data_mode=context.settings.data_mode,
+        org_name=context.settings.org_name,
         claimable_minor=standing.claimable_minor,
         in_flight_minor=standing.in_flight_minor,
         recovered_minor=standing.recovered_minor,
@@ -146,5 +148,9 @@ def dismiss_case(
 
 @router.post("/pipeline/run", response_model=RunSummaryOut)
 def trigger_run(session: SessionDep, context: ContextDep) -> RunSummaryOut:
+    try:
+        staging.require_scanned(session, context.settings)
+    except staging.NotScannedError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     result = run_pipeline(session, context.settings, context.services, context.sources_for(session))
     return RunSummaryOut(**asdict(result))
