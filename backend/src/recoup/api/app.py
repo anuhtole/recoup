@@ -8,7 +8,17 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from recoup.api.deps import AppContext
-from recoup.api.routes import cases, company, connect, demo, discovery, drafts, ledger, sync
+from recoup.api.routes import (
+    agent,
+    cases,
+    company,
+    connect,
+    demo,
+    discovery,
+    drafts,
+    ledger,
+    sync,
+)
 from recoup.config import Settings, get_settings
 from recoup.connectors.registry import build_connectors
 from recoup.connectors.scheduler import BackgroundSync
@@ -59,4 +69,5 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     app.include_router(discovery.router)
     app.include_router(company.router)
     app.include_router(ledger.router)
+    app.include_router(agent.router)
     return app
