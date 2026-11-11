@@ -13,7 +13,7 @@ make setup   # install, build the database, load the synthetic company, run dete
 make dev     # API on :8000, UI on http://localhost:5173
 ```
 
-1. **Find.** It is Oct 1, 2026 at Northwind Labs, a fictional 60-person startup. Recoup has found **$14,961 ready to claim** across 18 cases, plus $37 already lost to a closed claim window. The queue is sorted by deadline.
+1. **Find.** It is Oct 1, 2026 at Northwind Labs, a fictional 60-person startup. Recoup has found **$13,710 ready to claim** across 15 cases, plus $1,433 in 5 cases whose claim window has already closed. The queue is sorted by deadline.
 2. **Prove.** Open the United Airlines case. The vendor's own words are quoted and checked against the email: "A refund of $612.40 … has been processed." No credit ever posted, and Recoup shows the search it ran.
 3. **Act.** Click *Draft recovery request*, read it, then *Approve and send*. A confirmation dialog shows exactly where it goes. The address comes from the vendor directory, never from email content.
 4. **Chase.** Click *Advance 2 weeks*. A simulated vendor inbox replies:
@@ -21,9 +21,31 @@ make dev     # API on :8000, UI on http://localhost:5173
    - Amazon asks for a receipt, so the case asks you to follow up.
    - Marriott declines, so the case offers a **card dispute** instead.
    - A refund Marriott promised on Sep 26 becomes overdue and appears as a new case.
-5. Do the follow-ups, advance twice more, and **$15,021 is back in the account**, each dollar with a full story and an audit trail.
+5. Do the follow-ups, advance twice more, and **$13,770 is back in the account**, each dollar with a full story and an audit trail.
 
 The data is synthetic and every send goes to a local outbox. Nothing leaves your machine.
+
+## Your company's data
+
+Recoup runs on any company's data, not just the demo. Open **Setup** in the app (`#/setup`) and work down five steps ([ADR 0012](docs/adr/0012-company-onboarding.md)):
+
+1. **Your company.** The name drafts are signed with, and where card disputes go.
+2. **Ledger.** Upload a CSV export from any card, bank or accounting tool. Recoup shows what it read and lets you fix the columns before importing. Detection runs on import, and importing the same file again adds nothing. Teams on Ramp can connect it instead (below).
+3. **Vendors.** Recoup lists merchants on your ledger it doesn't know yet, by spend. For each one, type the billing address to write to. Recoup never takes an address from an email.
+4. **Finance inbox.** With a Google OAuth client set on the server (steps 1 to 3 under Gmail below), **Connect Gmail** asks for read-only access and keeps the token on the server.
+5. **Contracts.** Upload an order form or MSA. Claude reads it, the grounding gate checks every term, and nothing is saved until you confirm. This step needs `ANTHROPIC_API_KEY`. You can also type terms in by hand.
+
+To try it on a clean database:
+
+```bash
+cd backend
+RECOUP_DATABASE_URL=sqlite:///./acme.db RECOUP_DATA_DIR=../data/empty uv run alembic upgrade head
+RECOUP_DATABASE_URL=sqlite:///./acme.db RECOUP_DATA_DIR=../data/empty uv run recoup serve
+```
+
+Then run `make web` and open Setup. `RECOUP_DATA_DIR` can be any folder without a `transactions.json`, even one that does not exist. The app then treats the data as live.
+
+The same steps are available over the API: `/api/company`, `/api/ledger/preview` and `/api/ledger/import`, `/api/vendors` and `/api/vendors/suggestions`, `/api/contracts` and `/api/contracts/read`, and `/api/connect/gmail`.
 
 ## Real data
 
@@ -100,6 +122,8 @@ flowchart LR
     L -->|credit posts| M[Recovery match] --> F
 ```
 
+The full picture, with every layer, the case lifecycle and the trust boundaries, is in **[docs/architecture.md](docs/architecture.md)**.
+
 It is a **fixed workflow, not an agent loop** ([ADR 0001](docs/adr/0001-workflow-not-agent.md)). The code decides the order of steps. The model does only what code can't: read vendor language, classify replies, and polish drafts. Each model call is one structured-output request with no tools.
 
 **The model reads; code decides** ([ADR 0005](docs/adr/0005-model-reads-code-decides.md)). A model proposal becomes a promise only if:
@@ -154,7 +178,7 @@ Recoup holds private financial data, reads untrusted email, and can send mail: t
 - **Ledger truth.** "Recovered" means a matching credit posted. A vendor saying yes is not enough.
 - **Single-user for now.** The API has no login: it is built to run on one person's machine, and the approver name is self-reported. A shared deployment would sit behind SSO and take the approver from the session.
 - **Secrets stay server-side.** The browser talks only to our API. CI runs a secret scan.
-- **Least privilege, planned.** The Gmail connector will use read-only ingest plus send-only drafts behind the same approval gate, and add DKIM/SPF results to sender verification.
+- **Least privilege.** Every connector is read-only: Gmail is read with the `gmail.readonly` scope and Ramp with `transactions:read`. Gmail mail is kept only from vendor directory domains, and only when Gmail's own DMARC or DKIM check passes for the sender ([ADR 0009](docs/adr/0009-connector-interface.md)). Planned: sending approved drafts through Gmail with a send-only scope, behind the same approval gate. Until then every send goes to the local outbox.
 
 ## Claude
 
@@ -165,7 +189,7 @@ With `ANTHROPIC_API_KEY` set, Recoup uses the Anthropic Python SDK for four call
 | Promise extraction | `promises/1` | `EmailExtraction` |
 | Reply classification | `replies/1` | `ReplyAssessment` |
 | Contract reading | `contracts/1` | `ContractReading`, then a gate that checks each clause, number and date against the PDF text ([ADR 0011](docs/adr/0011-contract-reader.md)) |
-| Draft polishing | `drafts/1` | Checked in code: it must keep the amount and every reference and add no address or link, or the template is used instead |
+| Draft polishing | `drafts/2` | Checked in code: it must keep the amount and every reference and add no address or link, or the template is used instead |
 
 All four are structured outputs on `claude-opus-5-5` at medium effort, configurable with `RECOUP_LLM_MODEL` and `RECOUP_LLM_EFFORT`. Results are cached per (email, model, prompt version), so re-running detection is free. A failed call falls back to the keyword rules for that email and is retried next run. Requests opt into server-side fallbacks, so a declined request is retried on Anthropic's recommended fallback model.
 
@@ -183,26 +207,33 @@ Without a key, everything still works on the keyword rules ([ADR 0007](docs/adr/
 - **Idempotent everywhere.** Re-ingesting inserts nothing, and re-running detection creates nothing new. Model output is cached, and each reply is applied exactly once. All of this is tested.
 - **UTC everywhere**, enforced by a column type that restores tzinfo on SQLite.
 - **Migrations are checked.** CI runs `alembic upgrade head && alembic check` against SQLite and Postgres 16, and also fails if the committed dataset or eval tables drift from the code.
-- ** tests, 96% line coverage**, mypy in strict mode, and ruff.
+- **309 tests, 94% line coverage**, mypy in strict mode, and ruff.
 
 ## Project layout
 
 ```
 backend/src/recoup/
   domain/      Money, transactions, emails, vendors, contracts, promises, workflow states
-  extract/     Claude + keyword extractors, prompts, and the validation gate
-  detectors/   duplicates, broken promises, outage credits: pure functions
+  ingest/      every way data gets in: CSV ledgers, Ramp, Gmail, status pages, the company's setup
+  connectors/  the one connector interface and the background sync scheduler
+  extract/     Claude + keyword extractors, prompts, the contract reader, and the validation gates
+  detectors/   duplicates, broken promises, outage credits, price overcharges: pure functions
   pipeline/    the fixed workflow: read inbox → detect → upsert → match recoveries
   recovery/    drafting, outbox, and the recovery state machine
+  db/          SQLAlchemy models and session; migrations in backend/migrations/
   api/         FastAPI routes, schemas, case timelines
   demo/        the simulated vendor inbox (only with RECOUP_DEMO_MODE=true)
   synth/       the seeded synthetic world and its answer key
 backend/tests/ unit, integration, API, CLI, and red-team tests
 backend/evals/ scoring, quality gates, results
-frontend/      React + TypeScript review UI (Vite, Tailwind v4, Motion; glacier glass tokens in src/index.css)
+frontend/      React + TypeScript review UI (Vite, Tailwind v4, Motion; pine and stone design tokens in src/index.css)
 data/synthetic/ generated dataset
-docs/adr/      architecture decision records
+docs/architecture.md  the system diagram, one case end to end, and the trust boundaries
+docs/adr/      architecture decision records, indexed in docs/adr/README.md
+docs/workflow/ the brief behind the UI redesign
 ```
+
+To work on the code, start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Commands
 
@@ -222,10 +253,24 @@ docs/adr/      architecture decision records
 ## Roadmap
 
 1. **Read Ramp disputes,** so a charge already being disputed isn't flagged again.
-1. **Send through Gmail.** Send approved drafts from the connected mailbox, still behind the approval gate.
-2. **Contracts from the inbox.** Feed order-form attachments from Gmail to the contract reader, so outage credits and price checks need no setup.
-3. **Partial credits and seat counts.** Match partial refunds, and price per-seat plans against the seats actually contracted.
+2. **Send through Gmail.** Send approved drafts from the connected mailbox, still behind the approval gate.
+3. **Contracts from the inbox.** Feed order-form attachments from Gmail to the contract reader, so outage credits and price checks need no setup.
+4. **Partial credits and seat counts.** Match partial refunds, and price per-seat plans against the seats actually contracted.
+
+## How we built this
+
+The prompt asks for the newest AI tools, so here is what we used and why.
+
+- **Claude Code as the pair programmer.** We wrote the backend and the UI with Claude Code. The working rule was the same one the product follows: the model proposes, and something deterministic checks it. For code that means a failing test first, then `make check`: ruff, mypy in strict mode, pytest, and the frontend build.
+- **One ADR per decision.** Each choice someone could have made differently has a record in [`docs/adr/`](docs/adr/README.md): twelve so far, from "a fixed workflow, not an agent" to company onboarding. They are the answer to "why is it built this way?".
+- **Evals and drift checks in CI.** The detectors are scored against a seeded synthetic company with an answer key. CI fails if the committed dataset no longer matches the generator, if the eval tables no longer match the code, or if the migrations no longer match the models. The numbers in this README cannot quietly go stale. CI also runs the suite on SQLite and Postgres 16 and scans for secrets.
+- **Design skills, pinned.** The UI was redesigned by handing Claude Code a written brief ([docs/workflow/ui-redesign-brief.md](docs/workflow/ui-redesign-brief.md)) together with three open-source design skills in `.agents/skills/` (`design-taste-frontend`, `apple-design`, `bklit-ui`). `skills-lock.json` pins each one by source and content hash, so the tooling is reproducible.
+- **Playwright, twice.** `.mcp.json` adds the Playwright MCP server, so Claude Code can open the running app in a real browser and see what it built. The "look loop" commits in the history are rounds of looking at the result and fixing what was off. The same path through the UI is kept as a regression test in `frontend/e2e/recoup.spec.ts`.
+- **A security review before building further.** The second commit in the history closes gaps found by reviewing the first. Two examples: a vendor reply now counts only from the address we wrote to, and a draft is claimed before it is sent so two approvals cannot both send it.
+- **Stacked pull requests.** Backend features and the UI redesign were built in parallel, with `main` merged into the UI branch as connectors and detectors landed. Company onboarding is stacked on top of the redesign as its own pull request.
+
+[CONTRIBUTING.md](CONTRIBUTING.md) has the workflow in checklist form.
 
 ## Team
 
-Deepa, Anatole Seychal, and Jackson. Built with Claude Code as a pair programmer. Every design decision is recorded in `docs/adr/`.
+Deepa, Anatole Seychal, and Jackson. Released under the [MIT License](LICENSE).

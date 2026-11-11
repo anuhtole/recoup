@@ -17,7 +17,9 @@ from recoup.extract.claude import ClaudeStructured, LlmError
 from recoup.extract.prompts import DRAFT_PROMPT_VERSION, DRAFT_SYSTEM
 from recoup.recovery.facts import CaseFacts
 
-SIGNATURE = "Thanks,\nNorthwind Labs Finance"
+
+def signature(facts: CaseFacts) -> str:
+    return f"Thanks,\n{facts.company} Finance"
 
 
 @dataclass(frozen=True)
@@ -130,10 +132,10 @@ class TemplateDrafter:
     def draft(self, facts: CaseFacts) -> DraftContent:
         if facts.vendor is None or facts.is_escalation:
             subject, body = _dispute(facts)
-            return DraftContent(subject, f"{body}\n\n{SIGNATURE}", self.name)
+            return DraftContent(subject, f"{body}\n\n{signature(facts)}", self.name)
         subject, body = _TEMPLATES[facts.leak_type](facts)
         greeting = f"Hello {facts.vendor.name} team,"
-        return DraftContent(subject, f"{greeting}\n\n{body}\n\n{SIGNATURE}", self.name)
+        return DraftContent(subject, f"{greeting}\n\n{body}\n\n{signature(facts)}", self.name)
 
 
 class _DraftBody(BaseModel):
@@ -165,7 +167,8 @@ class ClaudeDrafter:
             return template  # dispute packets stay factual and structured
         prompt = (
             f"Vendor: {facts.vendor.name}\nAmount owed: {facts.amount}\n"
-            f"References: {', '.join(facts.references) or 'none'}\n\n"
+            f"References: {', '.join(facts.references) or 'none'}\n"
+            f"Sign off exactly as: {signature(facts)}\n\n"
             f"Facts (every amount, date and reference must survive):\n{template.body}"
         )
         try:

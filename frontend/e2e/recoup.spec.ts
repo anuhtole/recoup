@@ -21,7 +21,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
   await test.step("the overview is the landing page", async () => {
     await page.goto("/");
     await expect(page.getByRole("link", { name: "Overview" })).toHaveAttribute("aria-current", "page");
-    await expect(page.getByLabel("Totals")).toContainText("$15,105.34");
+    await expect(page.getByLabel("Totals")).toContainText("$13,710.09");
     const expiring = page.getByRole("region", { name: "Expiring soon" });
     await expect(expiring.locator("[data-expiring-id]")).toHaveCount(5);
     await expect(expiring.locator("[data-expiring-id]").first()).toContainText("Figma");
@@ -137,7 +137,7 @@ test("review, send, advance and dismiss", async ({ page, request }) => {
   await test.step("data sources: tag, button, sheet", async () => {
     await page.goto("/#/overview");
     await expect(page.getByText("Demo data", { exact: true })).toBeVisible();
-    await page.getByRole("button", { name: /of 3 sources/ }).click();
+    await page.getByRole("button", { name: /Sample ledger and inbox/ }).click();
     const sheet = page.getByRole("dialog", { name: "Data sources" });
     await expect(sheet).toContainText("Ramp transactions");
     await expect(sheet).toContainText("Gmail vendor email");

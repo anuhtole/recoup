@@ -16,10 +16,10 @@ import httpx
 from anthropic import Anthropic, APIError
 from sqlalchemy.orm import Session
 
-from recoup.config import get_settings
+from recoup.config import Settings, get_settings
 from recoup.connectors.registry import build_connectors
 from recoup.connectors.scheduler import BackgroundSync
-from recoup.db.session import make_engine, make_session_factory, session_scope
+from recoup.db.session import has_schema, make_engine, make_session_factory, session_scope
 from recoup.db.state import get_as_of
 from recoup.demo.simulator import advance
 from recoup.extract.claude import ClaudeStructured, LlmError
@@ -27,8 +27,8 @@ from recoup.extract.contract_reader import (
     ClaudeContractReader,
     ContractReadError,
     read_contract,
-    save_contract,
 )
+from recoup.ingest.company import company_sources, save_contract
 from recoup.ingest.dataset import ingest_dataset
 from recoup.ingest.gmail import GmailError
 from recoup.ingest.google_oauth import connect_gmail
@@ -43,7 +43,7 @@ from recoup.ingest.live import (
 )
 from recoup.ingest.loader import ingest_transactions
 from recoup.ingest.ramp import RampError
-from recoup.ingest.sources import load_sources
+from recoup.ingest.sources import Sources, load_sources
 from recoup.pipeline.run import run_pipeline
 from recoup.services import build_services
 from recoup.synth.generate import DEFAULT_SEED, write_dataset
@@ -74,7 +74,7 @@ def _run(_: argparse.Namespace) -> None:
     settings = get_settings()
     services = build_services(settings)
     with _session() as session:
-        summary = run_pipeline(session, settings, services, load_sources(settings.data_dir))
+        summary = run_pipeline(session, settings, services, _sources(session, settings))
     print(json.dumps({**asdict(summary), "mode": services.mode}))
 
 
@@ -82,14 +82,18 @@ def _advance(args: argparse.Namespace) -> None:
     settings = get_settings()
     services = build_services(settings)
     with _session() as session:
-        result = advance(session, settings, services, load_sources(settings.data_dir), args.days)
+        result = advance(session, settings, services, _sources(session, settings), args.days)
     print(json.dumps(asdict(result)))
+
+
+def _sources(session: Session, settings: Settings) -> Sources:
+    return company_sources(session, load_sources(settings.data_dir))
 
 
 def _detect(session: Session) -> dict[str, object]:
     settings = get_settings()
     services = build_services(settings)
-    summary = run_pipeline(session, settings, services, load_sources(settings.data_dir))
+    summary = run_pipeline(session, settings, services, _sources(session, settings))
     return {**asdict(summary), "mode": services.mode}
 
 
@@ -128,7 +132,7 @@ def _sync_gmail(_: argparse.Namespace) -> None:
     settings = get_settings()
     try:
         with _session() as session:
-            sync = sync_gmail(session, settings, load_sources(settings.data_dir).vendors)
+            sync = sync_gmail(session, settings, _sources(session, settings).vendors)
             run = _detect(session)
     except GmailError as exc:
         sys.exit(str(exc))
@@ -201,7 +205,8 @@ def _contracts_read(args: argparse.Namespace) -> None:
         sys.exit("Reading a contract needs ANTHROPIC_API_KEY in backend/.env.")
     client = Anthropic(api_key=settings.anthropic_api_key.get_secret_value(), max_retries=3)
     llm = ClaudeStructured(client=client, model=settings.llm_model, effort=settings.llm_effort)
-    vendors = load_sources(settings.data_dir).vendors
+    with _session() as session:
+        vendors = _sources(session, settings).vendors
     try:
         verdict = read_contract(ClaudeContractReader(llm), args.path, vendors)
     except (ContractReadError, LlmError) as exc:
@@ -214,14 +219,28 @@ def _contracts_read(args: argparse.Namespace) -> None:
         sys.exit("Rejected: nothing in this document could be verified.")
     print(verdict.contract.model_dump_json(indent=2))
     if args.save:
-        contracts_file = settings.data_dir / "contracts.json"
-        replaced = save_contract(contracts_file, verdict.contract)
-        print(f"{'Replaced' if replaced else 'Added'} it in {contracts_file}", file=sys.stderr)
+        with _session() as session:
+            save_contract(session, verdict.contract, "upload")
+        print("Saved it to this company's contracts.", file=sys.stderr)
+
+
+def _require_schema() -> None:
+    """Stop before the server starts, not at the first request, when nothing is migrated."""
+    engine = make_engine(get_settings().database_url)
+    try:
+        if not has_schema(engine):
+            sys.exit(
+                "The database has no tables yet. Run `make db` from the repo root, "
+                "or `uv run alembic upgrade head` in backend/, then start the server again."
+            )
+    finally:
+        engine.dispose()
 
 
 def _serve(args: argparse.Namespace) -> None:
     import uvicorn
 
+    _require_schema()
     uvicorn.run("recoup.api.app:create_app", factory=True, port=args.port, reload=args.reload)
 
 

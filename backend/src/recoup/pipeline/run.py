@@ -25,7 +25,7 @@ from recoup.detectors.duplicates import DuplicateConfig, detect_duplicates
 from recoup.detectors.outages import OutageConfig, detect_sla_credits
 from recoup.detectors.pricing import PricingConfig, detect_price_overcharges
 from recoup.detectors.promises import PromiseConfig, detect_broken_promises
-from recoup.domain.merchants import normalize_merchant
+from recoup.domain.merchants import display_merchant, normalize_merchant
 from recoup.domain.sources import Promise
 from recoup.domain.types import FindingCandidate, Outcome, Transaction
 from recoup.domain.workflow import Status
@@ -105,8 +105,8 @@ def _display_merchant(candidate: FindingCandidate, sources: Sources) -> str:
     vendor = sources.vendors.for_merchant(normalize_merchant(candidate.merchant))
     if vendor is not None:
         return vendor.name
-    # Card descriptors arrive upper-case ("ZUNI CAFE"); show them as names.
-    return candidate.merchant.title() if candidate.merchant.isupper() else candidate.merchant
+    # Card descriptors arrive upper-case and prefixed ("SQ *JOES CATERING"); show them as names.
+    return display_merchant(candidate.merchant)
 
 
 def _snapshot(candidate: FindingCandidate, merchant: str) -> dict[str, Any]:

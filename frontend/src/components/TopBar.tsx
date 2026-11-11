@@ -84,6 +84,7 @@ function PageSwitch({ page }: { page: Page }) {
   const items: { page: Page; label: string; href: string }[] = [
     { page: "overview", label: "Overview", href: "#/overview" },
     { page: "claims", label: "Claims", href: "#/claims" },
+    { page: "setup", label: "Setup", href: "#/setup" },
   ];
   return (
     <nav aria-label="Pages" className="order-last w-full sm:order-none sm:w-auto">
@@ -121,8 +122,8 @@ export function TopBar({ page, summary, sources, onOpenSources, isRunning, isAdv
           <img src="/brand/recoup-wordmark.png" alt="Recoup" width={994} height={265} className="h-7 w-auto self-start" />
           {summary && (
             <p className="flex min-w-0 items-center gap-2 text-12 text-dim sm:text-14">
-              <span className="truncate">
-                <span className="hidden sm:inline">Money vendors owe you · </span>As of <span className="figure">{formatDate(summary.as_of)}</span>
+              <span className="whitespace-nowrap">
+                As of <span className="figure">{formatDate(summary.as_of)}</span>
               </span>
               {summary.data_mode && (
                 <span className="flex-none rounded-full bg-tint px-2 py-1 text-12 text-dim">
@@ -135,14 +136,14 @@ export function TopBar({ page, summary, sources, onOpenSources, isRunning, isAdv
       </div>
       <PageSwitch page={page} />
       <div className="hidden items-center justify-end gap-1 sm:flex sm:flex-1">
-        <SourcesButton sources={sources} onOpen={onOpenSources} />
+        <SourcesButton sources={sources} isDemo={summary?.data_mode === "demo"} onOpen={onOpenSources} />
         {actions.map((action) => (
           <Button key={action.label} variant="ghost" size="sm" onClick={action.onSelect} isBusy={action.isBusy} title={action.title}>
             {action.label}
           </Button>
         ))}
       </div>
-      <MoreMenu actions={[{ label: sourcesLabel(sources), onSelect: onOpenSources, isBusy: false }, ...actions]} />
+      <MoreMenu actions={[{ label: sourcesLabel(sources, summary?.data_mode === "demo"), onSelect: onOpenSources, isBusy: false }, ...actions]} />
     </header>
   );
 }

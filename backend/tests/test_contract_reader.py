@@ -15,7 +15,6 @@ from recoup.extract.contract_reader import (
     ContractReadError,
     document_text,
     read_contract,
-    save_contract,
 )
 from recoup.extract.schema import ContractReading, ExtractedTier
 from recoup.synth.documents import SAMPLE_ORDER_FORM, write_text_pdf
@@ -169,17 +168,6 @@ def test_unreadable_documents_are_refused(tmp_path: Path) -> None:
 def test_model_refusal_propagates(order_form: Path) -> None:
     with pytest.raises(LlmError):
         read_contract(ClaudeContractReader(_FakeLlm(None)), order_form, directory())
-
-
-def test_save_adds_then_replaces_by_vendor_and_plan(order_form: Path, tmp_path: Path) -> None:
-    contract = validate_contract(_reading(), _text(order_form), directory(), "x").contract
-    assert contract is not None
-    contracts_file = tmp_path / "contracts.json"
-
-    assert save_contract(contracts_file, contract) is False
-    assert save_contract(contracts_file, contract.model_copy(update={"price_minor": 1})) is True
-
-    assert contracts_file.read_text().count('"LINEAR APP"') == 1
 
 
 def test_cli_needs_an_api_key(

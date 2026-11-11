@@ -30,10 +30,10 @@ function Empty({ children }: { children: ReactNode }) {
   return <p className="rounded-row bg-tint px-4 py-3 text-14 text-dim">{children}</p>;
 }
 
-/** Ready to claim by vendor, largest first. */
-function TopVendors({ findings, currency }: { findings: Finding[]; currency: string }) {
+/** Ready to claim by vendor, largest first. Only claims whose window is still open. */
+function TopVendors({ live, currency }: { live: Finding[]; currency: string }) {
   const byVendor = new Map<string, { amount: number; count: number }>();
-  for (const f of findings.filter((f) => f.stage === "todo")) {
+  for (const f of live) {
     const entry = byVendor.get(f.merchant) ?? { amount: 0, count: 0 };
     byVendor.set(f.merchant, { amount: entry.amount + f.amount_minor, count: entry.count + 1 });
   }
@@ -152,11 +152,11 @@ export function Overview({ summary, findings, onOpenCase, onReview }: Props) {
         </Panel>
 
         <Panel title="Top vendors">
-          <TopVendors findings={findings} currency={summary.currency} />
+          <TopVendors live={live} currency={summary.currency} />
         </Panel>
 
         <Panel title="Where it comes from" aside={formatMoney(summary.claimable_minor, summary.currency)}>
-          <ByType findings={findings} total={summary.claimable_minor} currency={summary.currency} />
+          <ByType live={live} total={summary.claimable_minor} currency={summary.currency} />
         </Panel>
 
         <Panel title="Progress">

@@ -194,3 +194,35 @@ class SyncRunRow(Base):
     origin: Mapped[str] = mapped_column(String(16))
     detail: Mapped[dict[str, Any]] = mapped_column(JSON)
     finished_at: Mapped[datetime] = mapped_column(UtcDateTime, default=lambda: datetime.now(UTC))
+
+
+class VendorRow(Base):
+    """A vendor the company added or confirmed in Recoup.
+
+    Rows here override the bundled directory by key. A recovery email only ever goes to a
+    `support_email` a person entered or confirmed, never to an address read from mail.
+    """
+
+    __tablename__ = "vendors"
+
+    key: Mapped[str] = mapped_column(String(255), primary_key=True)
+    name: Mapped[str] = mapped_column(String(255))
+    support_email: Mapped[str] = mapped_column(String(255))
+    domains: Mapped[list[str]] = mapped_column(JSON)
+    aliases: Mapped[list[str]] = mapped_column(JSON)
+    origin: Mapped[str] = mapped_column(String(16))
+    updated_at: Mapped[datetime] = mapped_column(UtcDateTime(), default=utcnow, onupdate=utcnow)
+
+
+class ContractRow(Base):
+    """Contract terms a person confirmed, usually read from an uploaded order form."""
+
+    __tablename__ = "contracts"
+    __table_args__ = (UniqueConstraint("vendor_key", "plan", name="uq_contracts_vendor_plan"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    vendor_key: Mapped[str] = mapped_column(String(255), index=True)
+    plan: Mapped[str] = mapped_column(String(255))
+    terms: Mapped[dict[str, Any]] = mapped_column(JSON)
+    origin: Mapped[str] = mapped_column(String(16))
+    updated_at: Mapped[datetime] = mapped_column(UtcDateTime(), default=utcnow, onupdate=utcnow)

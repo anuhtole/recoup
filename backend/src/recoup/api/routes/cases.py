@@ -21,6 +21,7 @@ from recoup.db.models import FindingRow
 from recoup.db.state import get_as_of
 from recoup.domain.types import Outcome
 from recoup.domain.workflow import STAGE_OF, Stage, Status
+from recoup.ingest.company import get_profile
 from recoup.pipeline.run import run_pipeline
 from recoup.recovery.workflow import TransitionError, create_draft, dismiss
 
@@ -44,6 +45,7 @@ def _get(session: SessionDep, finding_id: int) -> FindingRow:
 @router.get("/summary", response_model=SummaryOut)
 def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
     rows = session.scalars(select(FindingRow)).all()
+    as_of = get_as_of(session, context.settings)
     claimable = in_flight = recovered = expired = 0
     stage_counts = dict.fromkeys(Stage, 0)
     for row in rows:
@@ -57,6 +59,9 @@ def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
             expired += row.amount_minor
         elif STAGE_OF[status] is Stage.WAITING:
             in_flight += row.amount_minor
+        elif row.recover_by is not None and row.recover_by < as_of:
+            # Never sent and the window has closed: it is missed money, not money still owed.
+            expired += row.amount_minor
         else:
             claimable += row.amount_minor
 
@@ -68,7 +73,7 @@ def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
     by_outcome = {outcome: (count, total or 0) for outcome, count, total in totals_rows}
     return SummaryOut(
         currency="USD",
-        as_of=get_as_of(session, context.settings),
+        as_of=as_of,
         mode=context.services.mode,
         demo_mode=context.settings.demo_mode,
         data_mode=context.settings.data_mode,
@@ -117,21 +122,24 @@ def list_findings(
 @router.get("/findings/{finding_id}", response_model=FindingDetailOut)
 def get_finding(finding_id: int, session: SessionDep, context: ContextDep) -> FindingDetailOut:
     row = _get(session, finding_id)
-    return finding_detail(session, row, context.sources, get_as_of(session, context.settings))
+    sources = context.sources_for(session)
+    return finding_detail(session, row, sources, get_as_of(session, context.settings))
 
 
 @router.post("/findings/{finding_id}/draft", response_model=DraftOut)
 def draft_request(finding_id: int, session: SessionDep, context: ContextDep) -> DraftOut:
     row = _get(session, finding_id)
+    profile = get_profile(session, context.settings)
     try:
         draft = create_draft(
             session,
             row,
-            vendors=context.sources.vendors,
+            vendors=context.sources_for(session).vendors,
             drafter=context.services.drafter,
             as_of=get_as_of(session, context.settings),
-            card_dispute_address=context.settings.card_dispute_address,
+            card_dispute_address=profile.card_dispute_address,
             actor=REVIEWER,
+            company=profile.name,
         )
     except TransitionError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
@@ -154,5 +162,5 @@ def dismiss_case(
 
 @router.post("/pipeline/run", response_model=RunSummaryOut)
 def trigger_run(session: SessionDep, context: ContextDep) -> RunSummaryOut:
-    result = run_pipeline(session, context.settings, context.services, context.sources)
+    result = run_pipeline(session, context.settings, context.services, context.sources_for(session))
     return RunSummaryOut(**asdict(result))

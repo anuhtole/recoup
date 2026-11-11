@@ -17,6 +17,7 @@ from recoup.config import Settings
 from recoup.connectors.base import Connector, SyncOutcome
 from recoup.connectors.registry import sync_all
 from recoup.db.session import session_scope
+from recoup.ingest.company import company_sources
 from recoup.ingest.sources import Sources
 from recoup.pipeline.run import RunSummary, run_pipeline
 from recoup.services import Services
@@ -39,7 +40,7 @@ def sync_cycle(
     connectors: Sequence[Connector],
 ) -> CycleReport:
     outcomes = sync_all(session, connectors)
-    run = run_pipeline(session, settings, services, sources)
+    run = run_pipeline(session, settings, services, company_sources(session, sources))
     return CycleReport(datetime.now(UTC).isoformat(), tuple(outcomes), run)
 
 

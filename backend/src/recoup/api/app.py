@@ -8,7 +8,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from recoup.api.deps import AppContext
-from recoup.api.routes import cases, demo, drafts, sync
+from recoup.api.routes import cases, company, connect, demo, discovery, drafts, ledger, sync
 from recoup.config import Settings, get_settings
 from recoup.connectors.registry import build_connectors
 from recoup.connectors.scheduler import BackgroundSync
@@ -44,7 +44,7 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
 
     app = FastAPI(title="Recoup", version="0.2.0", lifespan=lifespan)
     app.state.context = AppContext(
-        settings=settings, factory=factory, services=services, sources=sources, sync=background
+        settings=settings, factory=factory, services=services, base_sources=sources, sync=background
     )
 
     @app.get("/api/health")
@@ -55,4 +55,8 @@ def create_app(settings: Settings | None = None, services: Services | None = Non
     app.include_router(drafts.router)
     app.include_router(demo.router)
     app.include_router(sync.router)
+    app.include_router(connect.router)
+    app.include_router(discovery.router)
+    app.include_router(company.router)
+    app.include_router(ledger.router)
     return app
