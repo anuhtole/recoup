@@ -20,9 +20,10 @@ from recoup.api.views import finding_detail, finding_list
 from recoup.db.models import FindingRow
 from recoup.db.state import get_as_of
 from recoup.domain.types import Outcome
-from recoup.domain.workflow import STAGE_OF, Stage, Status
+from recoup.domain.workflow import STAGE_OF, Stage
 from recoup.ingest.company import get_profile
 from recoup.pipeline.run import run_pipeline
+from recoup.recovery.standing import money_standing
 from recoup.recovery.workflow import TransitionError, create_draft, dismiss
 
 router = APIRouter(prefix="/api")
@@ -46,24 +47,7 @@ def _get(session: SessionDep, finding_id: int) -> FindingRow:
 def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
     rows = session.scalars(select(FindingRow)).all()
     as_of = get_as_of(session, context.settings)
-    claimable = in_flight = recovered = expired = 0
-    stage_counts = dict.fromkeys(Stage, 0)
-    for row in rows:
-        status = Status(row.status)
-        stage_counts[STAGE_OF[status]] += 1
-        if status is Status.RECOVERED:
-            recovered += row.recovered_minor or 0
-        elif status is Status.DISMISSED:
-            continue
-        elif status is Status.EXPIRED:
-            expired += row.amount_minor
-        elif STAGE_OF[status] is Stage.WAITING:
-            in_flight += row.amount_minor
-        elif row.recover_by is not None and row.recover_by < as_of:
-            # Never sent and the window has closed: it is missed money, not money still owed.
-            expired += row.amount_minor
-        else:
-            claimable += row.amount_minor
+    standing = money_standing(rows, as_of)
 
     totals_rows = session.execute(
         select(
@@ -77,10 +61,10 @@ def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
         mode=context.services.mode,
         demo_mode=context.settings.demo_mode,
         data_mode=context.settings.data_mode,
-        claimable_minor=claimable,
-        in_flight_minor=in_flight,
-        recovered_minor=recovered,
-        expired_minor=expired,
+        claimable_minor=standing.claimable_minor,
+        in_flight_minor=standing.in_flight_minor,
+        recovered_minor=standing.recovered_minor,
+        expired_minor=standing.expired_minor,
         totals=[
             OutcomeTotal(
                 outcome=o,
@@ -89,7 +73,7 @@ def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
             )
             for o in Outcome
         ],
-        stages=[StageCount(stage=s, count=stage_counts[s]) for s in Stage],
+        stages=[StageCount(stage=s, count=standing.stage_counts[s]) for s in Stage],
     )
 
 
