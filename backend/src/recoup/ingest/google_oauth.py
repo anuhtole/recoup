@@ -12,7 +12,7 @@ import os
 import secrets
 import time
 import webbrowser
-from collections.abc import Callable
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
@@ -42,12 +42,18 @@ def new_pkce() -> Pkce:
     return Pkce(verifier, base64.urlsafe_b64encode(digest).rstrip(b"=").decode())
 
 
-def authorization_url(client_id: str, redirect_uri: str, state: str, pkce: Pkce) -> str:
+def authorization_url(
+    client_id: str,
+    redirect_uri: str,
+    state: str,
+    pkce: Pkce,
+    scopes: Sequence[str] = (SCOPE,),
+) -> str:
     query = {
         "client_id": client_id,
         "redirect_uri": redirect_uri,
         "response_type": "code",
-        "scope": SCOPE,
+        "scope": " ".join(scopes),
         "state": state,
         "code_challenge": pkce.challenge,
         "code_challenge_method": "S256",
@@ -150,13 +156,14 @@ def connect_gmail(
     open_browser: Callable[[str], Any] = webbrowser.open,
     timeout: float = CONSENT_TIMEOUT_SECONDS,
     http: httpx.Client | None = None,
+    scopes: Sequence[str] = (SCOPE,),
 ) -> None:
     """Run the consent flow and save the refresh token to `env_path`."""
     state = secrets.token_urlsafe(24)
     pkce = new_pkce()
     with HTTPServer(("127.0.0.1", 0), BaseHTTPRequestHandler) as server:
         redirect_uri = f"http://127.0.0.1:{server.server_port}/callback"
-        open_browser(authorization_url(client_id, redirect_uri, state, pkce))
+        open_browser(authorization_url(client_id, redirect_uri, state, pkce, scopes))
         params = _capture_redirect(server, timeout)
     if not secrets.compare_digest(params.get("state", ""), state):
         raise GmailError("The sign-in response did not match this request; nothing was saved.")

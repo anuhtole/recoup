@@ -1,7 +1,11 @@
 """Read vendor email from Gmail, read-only.
 
-The only scope requested is gmail.readonly, so nothing here can send, delete, or
-label mail. What gets stored is limited twice:
+Reading asks only for gmail.readonly, which cannot send, delete, or label mail. The
+one write is `GmailClient.send_message`: it needs the separate gmail.send scope, which
+is requested only when RECOUP_GMAIL_SEND is on, and its only caller is the outbox that
+runs after a person approves a message (`recovery/gmail_outbox.py`).
+
+What gets stored when reading is limited twice:
 
 1. The search asks Gmail only for mail from vendor domains in the directory, so
    personal mail is never downloaded.
@@ -34,6 +38,7 @@ from recoup.ingest.http_retry import send_with_retry
 TOKEN_URL = "https://oauth2.googleapis.com/token"
 API_URL = "https://gmail.googleapis.com/gmail/v1/users/me"
 SCOPE = "https://www.googleapis.com/auth/gmail.readonly"
+SEND_SCOPE = "https://www.googleapis.com/auth/gmail.send"
 SOURCE = "gmail"
 PAGE_SIZE = 100
 MAX_BODY_CHARS = 20_000
@@ -50,8 +55,17 @@ _BLANKS = re.compile(r"[ \t]+")
 _LINES = re.compile(r"\n\s*\n+")
 
 
+def consent_scopes(can_send: bool) -> tuple[str, ...]:
+    """What Recoup asks Google for: reading always, sending only when it is turned on."""
+    return (SCOPE, SEND_SCOPE) if can_send else (SCOPE,)
+
+
 class GmailError(Exception):
     """A sync failure whose message is safe to show a person: it never contains secrets."""
+
+
+class GmailSendUnconfirmed(GmailError):
+    """Gmail stopped answering mid-send, so the message may or may not have gone out."""
 
 
 class _Header(BaseModel):
@@ -285,6 +299,60 @@ class GmailClient:
             raise GmailError(f"Gmail returned {response.status_code}.")
         body: dict[str, Any] = response.json()
         return body
+
+    def send_message(self, raw: str) -> str:
+        """Send one RFC 822 message (base64url) and return Gmail's id for it.
+
+        Unlike reads, a send is never retried on an error: a repeat could deliver the
+        same message twice. Only a 401 gets a second try, since nothing was sent.
+        """
+        unsure = "Check the mailbox's Sent folder before trying again."
+
+        def post() -> httpx.Response:
+            self._token = self._token or self._authenticate()
+            headers = {"Authorization": f"Bearer {self._token}"}
+            try:
+                return self._http.post(
+                    f"{API_URL}/messages/send", json={"raw": raw}, headers=headers
+                )
+            except httpx.TransportError as exc:
+                raise GmailSendUnconfirmed(
+                    f"Could not reach Gmail while sending. {unsure}"
+                ) from exc
+
+        response = post()
+        if response.status_code == 401:
+            self._token = None
+            response = post()
+        if response.status_code == 403:
+            raise GmailError(
+                "Gmail refused to send (403). Set RECOUP_GMAIL_SEND=true and connect Gmail "
+                "again so it can grant permission to send."
+            )
+        if response.status_code >= 500:
+            raise GmailSendUnconfirmed(
+                f"Gmail returned {response.status_code} while sending. {unsure}"
+            )
+        if response.status_code != 200:
+            raise GmailError(
+                f"Gmail refused the message ({response.status_code}); it was not sent."
+            )
+        try:
+            sent_id = response.json().get("id")
+        except ValueError:
+            sent_id = None
+        if not isinstance(sent_id, str) or not _SAFE_ID.match(sent_id):
+            raise GmailSendUnconfirmed(f"Gmail's reply to the send had no message id. {unsure}")
+        return sent_id
+
+    def message_id_header(self, gmail_id: str) -> str | None:
+        """The Message-ID Gmail stored for a message, which is what a reply will cite."""
+        params = {"format": "metadata", "metadataHeaders": "Message-ID"}
+        payload = self._get(f"/messages/{gmail_id}", params).get("payload") or {}
+        for header in payload.get("headers") or []:
+            if str(header.get("name", "")).lower() == "message-id":
+                return _clean(str(header.get("value", "")), MAX_HEADER_CHARS) or None
+        return None
 
     def list_ids(self, query: str, limit: int) -> tuple[list[str], bool]:
         """Message ids, newest first, and whether more matched than `limit`."""

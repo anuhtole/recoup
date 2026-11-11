@@ -80,7 +80,7 @@ The outages and SLA terms are real; the invoices are not. A status page can't pr
 
 The connector is tested against the response shapes in Ramp's published API spec. **It has not yet run against a real sandbox.**
 
-**Gmail (vendor replies).** `recoup sync gmail` reads mail from vendor directory domains only, with the `gmail.readonly` scope. A message is kept only if Gmail's own check shows DMARC or DKIM passing for the sender's domain, so a forged From line is skipped. Attachments are never read, and sending still goes only to the local outbox after approval.
+**Gmail (vendor replies).** `recoup sync gmail` reads mail from vendor directory domains only, with the `gmail.readonly` scope. A message is kept only if Gmail's own check shows DMARC or DKIM passing for the sender's domain, so a forged From line is skipped. Attachments are never read. Sending goes to the local outbox after approval unless `RECOUP_GMAIL_SEND=true` (see Safety).
 
 1. In [Google Cloud Console](https://console.cloud.google.com/), create a project and enable the Gmail API.
 2. Configure the OAuth consent screen as External, and add your own address as a test user.
@@ -124,7 +124,9 @@ flowchart LR
 
 The full picture, with every layer, the case lifecycle and the trust boundaries, is in **[docs/architecture.md](docs/architecture.md)**.
 
-It is a **fixed workflow, not an agent loop** ([ADR 0001](docs/adr/0001-workflow-not-agent.md)). The code decides the order of steps. The model does only what code can't: read vendor language, classify replies, and polish drafts. Each model call is one structured-output request with no tools.
+Detection is a **fixed workflow, not an agent loop** ([ADR 0001](docs/adr/0001-workflow-not-agent.md)). The code decides the order of steps. The model does only what code can't: read vendor language, classify replies, and polish drafts. Each of those calls is one structured-output request with no tools.
+
+On top of that sits a **chat agent on a short leash** ([ADR 0013](docs/adr/0013-chat-agent-and-gmail-send.md)). Ask it what the company is owed, which cases are urgent, or to draft a request, and it calls a fixed list of six tools. None of them sends: the agent drafts, and a person reads, edits and approves.
 
 **The model reads; code decides** ([ADR 0005](docs/adr/0005-model-reads-code-decides.md)). A model proposal becomes a promise only if:
 1. the sender's domain is in the vendor directory,
@@ -135,6 +137,28 @@ It is a **fixed workflow, not an agent loop** ([ADR 0001](docs/adr/0001-workflow
 A reply to one of our requests counts only if it comes from the address we wrote to, so a forged `In-Reply-To` can't move a case.
 
 Whether money posted is read from the ledger alone. So a crafted email can at most add a case for a person to review. It can never hide a real leak, choose a recipient, or mark anything recovered.
+
+## Ask Recoup
+
+`POST /api/agent/chat` takes the conversation so far and returns a reply plus the tool calls the agent made, so the UI can show what it did. It needs `ANTHROPIC_API_KEY`.
+
+```bash
+curl -s localhost:8000/api/agent/chat -H 'content-type: application/json' \
+  -d '{"messages":[{"role":"user","content":"Which cases are urgent?"}]}'
+```
+
+| Tool | What it does |
+|---|---|
+| `get_overview` | Money ready to claim, in flight, recovered, and missed |
+| `list_connections` | Which sources are connected |
+| `connect_gmail` | Returns the consent link for the person to open; the agent cannot grant access |
+| `run_scan` | Runs detection |
+| `list_cases` | Urgent (window closes within 14 days), to do, waiting, or done |
+| `draft_request` | Drafts a request for one case and leaves it for approval |
+
+There is no send tool. Tool results contain ids, amounts, dates and states, never email, contract or draft text. The vendor name is the one free-text field, and it is cut down to 40 plain characters. Each message gets at most six model turns and one scan, and every tool call is audited.
+
+The agent is tested against a scripted model, including one that tries to send. **It has not yet run against the live Claude API.** The conversation in our demo video is scripted over the same data.
 
 ## Evals
 
@@ -178,11 +202,13 @@ Recoup holds private financial data, reads untrusted email, and can send mail: t
 - **Ledger truth.** "Recovered" means a matching credit posted. A vendor saying yes is not enough.
 - **Single-user for now.** The API has no login: it is built to run on one person's machine, and the approver name is self-reported. A shared deployment would sit behind SSO and take the approver from the session.
 - **Secrets stay server-side.** The browser talks only to our API. CI runs a secret scan.
-- **Least privilege.** Every connector is read-only: Gmail is read with the `gmail.readonly` scope and Ramp with `transactions:read`. Gmail mail is kept only from vendor directory domains, and only when Gmail's own DMARC or DKIM check passes for the sender ([ADR 0009](docs/adr/0009-connector-interface.md)). Planned: sending approved drafts through Gmail with a send-only scope, behind the same approval gate. Until then every send goes to the local outbox.
+- **Least privilege.** Every connector is read-only: Gmail is read with the `gmail.readonly` scope and Ramp with `transactions:read`. Gmail mail is kept only from vendor directory domains, and only when Gmail's own DMARC or DKIM check passes for the sender ([ADR 0009](docs/adr/0009-connector-interface.md)).
+- **Sending is opt-in.** By default every approved message goes to a local outbox and nothing leaves the machine. With `RECOUP_GMAIL_SEND=true`, connecting Gmail also asks for `gmail.send`, and an approved vendor email goes out from the company's own mailbox to the one address in the vendor directory. A send is never retried, and one whose result is unknown is never offered again. Because the API has no login, turn this on only where the API is reachable from your own machine. **It has not yet run against a real mailbox.**
+- **The agent cannot send.** Its tool list has no send, edit or dismiss, and it never sees email or contract text ([ADR 0013](docs/adr/0013-chat-agent-and-gmail-send.md)).
 
 ## Claude
 
-With `ANTHROPIC_API_KEY` set, Recoup uses the Anthropic Python SDK for four calls:
+With `ANTHROPIC_API_KEY` set, Recoup uses the Anthropic Python SDK for four reading and writing calls, plus the chat agent:
 
 | Call | Prompt version | Output |
 |---|---|---|
@@ -191,7 +217,9 @@ With `ANTHROPIC_API_KEY` set, Recoup uses the Anthropic Python SDK for four call
 | Contract reading | `contracts/1` | `ContractReading`, then a gate that checks each clause, number and date against the PDF text ([ADR 0011](docs/adr/0011-contract-reader.md)) |
 | Draft polishing | `drafts/2` | Checked in code: it must keep the amount and every reference and add no address or link, or the template is used instead |
 
-All four are structured outputs on `claude-opus-5-5` at medium effort, configurable with `RECOUP_LLM_MODEL` and `RECOUP_LLM_EFFORT`. Results are cached per (email, model, prompt version), so re-running detection is free. A failed call falls back to the keyword rules for that email and is retried next run. Requests opt into server-side fallbacks, so a declined request is retried on Anthropic's recommended fallback model.
+The chat agent (prompt `agent/1`) is the only call with tools; see Ask Recoup above.
+
+The four in the table are structured outputs on `claude-opus-5-5` at medium effort, configurable with `RECOUP_LLM_MODEL` and `RECOUP_LLM_EFFORT`. Results are cached per (email, model, prompt version), so re-running detection is free. A failed call falls back to the keyword rules for that email and is retried next run. Requests opt into server-side fallbacks, so a declined request is retried on Anthropic's recommended fallback model.
 
 Try the contract reader on the sample order form. It prints the verified terms and changes nothing unless you add `--save`:
 
@@ -207,7 +235,7 @@ Without a key, everything still works on the keyword rules ([ADR 0007](docs/adr/
 - **Idempotent everywhere.** Re-ingesting inserts nothing, and re-running detection creates nothing new. Model output is cached, and each reply is applied exactly once. All of this is tested.
 - **UTC everywhere**, enforced by a column type that restores tzinfo on SQLite.
 - **Migrations are checked.** CI runs `alembic upgrade head && alembic check` against SQLite and Postgres 16, and also fails if the committed dataset or eval tables drift from the code.
-- **309 tests, 94% line coverage**, mypy in strict mode, and ruff.
+- **342 tests, 94% line coverage**, mypy in strict mode, and ruff.
 
 ## Project layout
 
@@ -219,7 +247,8 @@ backend/src/recoup/
   extract/     Claude + keyword extractors, prompts, the contract reader, and the validation gates
   detectors/   duplicates, broken promises, outage credits, price overcharges: pure functions
   pipeline/    the fixed workflow: read inbox → detect → upsert → match recoveries
-  recovery/    drafting, outbox, and the recovery state machine
+  recovery/    drafting, the local and Gmail outboxes, and the recovery state machine
+  agent/       the chat agent: its six tools and the bounded tool loop
   db/          SQLAlchemy models and session; migrations in backend/migrations/
   api/         FastAPI routes, schemas, case timelines
   demo/        the simulated vendor inbox (only with RECOUP_DEMO_MODE=true)
@@ -253,7 +282,7 @@ To work on the code, start with [CONTRIBUTING.md](CONTRIBUTING.md).
 ## Roadmap
 
 1. **Read Ramp disputes,** so a charge already being disputed isn't flagged again.
-2. **Send through Gmail.** Send approved drafts from the connected mailbox, still behind the approval gate.
+2. **Run the agent and Gmail sending live.** Both are built and tested against fakes; next is a real API key and a real mailbox.
 3. **Contracts from the inbox.** Feed order-form attachments from Gmail to the contract reader, so outage credits and price checks need no setup.
 4. **Partial credits and seat counts.** Match partial refunds, and price per-seat plans against the seats actually contracted.
 
@@ -262,7 +291,7 @@ To work on the code, start with [CONTRIBUTING.md](CONTRIBUTING.md).
 The prompt asks for the newest AI tools, so here is what we used and why.
 
 - **Claude Code as the pair programmer.** We wrote the backend and the UI with Claude Code. The working rule was the same one the product follows: the model proposes, and something deterministic checks it. For code that means a failing test first, then `make check`: ruff, mypy in strict mode, pytest, and the frontend build.
-- **One ADR per decision.** Each choice someone could have made differently has a record in [`docs/adr/`](docs/adr/README.md): twelve so far, from "a fixed workflow, not an agent" to company onboarding. They are the answer to "why is it built this way?".
+- **One ADR per decision.** Each choice someone could have made differently has a record in [`docs/adr/`](docs/adr/README.md): thirteen so far, from "a fixed workflow, not an agent" to the chat agent that later narrowed it. They are the answer to "why is it built this way?".
 - **Evals and drift checks in CI.** The detectors are scored against a seeded synthetic company with an answer key. CI fails if the committed dataset no longer matches the generator, if the eval tables no longer match the code, or if the migrations no longer match the models. The numbers in this README cannot quietly go stale. CI also runs the suite on SQLite and Postgres 16 and scans for secrets.
 - **Design skills, pinned.** The UI was redesigned by handing Claude Code a written brief ([docs/workflow/ui-redesign-brief.md](docs/workflow/ui-redesign-brief.md)) together with three open-source design skills in `.agents/skills/` (`design-taste-frontend`, `apple-design`, `bklit-ui`). `skills-lock.json` pins each one by source and content hash, so the tooling is reproducible.
 - **Playwright, twice.** `.mcp.json` adds the Playwright MCP server, so Claude Code can open the running app in a real browser and see what it built. The "look loop" commits in the history are rounds of looking at the result and fixing what was off. The same path through the UI is kept as a regression test in `frontend/e2e/recoup.spec.ts`.

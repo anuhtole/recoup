@@ -80,7 +80,7 @@ export interface Draft {
   subject: string;
   body: string;
   drafter: string;
-  status: "draft" | "sent";
+  status: "draft" | "sending" | "sent";
   sent_at: string | null;
   sent_by: string | null;
 }
