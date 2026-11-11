@@ -13,6 +13,8 @@ export interface Notice {
   isResult?: boolean;
   /** A summary card's items, one per line. */
   lines?: string[];
+  /** One follow-up, such as opening the case the notice is about. */
+  action?: { label: string; onClick: () => void };
 }
 
 const RESULT_MS = 6_000;
@@ -57,6 +59,18 @@ function Card({ notice, onDismiss }: { notice: Notice; onDismiss: () => void }) 
               </li>
             ))}
           </ul>
+        )}
+        {notice.action && (
+          <button
+            type="button"
+            onClick={() => {
+              notice.action?.onClick();
+              onDismiss();
+            }}
+            className="mt-2 text-13 font-medium text-mint transition-colors duration-150 hover:underline"
+          >
+            {notice.action.label}
+          </button>
         )}
       </div>
       <button

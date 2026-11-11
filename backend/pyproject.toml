@@ -1,7 +1,7 @@
 [project]
 name = "recoup"
 version = "0.1.0"
-description = "An AI agent that finds money a company is owed and drafts the recovery for human approval."
+description = "Finds money a company is owed and drafts the recovery for human approval."
 requires-python = ">=3.12"
 dependencies = [
     "alembic>=1.13",
@@ -11,6 +11,7 @@ dependencies = [
     "psycopg[binary]>=3.2",
     "pydantic>=2.8",
     "pydantic-settings>=2.4",
+    "pypdf>=5",
     "sqlalchemy>=2.0.30",
     "uvicorn[standard]>=0.30",
 ]
@@ -20,7 +21,6 @@ recoup = "recoup.cli:main"
 
 [dependency-groups]
 dev = [
-    "httpx2",
     "mypy>=1.11",
     "pytest>=8.3",
     "pytest-cov>=7.1.0",

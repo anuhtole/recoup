@@ -62,7 +62,11 @@ def _assert_clean(client: TestClient) -> None:
     assert sources["ramp"]["connected"] is True
     assert sources["ramp"]["last_sync"]["ok"] is True
     assert sources["ramp"]["last_sync"]["detail"]["pulled"] > 0
-    assert sources["gmail"] == {"connected": False, "last_sync": None}
+    assert sources["gmail"] == {
+        "connected": False,
+        "sends_approved_mail": False,
+        "last_sync": None,
+    }
     configured = {c["key"]: c["configured"] for c in sources["connectors"]}
     assert configured == {"ramp": True, "gmail": False, "status_pages": True}
 

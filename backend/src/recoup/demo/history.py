@@ -35,7 +35,7 @@ from recoup.pipeline.run import (
     DetectionInput,
     RunSummary,
     detectors_from_settings,
-    display_merchant,
+    finding_merchant,
     run_pipeline,
     upsert_finding,
 )
@@ -481,7 +481,7 @@ def _replay(
         logger.warning("history: no detector flagged %s on %s", claim.slug, claim.found_on)
         return None
 
-    upsert_finding(session, candidate, display_merchant(candidate, sources), claim.found_on)
+    upsert_finding(session, candidate, finding_merchant(candidate, sources), claim.found_on)
     row = session.scalars(select(FindingRow).where(FindingRow.key == candidate.key)).one()
     if row.status != Status.OPEN:
         return None

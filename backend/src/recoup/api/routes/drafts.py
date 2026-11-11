@@ -6,6 +6,7 @@ from recoup.api.deps import ContextDep, SessionDep
 from recoup.api.schemas import DraftOut, DraftUpdateIn, SendIn
 from recoup.db.models import DraftRow
 from recoup.db.state import get_as_of
+from recoup.recovery.outbox import OutboxError
 from recoup.recovery.workflow import TransitionError, send_draft, update_draft
 
 router = APIRouter(prefix="/api/drafts")
@@ -41,4 +42,7 @@ def send(draft_id: int, body: SendIn, session: SessionDep, context: ContextDep) 
         )
     except TransitionError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+    except OutboxError as exc:
+        # send_draft has already stored whether the draft may be sent again.
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
     return DraftOut.model_validate(draft, from_attributes=True)

@@ -96,3 +96,37 @@ def test_demo_reset_leaves_the_clean_slate_and_scan_rebuilds(
         "start_as_of": "2026-10-01",
     }
     assert "scan" not in clean
+
+
+def test_serve_refuses_a_database_without_tables(
+    env: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    import uvicorn
+
+    started: list[str] = []
+    monkeypatch.setattr(uvicorn, "run", lambda app, **_: started.append(app))
+    monkeypatch.setattr(sys, "argv", ["recoup", "serve"])
+
+    with pytest.raises(SystemExit) as exit_info:
+        cli.main()
+
+    assert "make db" in str(exit_info.value)
+    assert started == []
+
+
+def test_serve_starts_once_the_tables_exist(env: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import uvicorn
+
+    from recoup.db.models import Base
+    from recoup.db.session import make_engine
+
+    engine = make_engine(get_settings().database_url)
+    Base.metadata.create_all(engine)
+    engine.dispose()
+    started: list[str] = []
+    monkeypatch.setattr(uvicorn, "run", lambda app, **_: started.append(app))
+    monkeypatch.setattr(sys, "argv", ["recoup", "serve", "--port", "8123"])
+
+    cli.main()
+
+    assert started == ["recoup.api.app:create_app"]

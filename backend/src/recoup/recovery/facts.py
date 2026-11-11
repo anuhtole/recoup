@@ -6,6 +6,7 @@ from datetime import date
 from recoup.domain.money import Money
 from recoup.domain.sources import Vendor
 from recoup.domain.types import Evidence, LeakType, Transaction
+from recoup.ingest.company import DEFAULT_COMPANY_NAME
 
 
 @dataclass(frozen=True)
@@ -21,6 +22,8 @@ class CaseFacts:
     evidence: tuple[Evidence, ...]
     as_of: date
     is_escalation: bool = False
+    # Who the request is from; drafts are signed "<company> Finance".
+    company: str = DEFAULT_COMPANY_NAME
 
     @property
     def amount(self) -> str:

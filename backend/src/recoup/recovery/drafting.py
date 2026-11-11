@@ -13,12 +13,15 @@ from typing import Protocol
 
 from pydantic import BaseModel
 
-from recoup.config import DEFAULT_ORG
 from recoup.domain.dates import human_date
 from recoup.domain.types import Evidence, LeakType
 from recoup.extract.claude import ClaudeStructured, LlmError
 from recoup.extract.prompts import DRAFT_PROMPT_VERSION, DRAFT_SYSTEM
 from recoup.recovery.facts import CaseFacts
+
+
+def signature(facts: CaseFacts) -> str:
+    return f"Thanks,\n{facts.company} Finance"
 
 
 @dataclass(frozen=True)
@@ -245,24 +248,18 @@ _TEMPLATES = {
 }
 
 
-@dataclass(frozen=True)
 class TemplateDrafter:
-    """Signs every letter with the org's name (Settings.org_name), the same name the app shows."""
+    """Signs every letter with the company's name, from the case's facts."""
 
-    org: str = DEFAULT_ORG
     name = "template/1"
-
-    @property
-    def signature(self) -> str:
-        return f"Thanks,\n{self.org} Finance"
 
     def draft(self, facts: CaseFacts) -> DraftContent:
         if facts.vendor is None or facts.is_escalation:
             subject, body = _dispute(facts)
-            return DraftContent(subject, f"{body}\n\n{self.signature}", self.name)
+            return DraftContent(subject, f"{body}\n\n{signature(facts)}", self.name)
         subject, body = _TEMPLATES[facts.leak_type](facts)
         greeting = f"Hello {facts.vendor.name} team,"
-        return DraftContent(subject, f"{greeting}\n\n{body}\n\n{self.signature}", self.name)
+        return DraftContent(subject, f"{greeting}\n\n{body}\n\n{signature(facts)}", self.name)
 
 
 class _DraftBody(BaseModel):
@@ -294,7 +291,8 @@ class ClaudeDrafter:
             return template  # dispute packets stay factual and structured
         prompt = (
             f"Vendor: {facts.vendor.name}\nAmount owed: {facts.amount}\n"
-            f"References: {', '.join(facts.references) or 'none'}\n\n"
+            f"References: {', '.join(facts.references) or 'none'}\n"
+            f"Sign off exactly as: {signature(facts)}\n\n"
             f"Facts (every amount, date and reference must survive):\n{template.body}"
         )
         try:

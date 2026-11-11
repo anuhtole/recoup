@@ -83,6 +83,7 @@ def sources(session: SessionDep, context: ContextDep) -> dict[str, Any]:
         },
         "gmail": {
             "connected": gmail_connected,
+            "sends_approved_mail": settings.gmail_send_configured,
             "last_sync": gmail_run,
         },
         "connectors": [
@@ -123,7 +124,7 @@ def _staged_sync(session: SessionDep, context: ContextDep) -> dict[str, Any]:
         staging.require_scanned(session, context.settings)
     except staging.NotScannedError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
-    run = run_pipeline(session, context.settings, context.services, context.sources)
+    run = run_pipeline(session, context.settings, context.services, context.sources_for(session))
     staging.stamp_found_dates(session, context.settings)
     staged = {"inserted": 0, "staged": True}
     outcomes = [
@@ -149,7 +150,7 @@ def sync_everything(session: SessionDep, context: ContextDep) -> dict[str, Any]:
 def sync_status(session: SessionDep, context: ContextDep) -> dict[str, Any]:
     with httpx.Client(timeout=20.0) as client:
         feeds = sync_status_feeds(session, http_fetcher(client))
-    run = run_pipeline(session, context.settings, context.services, context.sources)
+    run = run_pipeline(session, context.settings, context.services, context.sources_for(session))
     return {"feeds": [asdict(f) for f in feeds], "run": asdict(run)}
 
 
@@ -163,5 +164,5 @@ def sync_ramp_route(session: SessionDep, context: ContextDep) -> dict[str, Any]:
         # Commit the recorded failure; rolling back would hide that the sync was tried.
         session.commit()
         raise HTTPException(status_code=502, detail=str(exc)) from exc
-    run = run_pipeline(session, context.settings, context.services, context.sources)
+    run = run_pipeline(session, context.settings, context.services, context.sources_for(session))
     return {"ramp": asdict(result), "run": asdict(run)}

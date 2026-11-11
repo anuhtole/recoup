@@ -4,11 +4,12 @@ from dataclasses import dataclass
 
 from anthropic import Anthropic
 
-from recoup.config import DEFAULT_ORG, Settings
+from recoup.config import Settings
 from recoup.extract.base import PromiseExtractor, ReplyClassifier
 from recoup.extract.claude import ClaudeExtractor, ClaudeReplyClassifier, ClaudeStructured
 from recoup.extract.heuristic import HeuristicExtractor, HeuristicReplyClassifier
 from recoup.recovery.drafting import ClaudeDrafter, Drafter, TemplateDrafter
+from recoup.recovery.gmail_outbox import gmail_outbox
 from recoup.recovery.outbox import LocalOutbox, Outbox
 
 
@@ -25,24 +26,29 @@ class Services:
         return f"claude:{self.llm.model}" if self.llm else "offline"
 
 
-def offline_services(org_name: str = DEFAULT_ORG) -> Services:
+def choose_outbox(settings: Settings) -> Outbox:
+    """Local unless sending through Gmail was turned on; the mailbox is checked per send."""
+    return gmail_outbox(settings) if settings.gmail_send else LocalOutbox()
+
+
+def offline_services(outbox: Outbox | None = None) -> Services:
     return Services(
         extractor=HeuristicExtractor(),
         classifier=HeuristicReplyClassifier(),
-        drafter=TemplateDrafter(org_name),
-        outbox=LocalOutbox(),
+        drafter=TemplateDrafter(),
+        outbox=outbox or LocalOutbox(),
     )
 
 
 def build_services(settings: Settings) -> Services:
     if not settings.llm_enabled or settings.anthropic_api_key is None:
-        return offline_services(settings.org_name)
+        return offline_services(choose_outbox(settings))
     client = Anthropic(api_key=settings.anthropic_api_key.get_secret_value(), max_retries=3)
     llm = ClaudeStructured(client=client, model=settings.llm_model, effort=settings.llm_effort)
     return Services(
         extractor=ClaudeExtractor(llm),
         classifier=ClaudeReplyClassifier(llm),
-        drafter=ClaudeDrafter(llm, TemplateDrafter(settings.org_name)),
-        outbox=LocalOutbox(),
+        drafter=ClaudeDrafter(llm, TemplateDrafter()),
+        outbox=choose_outbox(settings),
         llm=llm,
     )

@@ -64,9 +64,9 @@ def test_claude_draft_that_drops_a_fact_or_adds_an_address_falls_back() -> None:
 
 
 def test_letters_are_signed_with_the_org_and_list_charges_in_plain_words() -> None:
-    draft = TemplateDrafter("Acme Inc.").draft(FACTS)
+    draft = TemplateDrafter().draft(FACTS)
 
-    assert draft.body.endswith("Thanks,\nAcme Inc. Finance")
+    assert draft.body.endswith(f"Thanks,\n{FACTS.company} Finance")
     assert "- Jun 3, 2026 · Figma · $480.00 · FIG-202606" in draft.body
     assert "(s)" not in draft.body
 

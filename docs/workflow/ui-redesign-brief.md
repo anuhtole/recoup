@@ -1,5 +1,7 @@
 # Recoup UI redesign: glacier liquid glass
 
+> **What this file is.** The brief the team handed to Claude Code, with the design skills in `.agents/skills/`, to redesign the review UI on the `ui/glacier-redesign` branch. It is kept as a record of how the UI was built, not as a description of the UI today: later rounds replaced the glacier glass look with the pine and stone theme in `frontend/src/index.css`. The non-negotiables it lists (the API contract, the approval step, the routes) still hold and are restated in the [frontend merge guide](../../CONTRIBUTING.md#frontend-merge-guide).
+
 Hand this whole file to Claude Code from the repo root on the `ui/glacier-redesign` branch. It is the full brief. Work through it top to bottom.
 
 ## Goal

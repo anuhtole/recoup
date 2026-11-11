@@ -44,7 +44,9 @@ def connect(body: ConnectIn, session: SessionDep, context: ContextDep) -> dict[s
 def scan(session: SessionDep, context: ContextDep) -> RunSummaryOut:
     _require_demo(context)
     try:
-        result = staging.scan(session, context.settings, context.services, context.sources)
+        result = staging.scan(
+            session, context.settings, context.services, context.sources_for(session)
+        )
     except staging.NotConnectedError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
     return RunSummaryOut(**asdict(result))
@@ -64,7 +66,9 @@ def advance_clock(body: AdvanceIn, session: SessionDep, context: ContextDep) -> 
         staging.require_scanned(session, context.settings)
     except staging.NotScannedError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
-    result = advance(session, context.settings, context.services, context.sources, body.days)
+    result = advance(
+        session, context.settings, context.services, context.sources_for(session), body.days
+    )
     # Anything detection found on the new date is dated by the demo clock too.
     staging.stamp_found_dates(session, context.settings)
     return AdvanceOut(

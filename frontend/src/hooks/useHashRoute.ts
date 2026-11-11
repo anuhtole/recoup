@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 
-export type Page = "agent" | "overview" | "claims" | "recovered" | "sources";
+export type Page = "agent" | "overview" | "claims" | "recovered" | "sources" | "setup";
 export interface Route {
   page: Page;
   /** #/claims/<id> */
@@ -9,10 +9,10 @@ export interface Route {
   params: Record<string, string>;
 }
 
-const PAGES: Page[] = ["agent", "overview", "claims", "recovered", "sources"];
+const PAGES: Page[] = ["agent", "overview", "claims", "recovered", "sources", "setup"];
 
 // #/agent, #/overview, #/claims?tab=waiting&q=fig&type=sla_credit, #/claims/<id>, #/recovered,
-// #/recovered?view=inflight, #/sources.
+// #/recovered?view=inflight, #/sources, #/setup.
 // Anything else is the agent page.
 export function parseHash(hash: string): Route {
   const [path, query = ""] = hash.replace(/^#/, "").split("?");

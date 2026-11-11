@@ -1,6 +1,7 @@
 """Command line entry point.
 
-`recoup generate | ingest | run | advance | demo-reset | sync | connect | watch | serve`.
+`recoup generate | ingest | run | advance | demo-reset | sync | connect | contracts | watch |
+serve`.
 """
 
 import argparse
@@ -13,20 +14,28 @@ from dataclasses import asdict
 from pathlib import Path
 
 import httpx
+from anthropic import Anthropic, APIError
 from sqlalchemy.orm import Session
 
-from recoup.config import get_settings
+from recoup.config import Settings, get_settings
 from recoup.connectors.registry import build_connectors
 from recoup.connectors.scheduler import BackgroundSync
-from recoup.db.session import make_engine, make_session_factory, session_scope
+from recoup.db.session import has_schema, make_engine, make_session_factory, session_scope
 from recoup.db.state import get_as_of
 from recoup.demo.history import replay_history
 from recoup.demo.simulator import advance
 from recoup.demo.staging import connect_gmail as connect_demo_gmail
 from recoup.demo.staging import demo_state, reset_demo
 from recoup.demo.staging import scan as scan_demo
+from recoup.extract.claude import ClaudeStructured, LlmError
+from recoup.extract.contract_reader import (
+    ClaudeContractReader,
+    ContractReadError,
+    read_contract,
+)
+from recoup.ingest.company import company_sources, save_contract
 from recoup.ingest.dataset import ingest_dataset
-from recoup.ingest.gmail import GmailError
+from recoup.ingest.gmail import GmailError, consent_scopes
 from recoup.ingest.google_oauth import connect_gmail
 from recoup.ingest.live import (
     demo_invoices,
@@ -39,7 +48,7 @@ from recoup.ingest.live import (
 )
 from recoup.ingest.loader import ingest_transactions
 from recoup.ingest.ramp import RampError
-from recoup.ingest.sources import load_sources
+from recoup.ingest.sources import Sources, load_sources
 from recoup.pipeline.run import run_pipeline
 from recoup.services import build_services
 from recoup.synth.generate import DEFAULT_SEED, write_dataset
@@ -69,12 +78,11 @@ def _ingest(_: argparse.Namespace) -> None:
 def _run(_: argparse.Namespace) -> None:
     settings = get_settings()
     services = build_services(settings)
-    sources = load_sources(settings.data_dir)
     with _session() as session:
-        summary = run_pipeline(session, settings, services, sources)
+        summary = run_pipeline(session, settings, services, _sources(session, settings))
         # The demo's past claims, replayed once, only with RECOUP_DEMO_HISTORY=true.
         history = (
-            replay_history(session, settings, services, sources)
+            replay_history(session, settings, services, _sources(session, settings))
             if settings.data_mode == "demo"
             else None
         )
@@ -88,7 +96,7 @@ def _advance(args: argparse.Namespace) -> None:
     settings = get_settings()
     services = build_services(settings)
     with _session() as session:
-        result = advance(session, settings, services, load_sources(settings.data_dir), args.days)
+        result = advance(session, settings, services, _sources(session, settings), args.days)
     print(json.dumps(asdict(result)))
 
 
@@ -103,17 +111,21 @@ def _demo_reset(args: argparse.Namespace) -> None:
         if args.scan:
             connect_demo_gmail(session)
             services = build_services(settings)
-            run = scan_demo(session, settings, services, load_sources(settings.data_dir))
+            run = scan_demo(session, settings, services, _sources(session, settings))
             output["scan"] = {**asdict(run), "mode": services.mode}
         output["state"] = asdict(demo_state(session, settings))
     output["seconds"] = round(time.perf_counter() - started, 3)
     print(json.dumps(output))
 
 
+def _sources(session: Session, settings: Settings) -> Sources:
+    return company_sources(session, load_sources(settings.data_dir))
+
+
 def _detect(session: Session) -> dict[str, object]:
     settings = get_settings()
     services = build_services(settings)
-    summary = run_pipeline(session, settings, services, load_sources(settings.data_dir))
+    summary = run_pipeline(session, settings, services, _sources(session, settings))
     return {**asdict(summary), "mode": services.mode}
 
 
@@ -152,7 +164,7 @@ def _sync_gmail(_: argparse.Namespace) -> None:
     settings = get_settings()
     try:
         with _session() as session:
-            sync = sync_gmail(session, settings, load_sources(settings.data_dir).vendors)
+            sync = sync_gmail(session, settings, _sources(session, settings).vendors)
             run = _detect(session)
     except GmailError as exc:
         sys.exit(str(exc))
@@ -213,15 +225,55 @@ def _connect_gmail(args: argparse.Namespace) -> None:
             settings.gmail_client_id,
             settings.gmail_client_secret.get_secret_value(),
             args.env_file,
+            scopes=consent_scopes(settings.gmail_send),
         )
     except GmailError as exc:
         sys.exit(str(exc))
     print(f"Gmail connected. The refresh token was saved to {args.env_file}.")
 
 
+def _contracts_read(args: argparse.Namespace) -> None:
+    settings = get_settings()
+    if settings.anthropic_api_key is None:
+        sys.exit("Reading a contract needs ANTHROPIC_API_KEY in backend/.env.")
+    client = Anthropic(api_key=settings.anthropic_api_key.get_secret_value(), max_retries=3)
+    llm = ClaudeStructured(client=client, model=settings.llm_model, effort=settings.llm_effort)
+    with _session() as session:
+        vendors = _sources(session, settings).vendors
+    try:
+        verdict = read_contract(ClaudeContractReader(llm), args.path, vendors)
+    except (ContractReadError, LlmError) as exc:
+        sys.exit(str(exc))
+    except APIError as exc:
+        sys.exit(f"Claude request failed ({type(exc).__name__}). Try again shortly.")
+    for problem in verdict.problems:
+        print(f"note: {problem}", file=sys.stderr)
+    if verdict.contract is None:
+        sys.exit("Rejected: nothing in this document could be verified.")
+    print(verdict.contract.model_dump_json(indent=2))
+    if args.save:
+        with _session() as session:
+            save_contract(session, verdict.contract, "upload")
+        print("Saved it to this company's contracts.", file=sys.stderr)
+
+
+def _require_schema() -> None:
+    """Stop before the server starts, not at the first request, when nothing is migrated."""
+    engine = make_engine(get_settings().database_url)
+    try:
+        if not has_schema(engine):
+            sys.exit(
+                "The database has no tables yet. Run `make db` from the repo root, "
+                "or `uv run alembic upgrade head` in backend/, then start the server again."
+            )
+    finally:
+        engine.dispose()
+
+
 def _serve(args: argparse.Namespace) -> None:
     import uvicorn
 
+    _require_schema()
     uvicorn.run("recoup.api.app:create_app", factory=True, port=args.port, reload=args.reload)
 
 
@@ -274,6 +326,13 @@ def main() -> None:
     gmail = providers.add_parser("gmail", help="Read-only Gmail consent in the browser")
     gmail.add_argument("--env-file", type=Path, default=Path(".env"))
     gmail.set_defaults(handler=_connect_gmail)
+
+    contracts = commands.add_parser("contracts", help="Read vendor contracts with Claude")
+    actions = contracts.add_subparsers(dest="action", required=True)
+    read = actions.add_parser("read", help="Read an order form's SLA and price terms")
+    read.add_argument("path", type=Path, help="A .pdf, .txt, or .md order form")
+    read.add_argument("--save", action="store_true", help="Add the verified contract to the data")
+    read.set_defaults(handler=_contracts_read)
 
     watch = commands.add_parser("watch", help="Sync every source on a timer until stopped")
     watch.add_argument("--interval", type=int, default=15, help="Minutes between syncs")

@@ -21,8 +21,10 @@ from recoup.db.models import FindingRow
 from recoup.db.state import get_as_of
 from recoup.demo import staging
 from recoup.domain.types import Outcome
-from recoup.domain.workflow import STAGE_OF, Stage, Status
+from recoup.domain.workflow import STAGE_OF, Stage
+from recoup.ingest.company import get_profile
 from recoup.pipeline.run import run_pipeline
+from recoup.recovery.standing import money_standing
 from recoup.recovery.workflow import TransitionError, create_draft, dismiss
 
 router = APIRouter(prefix="/api")
@@ -45,21 +47,8 @@ def _get(session: SessionDep, finding_id: int) -> FindingRow:
 @router.get("/summary", response_model=SummaryOut)
 def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
     rows = session.scalars(select(FindingRow)).all()
-    claimable = in_flight = recovered = expired = 0
-    stage_counts = dict.fromkeys(Stage, 0)
-    for row in rows:
-        status = Status(row.status)
-        stage_counts[STAGE_OF[status]] += 1
-        if status is Status.RECOVERED:
-            recovered += row.recovered_minor or 0
-        elif status is Status.DISMISSED:
-            continue
-        elif status is Status.EXPIRED:
-            expired += row.amount_minor
-        elif STAGE_OF[status] is Stage.WAITING:
-            in_flight += row.amount_minor
-        else:
-            claimable += row.amount_minor
+    as_of = get_as_of(session, context.settings)
+    standing = money_standing(rows, as_of)
 
     totals_rows = session.execute(
         select(
@@ -69,15 +58,15 @@ def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
     by_outcome = {outcome: (count, total or 0) for outcome, count, total in totals_rows}
     return SummaryOut(
         currency="USD",
-        as_of=get_as_of(session, context.settings),
+        as_of=as_of,
         mode=context.services.mode,
         demo_mode=context.settings.demo_mode,
         data_mode=context.settings.data_mode,
         org_name=context.settings.org_name,
-        claimable_minor=claimable,
-        in_flight_minor=in_flight,
-        recovered_minor=recovered,
-        expired_minor=expired,
+        claimable_minor=standing.claimable_minor,
+        in_flight_minor=standing.in_flight_minor,
+        recovered_minor=standing.recovered_minor,
+        expired_minor=standing.expired_minor,
         totals=[
             OutcomeTotal(
                 outcome=o,
@@ -86,7 +75,7 @@ def summary(session: SessionDep, context: ContextDep) -> SummaryOut:
             )
             for o in Outcome
         ],
-        stages=[StageCount(stage=s, count=stage_counts[s]) for s in Stage],
+        stages=[StageCount(stage=s, count=standing.stage_counts[s]) for s in Stage],
     )
 
 
@@ -119,21 +108,24 @@ def list_findings(
 @router.get("/findings/{finding_id}", response_model=FindingDetailOut)
 def get_finding(finding_id: int, session: SessionDep, context: ContextDep) -> FindingDetailOut:
     row = _get(session, finding_id)
-    return finding_detail(session, row, context.sources, get_as_of(session, context.settings))
+    sources = context.sources_for(session)
+    return finding_detail(session, row, sources, get_as_of(session, context.settings))
 
 
 @router.post("/findings/{finding_id}/draft", response_model=DraftOut)
 def draft_request(finding_id: int, session: SessionDep, context: ContextDep) -> DraftOut:
     row = _get(session, finding_id)
+    profile = get_profile(session, context.settings)
     try:
         draft = create_draft(
             session,
             row,
-            vendors=context.sources.vendors,
+            vendors=context.sources_for(session).vendors,
             drafter=context.services.drafter,
             as_of=get_as_of(session, context.settings),
-            card_dispute_address=context.settings.card_dispute_address,
+            card_dispute_address=profile.card_dispute_address,
             actor=REVIEWER,
+            company=profile.name,
         )
     except TransitionError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
@@ -160,5 +152,5 @@ def trigger_run(session: SessionDep, context: ContextDep) -> RunSummaryOut:
         staging.require_scanned(session, context.settings)
     except staging.NotScannedError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
-    result = run_pipeline(session, context.settings, context.services, context.sources)
+    result = run_pipeline(session, context.settings, context.services, context.sources_for(session))
     return RunSummaryOut(**asdict(result))

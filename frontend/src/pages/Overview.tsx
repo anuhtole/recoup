@@ -347,10 +347,8 @@ export function Overview({ summary, findings, onReview, onExport }: Props) {
   // matching the Claims list and its "Window closed" tab.
   const live = rowsFor(findings, "todo");
   const ready = live.reduce((sum, f) => sum + f.amount_minor, 0);
-  const closedOpen = rowsFor(findings, "closed")
-    .filter((f) => f.status !== "expired")
-    .reduce((sum, f) => sum + f.amount_minor, 0);
-  const missed = summary.expired_minor + closedOpen;
+  // The server's total covers expired claims and never-sent ones whose window has closed.
+  const missed = summary.expired_minor;
   if (findings.length === 0) {
     return (
       <div className="flex flex-col gap-12">

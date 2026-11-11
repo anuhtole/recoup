@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 
 from recoup.config import Settings
 from recoup.connectors.base import Connector, ConnectorError, Kind, SyncOutcome
-from recoup.domain.vendors import VendorDirectory
+from recoup.ingest.company import company_sources
 from recoup.ingest.gmail import GmailError
 from recoup.ingest.live import Fetcher, http_fetcher, sync_gmail, sync_ramp, sync_status_feeds
 from recoup.ingest.ramp import RampError
@@ -38,7 +38,7 @@ class RampConnector:
 @dataclass(frozen=True)
 class GmailConnector:
     settings: Settings
-    vendors: VendorDirectory
+    sources: Sources
     key: str = "gmail"
     kind: Kind = "email"
 
@@ -48,7 +48,8 @@ class GmailConnector:
 
     def sync(self, session: Session) -> dict[str, Any]:
         try:
-            return asdict(sync_gmail(session, self.settings, self.vendors))
+            vendors = company_sources(session, self.sources).vendors
+            return asdict(sync_gmail(session, self.settings, vendors))
         except GmailError as exc:
             raise ConnectorError(str(exc)) from exc
 
@@ -83,7 +84,7 @@ def build_connectors(settings: Settings, sources: Sources) -> tuple[Connector, .
     """Ledger first, then mail, then status pages: later detection reads all three."""
     return (
         RampConnector(settings),
-        GmailConnector(settings, sources.vendors),
+        GmailConnector(settings, sources),
         StatusPagesConnector(),
     )
 

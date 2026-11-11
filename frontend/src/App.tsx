@@ -19,12 +19,13 @@ import { Claims, type ClaimsParams, readParams, visibleIds, writeParams } from "
 import { Overview } from "./pages/Overview";
 import type { Page } from "./hooks/useHashRoute";
 import { Recovered, recoveredView } from "./pages/Recovered";
+import { Setup } from "./components/setup/Setup";
 import { SourcesPage } from "./pages/SourcesPage";
 import { countsFor, rowsFor, tabOf } from "./queue";
 
 const ADVANCE_DAYS = 14;
 
-const PAGE_TITLE: Record<Page, string> = { agent: "Agent", overview: "Overview", claims: "Claims", recovered: "Recovered", sources: "Sources" };
+const PAGE_TITLE: Record<Page, string> = { agent: "Agent", overview: "Overview", claims: "Claims", recovered: "Recovered", sources: "Sources", setup: "Setup" };
 
 type NoticeInput = Omit<Notice, "id">;
 type Busy = "case" | "run" | "advance" | "sync" | "bulk" | "restart" | null;
@@ -343,6 +344,16 @@ export function App() {
         onAdvance={() => advanceTime()}
         onExport={exportRows}
       />;
+  } else if (route.page === "setup") {
+    // Company onboarding (ledger, vendors, contracts). Reached at #/setup; it is not in the demo's navigation.
+    page = (
+      <Setup
+        onDataChanged={() => {
+          void reload();
+          void reloadSources();
+        }}
+      />
+    );
   } else {
     page = <SourcesPage sources={sources} isDemo={summary.demo_mode} isAvailable={sourcesAvailable} isSyncing={busy === "sync"} onSync={sync} />;
   }

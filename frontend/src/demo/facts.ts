@@ -55,7 +55,8 @@ export function factsOf(summary: Summary, findings: Finding[]): Facts {
     ready: sum(live),
     recovered: summary.recovered_minor,
     inFlight: summary.in_flight_minor,
-    missed: summary.expired_minor + sum(rowsFor(findings, "closed").filter((f) => f.status !== "expired")),
+    // The server counts both expired claims and never-sent ones whose window has closed.
+    missed: summary.expired_minor,
     soonest: live.find((f) => f.days_left !== null) ?? null,
     due30,
     urgent: due30.filter(isSendable),

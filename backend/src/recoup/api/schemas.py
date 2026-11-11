@@ -3,7 +3,7 @@
 from datetime import date, datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from recoup.domain.types import Evidence, LeakType, Outcome
 from recoup.domain.workflow import Stage, Status
@@ -63,7 +63,8 @@ class DraftOut(BaseModel):
     subject: str
     body: str
     drafter: str
-    status: Literal["draft", "sent"]
+    # "sending": a send started and its result is unknown, so it is not offered again.
+    status: Literal["draft", "sending", "sent"]
     sent_at: datetime | None
     sent_by: str | None
 
@@ -157,7 +158,8 @@ class AdvanceOut(BaseModel):
 
 
 class DraftUpdateIn(BaseModel):
-    subject: str = Field(min_length=1, max_length=500)
+    # One line: a subject becomes a mail header, where a line break could add another.
+    subject: str = Field(min_length=1, max_length=500, pattern=r"^[^\x00-\x1f\x7f]+$")
     body: str = Field(min_length=1, max_length=20_000)
 
 
@@ -190,3 +192,37 @@ class DemoStateOut(BaseModel):
 
 class ResetOut(BaseModel):
     ok: bool
+
+
+MAX_CHAT_CHARS = 24_000
+
+
+class ChatMessageIn(BaseModel):
+    # Plain text only: a caller cannot hand the agent a forged tool call or tool result.
+    role: Literal["user", "assistant"]
+    content: str = Field(min_length=1, max_length=4_000)
+
+
+class ChatIn(BaseModel):
+    messages: list[ChatMessageIn] = Field(min_length=1, max_length=40)
+
+    @model_validator(mode="after")
+    def _ends_with_the_person(self) -> "ChatIn":
+        if self.messages[-1].role != "user":
+            raise ValueError("the last message must be from the user")
+        if sum(len(m.content) for m in self.messages) > MAX_CHAT_CHARS:
+            raise ValueError("the conversation is too long; start a new one")
+        return self
+
+
+class ToolCallOut(BaseModel):
+    tool: str
+    input: dict[str, Any]
+    result: dict[str, Any]
+    ok: bool
+
+
+class ChatOut(BaseModel):
+    reply: str
+    calls: list[ToolCallOut]
+    stopped_early: bool

@@ -19,10 +19,11 @@ from recoup.domain.types import Evidence, LeakType, Outcome, Transaction
 from recoup.domain.vendors import VendorDirectory
 from recoup.domain.workflow import AWAITING_MONEY, CLOSED, DRAFTABLE, Status
 from recoup.extract.schema import ReplyAssessment
+from recoup.ingest.company import DEFAULT_COMPANY_NAME
 from recoup.ingest.loader import row_to_transaction
 from recoup.recovery.drafting import Drafter
 from recoup.recovery.facts import CaseFacts
-from recoup.recovery.outbox import Outbox
+from recoup.recovery.outbox import Outbox, OutboxError
 
 Channel = Literal["vendor_email", "card_dispute"]
 SYSTEM_ACTOR = "system:recovery"
@@ -84,7 +85,11 @@ def vendor_for(txns: Sequence[Transaction], vendors: VendorDirectory) -> Vendor 
 
 
 def case_facts(
-    session: Session, row: FindingRow, vendors: VendorDirectory, as_of: date
+    session: Session,
+    row: FindingRow,
+    vendors: VendorDirectory,
+    as_of: date,
+    company: str = DEFAULT_COMPANY_NAME,
 ) -> CaseFacts:
     txns = finding_transactions(session, row)
     return CaseFacts(
@@ -99,6 +104,7 @@ def case_facts(
         evidence=tuple(Evidence.model_validate(e) for e in row.evidence),
         as_of=as_of,
         is_escalation=row.status == Status.VENDOR_DECLINED,
+        company=company,
     )
 
 
@@ -136,6 +142,7 @@ def create_draft(
     as_of: date,
     card_dispute_address: str,
     actor: str,
+    company: str = DEFAULT_COMPANY_NAME,
 ) -> DraftRow:
     status = Status(row.status)
     if status not in DRAFTABLE:
@@ -143,7 +150,7 @@ def create_draft(
     if row.outcome == Outcome.NOT_RECOVERABLE:
         raise TransitionError("This credit can no longer be claimed")
 
-    facts = case_facts(session, row, vendors, as_of)
+    facts = case_facts(session, row, vendors, as_of, company)
     channel, to_addr = channel_for(facts, card_dispute_address)
     content = drafter.draft(facts)
     draft = open_draft(session, row.id)
@@ -186,6 +193,11 @@ def send_draft(
     session: Session, draft: DraftRow, *, outbox: Outbox, as_of: date, actor: str
 ) -> DraftRow:
     """Called only after a person explicitly approves the message."""
+    if draft.status == "sending":
+        raise TransitionError(
+            "This message may already have gone out. Check the mailbox's Sent folder; "
+            "if it is not there, draft the request again."
+        )
     if draft.status != "draft":
         raise TransitionError("This message was already sent")
     row = session.get(FindingRow, draft.finding_id)
@@ -202,7 +214,14 @@ def send_draft(
     )
     if getattr(claimed, "rowcount", 0) != 1:
         raise TransitionError("This message was already sent")
-    draft.message_id = outbox.send(draft)
+    # Keep the claim even if this request fails later: once a send has started, the
+    # draft must never look unsent again, or a second approval could send it twice.
+    session.commit()
+    try:
+        draft.message_id = outbox.send(draft)
+    except Exception as exc:
+        _record_failed_send(session, draft, actor, exc)
+        raise
     draft.status, draft.sent_by, draft.sent_at = "sent", actor, clock_time(as_of)
     row.status = Status.SENT
     session.flush()
@@ -217,6 +236,15 @@ def send_draft(
         message_id=draft.message_id,
     )
     return draft
+
+
+def _record_failed_send(session: Session, draft: DraftRow, actor: str, exc: Exception) -> None:
+    """Only a send that certainly did not happen puts the draft back up for approval."""
+    did_not_send = isinstance(exc, OutboxError) and not exc.is_ambiguous
+    draft.status = "draft" if did_not_send else "sending"
+    action = "message.send_failed" if did_not_send else "message.send_unconfirmed"
+    audit(session, actor, action, draft.finding_id, draft_id=draft.id, error=type(exc).__name__)
+    session.commit()
 
 
 def dismiss(session: Session, row: FindingRow, reason: str, actor: str, as_of: date) -> FindingRow:
