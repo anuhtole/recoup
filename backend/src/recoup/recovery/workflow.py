@@ -33,8 +33,17 @@ class TransitionError(ValueError):
 
 
 def clock_time(as_of: date) -> datetime:
-    """A timestamp on the detection clock, so demo time and real time never interleave."""
-    return datetime.combine(as_of, datetime.now(UTC).time().replace(microsecond=0), tzinfo=UTC)
+    """A timestamp on the detection clock, so demo time and real time never interleave.
+
+    On a demo clock (a date that is not today) the time of day is kept in the afternoon:
+    findings are stamped "flagged" at noon on the clock's day, and a request sent the same
+    day must never read as sent before its claim was flagged, whatever hour the demo runs.
+    """
+    now = datetime.now(UTC)
+    moment = now.time().replace(microsecond=0)
+    if as_of != now.date() and moment.hour < 13:
+        moment = moment.replace(hour=13 + moment.hour % 11)
+    return datetime.combine(as_of, moment, tzinfo=UTC)
 
 
 def audit(

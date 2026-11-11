@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     as_of: date | None = None
     # Enables the simulated vendor inbox (POST /api/demo/advance). Never on in production.
     demo_mode: bool = False
+    # Replays the demo's past claims (recovered and in flight) on `recoup run` and on a
+    # demo scan. Off, so the scripted demo starts from a clean slate.
+    demo_history: bool = False
 
     # Claude. Read server-side only; the browser never sees the key.
     anthropic_api_key: SecretStr | None = Field(default=None, validation_alias="ANTHROPIC_API_KEY")

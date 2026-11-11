@@ -19,6 +19,7 @@ from recoup.api.schemas import (
 from recoup.api.views import finding_detail, finding_list
 from recoup.db.models import FindingRow
 from recoup.db.state import get_as_of
+from recoup.demo import staging
 from recoup.domain.types import Outcome
 from recoup.domain.workflow import STAGE_OF, Stage, Status
 from recoup.pipeline.run import run_pipeline
@@ -155,5 +156,9 @@ def dismiss_case(
 
 @router.post("/pipeline/run", response_model=RunSummaryOut)
 def trigger_run(session: SessionDep, context: ContextDep) -> RunSummaryOut:
+    try:
+        staging.require_scanned(session, context.settings)
+    except staging.NotScannedError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
     result = run_pipeline(session, context.settings, context.services, context.sources)
     return RunSummaryOut(**asdict(result))

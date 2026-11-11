@@ -10,6 +10,10 @@ Scripted behavior, so a demo always tells the same story:
 - Needs-review cases, and Amazon: the vendor first asks for a receipt
 - Marriott: declines once, which shows escalation to a card dispute
 - everyone else: agrees, and the credit posts a few days later
+
+Two of the requests the scripted demo sends on its first day are slower, so two weeks
+later the story has every stage in it (see `_SLOW`): Amazon Web Services agrees but its
+credit posts only after the two weeks, and Figma's price claim gets no answer in them.
 """
 
 from dataclasses import dataclass
@@ -40,6 +44,26 @@ REPLY_AFTER = timedelta(days=2)
 CREDIT_AFTER = timedelta(days=6)
 _DECLINES_ONCE = {normalize_merchant("MARRIOTT SF UNION SQ")}
 _ASKS_FOR_INFO_ONCE = {normalize_merchant("AMZN Mktp US")}
+
+
+@dataclass(frozen=True, slots=True)
+class Pace:
+    reply_after: timedelta = REPLY_AFTER
+    credit_after: timedelta = CREDIT_AFTER
+
+
+_DEFAULT_PACE = Pace()
+# Keyed on what the presenter sees (vendor and amount), never on database ids.
+_SLOW: dict[tuple[str, int], Pace] = {
+    # Agrees after the usual two days; the credit takes three weeks from the request.
+    ("Amazon Web Services", 38_571): Pace(credit_after=timedelta(days=20)),
+    # Answers after two and a half weeks, so a two-week jump finds no reply.
+    ("Figma", 14_400): Pace(reply_after=timedelta(days=18), credit_after=timedelta(days=22)),
+}
+
+
+def pace_for(row: FindingRow) -> Pace:
+    return _SLOW.get((row.merchant, row.amount_minor), _DEFAULT_PACE)
 
 
 @dataclass(frozen=True, slots=True)
@@ -79,7 +103,7 @@ def _behavior(session: Session, row: FindingRow, draft: DraftRow, merchant_key: 
     return "agreed"
 
 
-def _reply_body(behavior: Behavior, amount: str, is_issuer: bool) -> str:
+def reply_body(behavior: Behavior, amount: str, is_issuer: bool) -> str:
     if behavior == "needs_info":
         return (
             "Hello,\n\nThanks for your message. Could you please send a copy of the receipt or "
@@ -102,7 +126,7 @@ def _reply_body(behavior: Behavior, amount: str, is_issuer: bool) -> str:
     )
 
 
-def _reply(draft: DraftRow, sender: str, body: str, sent_at: datetime) -> Email:
+def reply_email(draft: DraftRow, sender: str, body: str, sent_at: datetime) -> Email:
     domain = sender.rsplit("@", 1)[1]
     message_id = f"<reply-{draft.id}@{domain}>"
     return Email(
@@ -143,6 +167,9 @@ def advance(
     previous: date = get_as_of(session, settings)
     as_of = previous + timedelta(days=days)
     horizon = datetime.combine(as_of, time.max, tzinfo=UTC)
+    # Nothing the vendors do here is dated before the clock we advance from. A request sent
+    # today is never affected; one that was already waiting before the demo started is.
+    not_before = datetime.combine(previous + timedelta(days=1), time.min, tzinfo=UTC)
 
     emails: list[Email] = []
     credits: list[Transaction] = []
@@ -153,7 +180,8 @@ def advance(
         txns = finding_transactions(session, row)
         if draft is None or draft.sent_at is None or not txns:
             continue
-        credit_at = draft.sent_at + CREDIT_AFTER
+        pace = pace_for(row)
+        credit_at = max(draft.sent_at + pace.credit_after, not_before)
         if row.status == Status.VENDOR_AGREED:
             # Agreed on an earlier advance; the credit lands once its date arrives.
             if credit_at <= horizon:
@@ -161,9 +189,10 @@ def advance(
             continue
         if session.scalar(select(EmailRow.id).where(EmailRow.in_reply_to == draft.message_id)):
             continue
-        reply_at = draft.sent_at + REPLY_AFTER
+        reply_at = max(draft.sent_at + pace.reply_after, not_before)
         if reply_at > horizon:
             continue
+        credit_at = reply_at + (pace.credit_after - pace.reply_after)
 
         merchant_key = normalize_merchant(txns[0].merchant)
         behavior = _behavior(session, row, draft, merchant_key)
@@ -171,7 +200,7 @@ def advance(
         vendor = sources.vendors.for_merchant(merchant_key)
         sender = draft.to_addr if is_issuer or vendor is None else vendor.support_email
         amount = Money(row.amount_minor, row.currency).format()
-        emails.append(_reply(draft, sender, _reply_body(behavior, amount, is_issuer), reply_at))
+        emails.append(reply_email(draft, sender, reply_body(behavior, amount, is_issuer), reply_at))
         if behavior == "agreed" and credit_at <= horizon:
             credits.append(_credit(row, draft, txns[0], credit_at))
 

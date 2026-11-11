@@ -30,7 +30,7 @@ from recoup.recovery.workflow import finding_transactions, next_action, vendor_f
 _REPLY_TITLE = {
     "agreed": "Vendor agreed to refund",
     "declined": "Vendor declined",
-    "info_requested": "Vendor asked for more details",
+    "needs_info": "Vendor asked for more details",
 }
 
 

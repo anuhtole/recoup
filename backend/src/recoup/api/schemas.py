@@ -173,3 +173,20 @@ class DismissIn(BaseModel):
 
 class AdvanceIn(BaseModel):
     days: int = Field(default=14, ge=1, le=60)
+
+
+class ConnectIn(BaseModel):
+    # Only Gmail is staged; Ramp reads as connected from the start.
+    source: Literal["gmail"]
+
+
+class DemoStateOut(BaseModel):
+    scanned: bool
+    gmail_connected: bool
+    gmail_address: str
+    as_of: str
+    start_as_of: str
+
+
+class ResetOut(BaseModel):
+    ok: bool

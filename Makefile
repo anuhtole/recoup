@@ -14,17 +14,18 @@ setup:
 data:
 	cd backend && uv run recoup generate
 
-## db: create the database, load ledger and inbox, run detection
+## db: migrate, then the scanned demo world: ledger and inbox in, detection run, Gmail
+## connected, 20 findings, Oct 1, 2026 (RECOUP_DEMO_HISTORY=true adds the past claims)
 db:
-	cd backend && uv run alembic upgrade head && uv run recoup ingest && uv run recoup run
+	cd backend && uv run alembic upgrade head && uv run recoup demo-reset --scan
 
-## reset: drop the local database and rebuild it, which restarts the demo at Oct 1, 2026
+## reset: the scripted demo's clean slate: ledger in, Gmail not connected, nothing found,
+## Oct 1, 2026. Clears rows rather than deleting the file, so a running API keeps working.
 reset:
-	rm -f backend/recoup.db
-	$(MAKE) db
+	cd backend && uv run alembic upgrade head && uv run recoup demo-reset
 
-## demo-status: the Oct 1 demo plus real status-page outages from the recorded feeds
-demo-status: reset
+## demo-status: the scanned Oct 1 demo plus real status-page outages from the recorded feeds
+demo-status: db
 	cd backend && uv run recoup sync status --snapshot --demo-invoices
 
 ## live: a separate database with only real data (needs Ramp credentials in backend/.env)
