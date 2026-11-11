@@ -1,0 +1,251 @@
+/* Prototype only: three colour looks laid over the real app. Each look restates tokens (and, where the app
+   hard-codes ink, the few classes that carry it), so the screens underneath are the app's own. */
+@import "../src/index.css";
+@source ".";
+
+/* The switcher is chrome: it never takes a look's colours. */
+#look {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2147483647;
+  display: flex;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 12px;
+  background: #111;
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+  font: 13px/1.2 system-ui, sans-serif;
+}
+#look button {
+  border: 0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: transparent;
+  color: #bbb;
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+#look button[aria-pressed="true"] {
+  background: #333;
+  color: #fff;
+}
+@media (max-width: 899px) {
+  #look {
+    right: 50%;
+    bottom: 72px;
+    transform: translateX(50%);
+  }
+}
+
+/* ---------- every look: the hero's deadline bar becomes a green ramp (amber → green → mint) ---------- */
+html[data-look] section[aria-labelledby="hero-label"] :is(.size-2.bg-ink, .h-3 > .bg-ink) {
+  background-color: var(--mint-ink);
+}
+html[data-look] section[aria-labelledby="hero-label"] :is(.size-2.bg-line-strong, .h-3 > .bg-line-strong) {
+  background-color: var(--mint);
+}
+
+/* ---------- the light sidebars (1 Paper, 3 Mint wash): ink text on a light panel ---------- */
+html:is([data-look^="paper"], [data-look="wash"]) :is(aside.on-ink, nav.on-ink) {
+  color: var(--ink);
+}
+html:is([data-look^="paper"], [data-look="wash"]) :is(aside.on-ink, nav.on-ink) :is(.text-white, .hover\:text-white:hover) {
+  color: var(--ink);
+}
+html:is([data-look^="paper"], [data-look="wash"]) :is(aside.on-ink, nav.on-ink) :focus-visible {
+  outline-color: var(--mint-ink);
+}
+html:is([data-look^="paper"], [data-look="wash"]) :is(aside.on-ink, nav.on-ink) .bg-mint {
+  background-color: var(--mint-ink);
+}
+/* Phone tab bar: the active marker and the count badge. */
+html:is([data-look^="paper"], [data-look="wash"]) nav.on-ink .bg-white {
+  background-color: var(--mint-ink);
+}
+html:is([data-look^="paper"], [data-look="wash"]) nav.on-ink .bg-paper {
+  background-color: var(--mint);
+}
+
+/* ---------- 1 · Paper: grey sidebar, mint is the one action ---------- */
+html[data-look^="paper"] :is(aside.on-ink, nav.on-ink) {
+  --panel: var(--ground);
+  --panel-2: #e8ebe8;
+  --panel-active: var(--paper);
+  --rule: var(--line);
+  --sub: var(--dim);
+}
+html[data-look^="paper"] aside.on-ink {
+  border-right: 1px solid var(--line);
+}
+html[data-look^="paper"] aside.on-ink a[aria-current="page"] {
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+html[data-look^="paper"] aside.on-ink a[aria-current="page"] svg {
+  color: var(--mint-ink);
+}
+html[data-look^="paper"] button.bg-ink.text-white.rounded-sm {
+  background-color: var(--mint);
+  color: var(--ink);
+}
+html[data-look^="paper"] button.bg-ink.text-white.rounded-sm:hover {
+  background-color: var(--mint-press);
+}
+html[data-look^="paper"] button.bg-ink.rounded-full {
+  background-color: var(--mint-wash);
+  color: var(--mint-ink);
+}
+
+/* ---------- 2 · Pine: every dark surface turns deep green, mint is the action and the current page ---------- */
+html[data-look="pine"] {
+  --panel: #0f2e23;
+  --panel-2: #17402f;
+  --rule: #2a5443;
+  --sub: #a9c9b9;
+  --panel-active: rgba(155, 240, 200, 0.12);
+}
+html[data-look="pine"] :is(aside.on-ink, nav.on-ink) a[aria-current="page"] {
+  color: var(--mint);
+}
+html[data-look="pine"] nav.on-ink .bg-white {
+  background-color: var(--mint);
+}
+html[data-look="pine"] button.bg-ink.text-white.rounded-sm {
+  background-color: var(--mint);
+  color: var(--ink);
+}
+html[data-look="pine"] button.bg-ink.text-white.rounded-sm:hover {
+  background-color: var(--mint-press);
+}
+html[data-look="pine"] button.bg-ink.rounded-full {
+  background-color: var(--panel);
+  color: var(--mint);
+}
+
+/* ---------- 3 · Mint wash: pale mint sidebar, deep green is the action ---------- */
+html[data-look="wash"] :is(aside.on-ink, nav.on-ink) {
+  --panel: var(--mint-wash);
+  --panel-2: #d3f5e4;
+  --panel-active: var(--mint);
+  --rule: #bfe9d4;
+  --sub: #3f5a4c;
+}
+html[data-look="wash"] button.bg-ink.text-white.rounded-sm {
+  background-color: var(--mint-ink);
+  color: #fff;
+}
+html[data-look="wash"] button.bg-ink.text-white.rounded-sm:hover {
+  background-color: #0c6644;
+}
+html[data-look="wash"] .on-ink:not(aside, nav) button.bg-ink.text-white.rounded-sm {
+  background-color: var(--mint);
+  color: var(--ink);
+}
+html[data-look="wash"] button.bg-ink.rounded-full {
+  background-color: var(--mint);
+  color: var(--ink);
+}
+
+/* ================= Variants of 1 · Paper (each starts from Paper above) ================= */
+
+/* A green ramp for the By type bar and its dots (all three variants). */
+html:is([data-look="paper-a"], [data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) {
+  --share-1: var(--mint-ink);
+  --share-2: color-mix(in oklab, var(--mint-ink) 55%, var(--mint));
+  --share-3: var(--mint);
+  --share-4: color-mix(in oklab, var(--mint) 45%, var(--paper));
+  --share-5: var(--line);
+}
+html:is([data-look="paper-a"], [data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) [aria-label^="Share of open claims"] > span:nth-child(1),
+html:is([data-look="paper-a"], [data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) [aria-label^="Share of open claims"] + ul > li:nth-child(1) > span.size-2 {
+  background: var(--share-1) !important;
+}
+html:is([data-look="paper-a"], [data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) [aria-label^="Share of open claims"] > span:nth-child(2),
+html:is([data-look="paper-a"], [data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) [aria-label^="Share of open claims"] + ul > li:nth-child(2) > span.size-2 {
+  background: var(--share-2) !important;
+}
+html:is([data-look="paper-a"], [data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) [aria-label^="Share of open claims"] > span:nth-child(3),
+html:is([data-look="paper-a"], [data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) [aria-label^="Share of open claims"] + ul > li:nth-child(3) > span.size-2 {
+  background: var(--share-3) !important;
+}
+html:is([data-look="paper-a"], [data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) [aria-label^="Share of open claims"] > span:nth-child(4),
+html:is([data-look="paper-a"], [data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) [aria-label^="Share of open claims"] + ul > li:nth-child(4) > span.size-2 {
+  background: var(--share-4) !important;
+}
+html:is([data-look="paper-a"], [data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) [aria-label^="Share of open claims"] > span:nth-child(n + 5),
+html:is([data-look="paper-a"], [data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) [aria-label^="Share of open claims"] + ul > li:nth-child(n + 5) > span.size-2 {
+  background: var(--share-5) !important;
+}
+
+/* ---------- 1A · More mint: the current page is a mint pill, By type goes green ---------- */
+html[data-look="paper-a"] :is(aside.on-ink, nav.on-ink) {
+  --panel-active: var(--mint-wash);
+}
+html[data-look="paper-a"] aside.on-ink a[aria-current="page"] {
+  box-shadow: none;
+  color: var(--mint-ink);
+}
+html[data-look="paper-a"] nav.on-ink a[aria-current="page"] {
+  color: var(--mint-ink);
+}
+
+/* ---------- 1B · White + green: white sidebar, deep green is the action ---------- */
+html[data-look="paper-b"] :is(aside.on-ink, nav.on-ink) {
+  --panel: var(--paper);
+  --panel-2: var(--wash);
+  --panel-active: var(--ground);
+}
+html[data-look="paper-b"] aside.on-ink a[aria-current="page"] {
+  box-shadow: none;
+}
+html[data-look="paper-b"] button.bg-ink.text-white.rounded-sm,
+html[data-look="paper-c"] button.bg-ink.text-white.rounded-sm,
+html[data-look="paper-d"] button.bg-ink.text-white.rounded-sm {
+  background-color: var(--mint-ink);
+  color: #fff;
+}
+html[data-look="paper-b"] button.bg-ink.text-white.rounded-sm:hover,
+html[data-look="paper-c"] button.bg-ink.text-white.rounded-sm:hover,
+html[data-look="paper-d"] button.bg-ink.text-white.rounded-sm:hover {
+  background-color: #0c6644;
+}
+html:is([data-look="paper-b"], [data-look="paper-c"], [data-look="paper-d"]) .on-ink:not(aside, nav) button.bg-ink.text-white.rounded-sm {
+  background-color: var(--mint);
+  color: var(--ink);
+}
+
+/* ---------- 1C · Mint hero: the open-claims block sits on a mint panel ---------- */
+html[data-look="paper-c"] section[aria-labelledby="hero-label"] {
+  --line: #bfe9d4;
+  padding: 24px;
+  border-radius: 8px;
+  background: var(--mint-wash);
+}
+html[data-look="paper-c"] section[aria-labelledby="hero-label"] :is(.size-2.bg-line-strong, .h-3 > .bg-line-strong) {
+  background-color: var(--mint-press);
+}
+
+/* ---------- 1D · Stripe-style: white everywhere, the accent is ink (text, icons, lines), never a fill ---------- */
+html[data-look="paper-d"] {
+  --ink: #1b2a23; /* soft green-slate instead of near-black, as Stripe uses navy-slate */
+}
+html[data-look="paper-d"] :is(aside.on-ink, nav.on-ink) {
+  --panel: var(--paper);
+  --panel-2: var(--ground);
+  --panel-active: transparent;
+}
+html[data-look="paper-d"] aside.on-ink a[aria-current="page"] {
+  box-shadow: none;
+}
+html[data-look="paper-d"] :is(aside.on-ink, nav.on-ink) a[aria-current="page"],
+html[data-look="paper-d"] :is(aside.on-ink, nav.on-ink) a[aria-current="page"] svg {
+  color: var(--mint-ink) !important;
+}
+html[data-look="paper-d"] main a.underline.text-ink {
+  color: var(--mint-ink);
+  text-decoration-line: none;
+}
+html[data-look="paper-d"] main a.underline.text-ink:hover {
+  text-decoration-line: underline;
+}

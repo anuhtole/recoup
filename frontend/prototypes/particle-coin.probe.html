@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <title>Recoup · Particle coin (engine probe)</title>
+  </head>
+  <body class="bg-paper text-ink">
+    <!-- Prototype only: the bare engine on one canvas, for scripted screenshots. Nothing in the app
+         imports this. The box is sized by ?size=400 (pixels), so a script can shoot any size. -->
+    <div id="box" class="relative"><canvas id="coin" class="absolute inset-0 h-full w-full"></canvas></div>
+    <script type="module">
+      import "./coins.css";
+      import { createCoin, TIMING } from "../src/components/coin/particle-coin.mjs";
+      const size = Number(new URLSearchParams(location.search).get("size")) || 400;
+      const box = document.getElementById("box");
+      box.style.width = box.style.height = `${size}px`;
+      const coin = createCoin(document.getElementById("coin"));
+      Object.assign(window, { __coin: coin, __TIMING: TIMING });
+      coin.ready.then(
+        () => (window.__ready = true),
+        (error) => (window.__failed = String(error)),
+      );
+    </script>
+  </body>
+</html>

@@ -12,7 +12,8 @@ set of points over them, and exports that same set of points in five poses:
 
 Run:   blender -b --factory-startup --python coin_poses.py
 Add `-- --save` to also keep coin.blend next to this file for a look at the model.
-Writes ../coin-poses.bin (Int16 x,y,z per point, pose after pose) and ../coin-poses.json.
+Writes coin-poses.bin (Int16 x,y,z per point, pose after pose) and coin-poses.json into
+src/components/coin, next to the engine.
 Timing lives in the browser on purpose: changing how long a state takes should not need a re-export.
 """
 
@@ -27,7 +28,7 @@ import bpy
 import numpy as np
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE.parent
+OUT = HERE.parents[1] / "src" / "components" / "coin"  # next to the engine that plays them
 SEED = 7
 rng = np.random.default_rng(SEED)
 

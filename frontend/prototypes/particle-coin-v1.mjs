@@ -4,7 +4,8 @@
 import * as THREE from "https://esm.sh/three@0.170.0";
 
 const TAU = Math.PI * 2;
-const HERE = import.meta.url;
+// The pose files live with the current engine, in the app.
+const HERE = new URL("../src/components/coin/", import.meta.url);
 
 // Every duration, in seconds. Changing how a state feels is a change here, never a Blender re-export.
 export const TIMING = {

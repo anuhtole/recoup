@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="Quick 3D mock-ups of the Recoup agent's coin icon." />
+    <title>Recoup · Coin icon mock-ups</title>
+    <link rel="icon" href="/brand/recoup-mark-32-ink.png" type="image/png" sizes="32x32" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body class="bg-paper text-ink">
+    <!-- Prototype only: looks for the agent's coin icon. Nothing in the app imports this. -->
+    <main class="mx-auto flex max-w-6xl flex-col gap-6 p-4 md:p-8">
+      <header class="flex flex-col gap-1">
+        <h1 class="text-20 font-semibold">Coin icon: quick mock-ups</h1>
+        <p class="text-14 text-dim">Move over a coin to tilt it. Click to flip it to the ring side.</p>
+      </header>
+      <div id="grid" class="grid grid-cols-2 gap-4 md:grid-cols-4"></div>
+    </main>
+    <script type="module" src="./coins.mjs"></script>
+  </body>
+</html>

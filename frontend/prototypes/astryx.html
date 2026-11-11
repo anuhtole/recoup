@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en" data-astryx-theme="neutral">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Recoup · Astryx mock (direction 3)</title>
+    <link rel="icon" href="/brand/recoup-mark-32-ink.png" type="image/png" sizes="32x32" />
+    <!-- Prototype only: Recoup's Overview rebuilt from real Astryx components, loaded from a CDN.
+         Nothing is installed and nothing in the app imports this. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@astryxdesign/core@0.7.11/src/reset.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@astryxdesign/core@0.7.11/dist/astryx.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@astryxdesign/theme-neutral@0.7.11/dist/theme.css" />
+    <link rel="stylesheet" href="./astryx-mock.css" />
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="look" role="group" aria-label="Mock look">
+      <button type="button" data-look="shipped" aria-pressed="true">Astryx as shipped</button>
+      <button type="button" data-look="recoup" aria-pressed="false">Themed toward Recoup</button>
+      <a href="/">Current v2</a>
+    </div>
+    <script type="module" src="./astryx-mock.mjs"></script>
+  </body>
+</html>
