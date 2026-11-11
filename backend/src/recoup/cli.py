@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 from recoup.config import Settings, get_settings
 from recoup.connectors.registry import build_connectors
 from recoup.connectors.scheduler import BackgroundSync
-from recoup.db.session import make_engine, make_session_factory, session_scope
+from recoup.db.session import has_schema, make_engine, make_session_factory, session_scope
 from recoup.db.state import get_as_of
 from recoup.demo.simulator import advance
 from recoup.extract.claude import ClaudeStructured, LlmError
@@ -224,9 +224,23 @@ def _contracts_read(args: argparse.Namespace) -> None:
         print("Saved it to this company's contracts.", file=sys.stderr)
 
 
+def _require_schema() -> None:
+    """Stop before the server starts, not at the first request, when nothing is migrated."""
+    engine = make_engine(get_settings().database_url)
+    try:
+        if not has_schema(engine):
+            sys.exit(
+                "The database has no tables yet. Run `make db` from the repo root, "
+                "or `uv run alembic upgrade head` in backend/, then start the server again."
+            )
+    finally:
+        engine.dispose()
+
+
 def _serve(args: argparse.Namespace) -> None:
     import uvicorn
 
+    _require_schema()
     uvicorn.run("recoup.api.app:create_app", factory=True, port=args.port, reload=args.reload)
 
 
