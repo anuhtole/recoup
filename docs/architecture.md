@@ -34,12 +34,13 @@ flowchart TB
         direction TB
         R1["Draft<br/>template, optional Claude polish"]
         R2{"Person approves?"}
-        R3["LocalOutbox<br/>nothing leaves the machine"]
+        R3["Outbox<br/>local by default, Gmail if turned on"]
         R1 --> R2 -->|"confirm: true"| R3
     end
 
     API["FastAPI: api/"]
     UI["React review UI: frontend/"]
+    AG["Chat agent: agent/<br/>six tools, none sends"]
     V["Vendor replies by email,<br/>credit posts on the ledger"]
 
     SRC --> I1 --> DB
@@ -48,15 +49,18 @@ flowchart TB
     DB <--> API
     API <--> UI
     API --> R1
+    API <--> AG
+    AG -->|"draft only"| R1
     R3 --> DB
     R3 -.-> V -.-> SRC
 ```
 
-Three things are worth noticing:
+Four things are worth noticing:
 
 1. **Every arrow into Recoup is read-only.** Ramp is read with `transactions:read`, Gmail with `gmail.readonly`, status pages are public, and a CSV or contract is an upload.
-2. **The model sits in one box and has no exits.** Claude turns text into typed proposals. It has no tools, and nothing it returns is used until code has checked it.
-3. **The only way out is through a person.** A message is sent only when the send endpoint gets `{"confirm": true}`, and today "sent" means recorded by `LocalOutbox`. In the demo, a simulated vendor inbox plays the dotted path.
+2. **The model that reads has no exits.** In the detection run Claude turns text into typed proposals. It has no tools there, and nothing it returns is used until code has checked it.
+3. **The model that acts never reads email or contracts.** The chat agent can call six tools, but their results hold ids, amounts, dates, states and a cut-down vendor name, and none of them sends.
+4. **The only way out is through a person.** A message is sent only when the send endpoint gets `{"confirm": true}`. By default "sent" means recorded by `LocalOutbox`; with `RECOUP_GMAIL_SEND=true` it goes out through the company's Gmail. In the demo, a simulated vendor inbox plays the dotted path.
 
 ## Layers
 
@@ -68,7 +72,8 @@ Three things are worth noticing:
 | Extraction | `extract/` | Claude calls (`claude.py`, `contract_reader.py`), versioned prompts (`prompts.py`), the keyword baseline (`heuristic.py`), and the gates (`validate.py`, `contract_gate.py`) | [0005](adr/0005-model-reads-code-decides.md), [0007](adr/0007-offline-baseline-and-caching.md), [0011](adr/0011-contract-reader.md) |
 | Detectors | `detectors/` | `duplicates.py`, `promises.py`, `outages.py`, `pricing.py`: pure functions from records to finding candidates | [0010](adr/0010-price-overcharges.md) |
 | Pipeline | `pipeline/` | The fixed order of one run (`run.py`) and reading the inbox (`inbox.py`) | [0001](adr/0001-workflow-not-agent.md) |
-| Recovery | `recovery/` | Case facts, drafting, the outbox, the state machine, matching posted credits (`workflow.py`) | [0006](adr/0006-human-approval-and-ledger-truth.md) |
+| Recovery | `recovery/` | Case facts, drafting, the local and Gmail outboxes, the state machine, matching posted credits (`workflow.py`) | [0006](adr/0006-human-approval-and-ledger-truth.md), [0013](adr/0013-chat-agent-and-gmail-send.md) |
+| Agent | `agent/` | The six tools the chat agent may call (`tools.py`) and its bounded loop (`loop.py`) | [0013](adr/0013-chat-agent-and-gmail-send.md) |
 | Persistence | `db/`, `backend/migrations/` | SQLAlchemy models, sessions, the detection clock, Alembic migrations | [0002](adr/0002-stack.md) |
 | API | `api/` | FastAPI routes, schemas, and case timelines built from stored rows | [0002](adr/0002-stack.md) |
 | UI | `frontend/` | React review queue, case view, confirm sheet, Setup. Talks only to the API, through `frontend/src/api.ts` | [0002](adr/0002-stack.md), [0012](adr/0012-company-onboarding.md) |
@@ -136,11 +141,12 @@ Recoup holds private financial data, reads untrusted text, and can send mail. Ea
 |---|---|---|
 | Model output | A proposal becomes a promise only with a directory sender, a verbatim quote, and an amount written in that quote. A cancellation date counts only if the email states it. | `extract/validate.py` |
 | Contracts | Each clause must appear verbatim in the document, each number must be written in it, and the vendor must be in the directory. Nothing is saved until a person confirms. | `extract/contract_gate.py`, `api/routes/discovery.py` |
-| Prompt injection | Email and documents are fenced as data, the output schema has no actions, and no model call has tools. An injected email can at most add a case for a person to review. `tests/test_injection.py` swaps in a fully hijacked extractor and asserts nothing harmful happens. | `extract/prompts.py`, `extract/claude.py` |
+| Prompt injection | Email and documents are fenced as data, the output schema has no actions, and no call that reads them has tools. An injected email can at most add a case for a person to review. `tests/test_injection.py` swaps in a fully hijacked extractor and asserts nothing harmful happens. | `extract/prompts.py`, `extract/claude.py` |
 | Inbound mail | The Gmail query asks only for mail from directory domains. A message is kept only if Gmail's own topmost `Authentication-Results` header shows DMARC or DKIM passing for the sender's domain. Attachments are never read. | `ingest/gmail.py` |
 | Replies | A reply moves a case only if it comes from the address we wrote to; `In-Reply-To` alone is forgeable. | `pipeline/inbox.py` |
 | Recipients | Addresses come from the vendor directory a person entered, or the configured card-dispute address. Never from email content or model output. | `recovery/workflow.py` |
-| Sending | `{"confirm": true}` is required, the approver is audited, and the draft is claimed before it is sent. The only outbox is `LocalOutbox`. | `api/routes/drafts.py`, `recovery/outbox.py` |
+| Chat agent | A fixed list of six tools with no send, edit or dismiss. Tool results carry no email, contract or draft text, and vendor names are cut to 40 plain characters. The conversation is plain user and assistant text, at most six model turns and one scan per message, and every tool call is audited. `tests/test_agent.py` plays a model that tries to send. | `agent/tools.py`, `agent/loop.py`, `api/routes/agent.py` |
+| Sending | `{"confirm": true}` is required, the approver is audited, and the draft is claimed before it is sent. The outbox is local unless `RECOUP_GMAIL_SEND=true`; then one vendor email goes to one directory address. The claim is committed before Gmail is called, a send is never retried, and a send whose result is unknown stays "sending" and is not offered again. | `api/routes/drafts.py`, `recovery/outbox.py`, `recovery/gmail_outbox.py` |
 | Money posted | Read from the ledger alone. | `recovery/workflow.py` |
 | Secrets | API keys and OAuth tokens are read server-side; the browser only ever calls `/api`. CI runs gitleaks. | `config.py`, `.github/workflows/ci.yml` |
 
@@ -152,4 +158,4 @@ Known limit: the API has no login. It is built to run on one person's machine, a
 - **Evals.** `make eval` scores the detectors over five seeded worlds and the extractors over the labelled emails, and writes `backend/evals/results/`.
 - **CI** (`.github/workflows/ci.yml`). Lint, strict mypy and the tests run against SQLite and Postgres 16. CI also fails if the migrations do not match the models, if `data/synthetic/` differs from what the generator writes, or if the committed eval tables differ from what the code produces.
 
-What has not been run: the Ramp connector against a real sandbox, the Gmail connector against a real mailbox, and the Claude row of the extraction eval. The [README](../README.md) says so in each place.
+What has not been run: the Ramp connector against a real sandbox, the Gmail connector and Gmail sending against a real mailbox, the chat agent against the live Claude API, and the Claude row of the extraction eval. The [README](../README.md) says so in each place.

@@ -43,7 +43,8 @@ These are what make Recoup safe to point at real books. A change that weakens on
 
 - The model reads; code decides. Model output is used only after `extract/validate.py` or `extract/contract_gate.py` has checked it.
 - No message is sent without a person's explicit approval. Recipients come only from the vendor directory.
-- Connectors are read-only. Gmail uses `gmail.readonly`; Ramp uses `transactions:read`.
+- The chat agent has no tool that sends, edits or dismisses, and its tool results carry no email, contract or draft text.
+- Connectors are read-only. Gmail reads with `gmail.readonly`; Ramp uses `transactions:read`. Sending through Gmail is a separate, opt-in scope.
 - Secrets stay on the server. Nothing in `frontend/` reads an API key or token.
 - Money is integer minor units, never floats.
 
