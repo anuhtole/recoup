@@ -1,6 +1,6 @@
 # Architecture
 
-Recoup finds money a company is owed, shows the evidence, and drafts the request to get it back. This page is the three-minute tour: what the pieces are, how one case travels through them, and where the trust boundaries sit. Each decision has a record in [`docs/adr/`](adr/README.md).
+Recoup finds money a company is owed, shows the evidence, and drafts the request to get it back. There is an [interactive version of the diagram](https://anuhtole.github.io/recoup/system-diagram.html) that plays one case, a prompt injection and an agent request through the system. This page is the three-minute tour: what the pieces are, how one case travels through them, and where the trust boundaries sit. Each decision has a record in [`docs/adr/`](adr/README.md).
 
 Paths are under `backend/src/recoup/` unless shown otherwise.
 
@@ -39,7 +39,7 @@ flowchart TB
     end
 
     API["FastAPI: api/"]
-    UI["React review UI: frontend/"]
+    UI["React UI: frontend/<br/>Agent page, claims, cases"]
     AG["Chat agent: agent/<br/>six tools, none sends"]
     V["Vendor replies by email,<br/>credit posts on the ledger"]
 
@@ -76,8 +76,8 @@ Four things are worth noticing:
 | Agent | `agent/` | The six tools the chat agent may call (`tools.py`) and its bounded loop (`loop.py`) | [0013](adr/0013-chat-agent-and-gmail-send.md) |
 | Persistence | `db/`, `backend/migrations/` | SQLAlchemy models, sessions, the detection clock, Alembic migrations | [0002](adr/0002-stack.md) |
 | API | `api/` | FastAPI routes, schemas, and case timelines built from stored rows | [0002](adr/0002-stack.md) |
-| UI | `frontend/` | React review queue, case view, confirm sheet, Setup. Talks only to the API, through `frontend/src/api.ts` | [0002](adr/0002-stack.md), [0012](adr/0012-company-onboarding.md) |
-| Demo and data | `demo/`, `synth/`, `data/synthetic/` | The seeded synthetic company with its answer key, and a simulated vendor inbox (only with `RECOUP_DEMO_MODE=true`) | [0007](adr/0007-offline-baseline-and-caching.md) |
+| UI | `frontend/` | The Agent page, Overview, Claims, the case view with its approval sheet, Recovered, Sources and Setup. Talks only to the API, through `frontend/src/api.ts`. The Agent page's conversation is scripted (`frontend/src/demo/`); its actions call the same endpoints as the rest of the UI, and it does not call the chat agent yet | [0002](adr/0002-stack.md), [0012](adr/0012-company-onboarding.md) |
+| Demo and data | `demo/`, `synth/`, `data/synthetic/` | The seeded synthetic company with its answer key; the demo's clean slate, staged Gmail connection and scan (`staging.py`); a simulated vendor inbox (`simulator.py`); and an optional replay of past claims (`history.py`). The routes exist only with `RECOUP_DEMO_MODE=true`, and the reset refuses a ledger that holds anything but demo data | [0007](adr/0007-offline-baseline-and-caching.md) |
 | Evals | `backend/evals/` | Scoring detectors and extractors against the answer key; results committed in `evals/results/` | [0007](adr/0007-offline-baseline-and-caching.md) |
 
 `services.py` picks implementations once at startup: Claude when `ANTHROPIC_API_KEY` is set, keyword rules otherwise. Everything downstream depends on the `PromiseExtractor`, `ReplyClassifier`, `Drafter` and `Outbox` protocols, not on which one it got.
@@ -91,7 +91,7 @@ Four things are worth noticing:
 3. **Upsert.** `upsert_finding` creates or updates a row by a stable key and writes an audit event for every change. Running it again with the same data changes nothing.
 4. **Match recoveries.** `match_recoveries` closes a case only when a credit of the right amount from the right vendor has posted since the request went out. Each credit closes at most one case.
 
-A run is started by `recoup run`, by a sync (`POST /api/sync`, `recoup sync`, `recoup watch`), by a ledger import, or by the background scheduler. Only one sync cycle runs at a time.
+A run is started by `recoup run`, by a sync (`POST /api/sync`, `recoup sync`, `recoup watch`), by a ledger import, by the demo's scan (`POST /api/demo/scan`), or by the background scheduler. Only one sync cycle runs at a time.
 
 ## One case, end to end
 
@@ -103,7 +103,7 @@ The United Airlines case from the demo:
 4. **Detect.** `detect_broken_promises` looks for a matching credit on the ledger by the due date. There is none, so it emits a `missing_refund` candidate with outcome `recoverable`.
 5. **Show.** `GET /api/findings/{id}` returns the case with its evidence and timeline. The UI shows the quote, the charge, and the search that found no credit.
 6. **Draft.** `POST /api/findings/{id}/draft` builds `CaseFacts` from stored rows and drafts the request. The recipient is the vendor's `support_email` from the directory.
-7. **Approve.** The person reads it and confirms in the confirm sheet. `POST /api/drafts/{id}/send` requires `{"confirm": true}`, claims the draft so two approvals cannot both send it, hands it to the outbox, and records the approver in the audit log.
+7. **Approve.** The person reads it and slides to send in the approval sheet. `POST /api/drafts/{id}/send` requires `{"confirm": true}`, claims the draft so two approvals cannot both send it, hands it to the outbox, and records the approver in the audit log.
 8. **Close.** United replies and the reply classifier marks the case `vendor_agreed`. The case becomes `recovered` only when the $612.40 credit appears on the ledger.
 
 ## Case lifecycle
@@ -154,7 +154,7 @@ Known limit: the API has no login. It is built to run on one person's machine, a
 
 ## What keeps it honest
 
-- **Tests.** `backend/tests/` covers units, the API, the CLI, the connectors against documented response shapes, and the injection red-team. `frontend/e2e/recoup.spec.ts` drives the UI through review, send, advance and dismiss.
+- **Tests.** `backend/tests/` covers units, the API, the CLI, the connectors against documented response shapes, and the injection red-team. `frontend/e2e/recoup.spec.ts` drives the UI through review, send, advance and dismiss, and `demo.spec.ts` types through the scripted demo and checks every figure it says.
 - **Evals.** `make eval` scores the detectors over five seeded worlds and the extractors over the labelled emails, and writes `backend/evals/results/`.
 - **CI** (`.github/workflows/ci.yml`). Lint, strict mypy and the tests run against SQLite and Postgres 16. CI also fails if the migrations do not match the models, if `data/synthetic/` differs from what the generator writes, or if the committed eval tables differ from what the code produces.
 
