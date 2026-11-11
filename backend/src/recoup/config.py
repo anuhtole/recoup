@@ -49,6 +49,9 @@ class Settings(BaseSettings):
     gmail_client_id: str | None = None
     gmail_client_secret: SecretStr | None = None
     gmail_refresh_token: SecretStr | None = None
+    # Send approved requests from the connected mailbox. Off: sends stay in the local outbox.
+    # Turning it on adds the gmail.send scope, so Gmail must be connected again.
+    gmail_send: bool = False
     # Where connecting Gmail from the web app saves the refresh token.
     env_path: Path = Path(".env")
     gmail_lookback_days: int = 180
@@ -69,6 +72,10 @@ class Settings(BaseSettings):
     @property
     def gmail_configured(self) -> bool:
         return bool(self.gmail_client_id and self.gmail_client_secret and self.gmail_refresh_token)
+
+    @property
+    def gmail_send_configured(self) -> bool:
+        return self.gmail_send and self.gmail_configured
 
     @property
     def llm_enabled(self) -> bool:

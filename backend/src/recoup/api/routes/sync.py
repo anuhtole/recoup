@@ -59,6 +59,7 @@ def sources(session: SessionDep, context: ContextDep) -> dict[str, Any]:
         },
         "gmail": {
             "connected": settings.gmail_configured,
+            "sends_approved_mail": settings.gmail_send_configured,
             "last_sync": _last_run(session, GMAIL_SOURCE),
         },
         "connectors": [

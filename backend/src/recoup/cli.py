@@ -30,7 +30,7 @@ from recoup.extract.contract_reader import (
 )
 from recoup.ingest.company import company_sources, save_contract
 from recoup.ingest.dataset import ingest_dataset
-from recoup.ingest.gmail import GmailError
+from recoup.ingest.gmail import GmailError, consent_scopes
 from recoup.ingest.google_oauth import connect_gmail
 from recoup.ingest.live import (
     demo_invoices,
@@ -193,6 +193,7 @@ def _connect_gmail(args: argparse.Namespace) -> None:
             settings.gmail_client_id,
             settings.gmail_client_secret.get_secret_value(),
             args.env_file,
+            scopes=consent_scopes(settings.gmail_send),
         )
     except GmailError as exc:
         sys.exit(str(exc))

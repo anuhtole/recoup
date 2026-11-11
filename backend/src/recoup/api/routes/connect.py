@@ -16,7 +16,7 @@ from fastapi.responses import RedirectResponse
 from pydantic import SecretStr
 
 from recoup.api.deps import ContextDep
-from recoup.ingest.gmail import GmailError
+from recoup.ingest.gmail import GmailError, consent_scopes
 from recoup.ingest.google_oauth import (
     REFRESH_TOKEN_VAR,
     Pkce,
@@ -72,7 +72,8 @@ def start_gmail(request: Request, context: ContextDep) -> RedirectResponse:
         _pending[state] = _Pending(
             pkce, redirect_uri, _return_to(request), now + CONSENT_TTL_SECONDS
         )
-    url = authorization_url(settings.gmail_client_id, redirect_uri, state, pkce)
+    scopes = consent_scopes(settings.gmail_send)
+    url = authorization_url(settings.gmail_client_id, redirect_uri, state, pkce, scopes)
     return RedirectResponse(url, status_code=303)
 
 
